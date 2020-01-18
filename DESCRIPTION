@@ -1,0 +1,14 @@
+Package: vjsim
+Type: Package
+Title: Vertical Jump Simulator
+Authors@R: 
+    person(given = "Mladen",
+           family = "Jovanović",
+           role = c("aut", "cre"),
+           email = "coach.mladen.jovanovic@gmail.com")
+Version: 0.0.0.9000
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true

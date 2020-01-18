@@ -5,23 +5,23 @@
 \title{Get instanteous output of the Force Generator}
 \usage{
 fgen_get_output(
-  current_time = 0,
   mass = 75,
-  current_velocity = 0,
+  current_time = 0,
   current_distance = 0,
+  current_velocity = 0,
   max_force = 3000,
   gravity_const = 9.81,
   ...
 )
 }
 \arguments{
-\item{current_time}{Numeric value}
-
 \item{mass}{Numeric value}
 
-\item{current_velocity}{Numeric value}
+\item{current_time}{Numeric value}
 
 \item{current_distance}{Numeric value}
+
+\item{current_velocity}{Numeric value}
 
 \item{max_force}{Numeric value}
 
@@ -34,8 +34,8 @@ fgen_get_output(
 Data frame
 }
 \description{
-\code{fgen_get_acceleration} returns acceleration and force data based on the current state
-    of the system (position, velocity, mass). Parameters in the \code{...} are forwarded to
+\code{fgen_get_output} returns acceleration and force data based on the current state
+    of the system (\code{current_time}, mass, \code{current_velocity}, \code{current_distance}). Parameters in the \code{...} are forwarded to
     \code{\link{fgen_force_length}}, \code{\link{fgen_force_time}}, and \code{\link{fgen_force_velocity}}
     functions that make Force Generator characteristics.
 }

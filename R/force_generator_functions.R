@@ -44,10 +44,10 @@ fgen_force_length <- function(current_distance,
   if (any(end_force > 1 | end_force < 0))
     stop("End force needs to be within 0 - 1.")
 
-  if (any(threshold > 1 || threshold < 0.8))
+  if (any(threshold > 1 | threshold < 0.8))
     stop("Threshold needs to be within 0.8 - 1.")
 
-  if (any(push_off_distance > 0.7 || push_off_distance < 0.2))
+  if (any(push_off_distance > 0.7 | push_off_distance < 0.2))
     stop("Push off distance needs to be within 0.2 - 0.7.")
 
   current_distance <- (1 / push_off_distance) * current_distance

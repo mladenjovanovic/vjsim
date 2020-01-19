@@ -37,4 +37,3 @@ Please read accompanying vignette for examples and usage of the vjsim
 vignette("understanding-vjsim")
 ```
 
-

@@ -7,8 +7,9 @@ Authors@R:
            role = c("aut", "cre"),
            email = "coach.mladen.jovanovic@gmail.com")
 Version: 0.0.0.9000
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: The goal of vjsim is to simulate a simple vertical jump model 
+    with the aim of providing a educational tool used to understand elementary
+    biomechanical concepts and jump profiles used in sport science.
 URL: https://github.com/mladenjovanovic/vjsim
 BugReports: https://github.com/mladenjovanovic/vjsim/issues
 License: MIT + file LICENSE

@@ -260,3 +260,24 @@ fgen_get_output <- function(mass = 75,
   )
   return(results)
 }
+
+#' Get Forve-Velocity Velocity of the Force Generator
+#'
+#' Based on the parameters of the Force Generator: \code{max_force} and \code{max_velocity}
+#'     get maximal velocity that can be reached at particular \code{external_resistance}
+#'
+#' @param external_resistance Numeric vector. Resistance in Newtons
+#' @param max_force Numeric vector. Maximal force in Newton that Force Generator can generate
+#' @param max_velocity Numeric vectpr. Maximal velocity that Force Generator can achieve in unconstrained conditions
+#' @return Numeric vector of estimated maximal velocity reached
+#' @export
+#' @examples
+#' fgen_get_velocity(0, 3000, 4)
+#' fgen_get_velocity(3000, 3000, 4)
+#' fgen_get_velocity(1500, 3000, 4)
+
+fgen_get_velocity <- function(external_resistance, max_force = 3000, max_velocity = 4) {
+  (max_force - external_resistance) / (max_force / max_velocity)
+}
+
+

@@ -20,10 +20,10 @@ fgen_force_length(
 
 \item{end_force}{Numeric value. Indicates ending percentage. Allowed range from 0.5 to 1. Default is 0}
 
-\item{threshold}{Numeric value. Indicates threshold where the line starts to break. Use values from 0 to 1, where
-1 is equal to \code{push_off_distance} position. Allowed range from 0.8 to 1. Default is 0.9}
+\item{threshold}{Numeric value. Indicates threshold where the line starts to break. Use values from 0.8 to 1, where
+1 is equal to \code{push_off_distance} position. Default is 0.9}
 
-\item{push_off_distance}{Numeric value. Indicates the push off distance/length. Default is 0.4.}
+\item{push_off_distance}{Numeric value. Indicates the push off distance/length. Use values from 0.2 to 0.7. Default is 0.4.}
 
 \item{...}{Used to allow different parameters to be passes without error}
 }

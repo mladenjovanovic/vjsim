@@ -28,11 +28,11 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-The goal of `vjsim` is to simulate a simple vertical jump model with the aim of providing an educational tool used to understand elementary biomechanical concepts and jump profiles used in sport science.
+The goal of `vjsim` is to simulate a simple vertical jump model with the aim of providing an educational tool for helping in understanding elementary biomechanical concepts and jump profiles used in sport science.
 
 Vertical jump (actually the **squat jump** since there is no *counter-movement action*[^countermovement]) is represented with a simple mechanical model (see Figure). 
 
-[^countermovement]: Vertical jump can be done in multiple ways. One ways is dip down and then rebound as high as possible. This vertical jump containts countermovement action which increase vertical jump height due various mechanism (which are not in our interest in this simulation). Other way is to squat down, hold the position for a second or two, and then explode upward without any dip. This is can be considered purely *concentric* jump and it is usually termed *squat jump* to be differentiated from the countermovement jump. The hands are usually held at the hip, without allowing any swing. In `vjsim` only the squat jump is simulated and analyzed. Thus, when I refer to vertical jump, I refer to statis squat jump with arms held constantly at the hips.
+[^countermovement]: Vertical jump can be done in multiple ways. One way is to dip down and then rebound as high as possible. This vertical jump containts countermovement action which increase vertical jump height due to various mechanism (which are not in our interest for this simulation). Other way is to squat down, hold the position for a second or two, and then explode upward without any dip. This can be considered purely *concentric* jump and it is usually termed *squat jump* to be differentiated from the countermovement jump. The hands are usually held at the hip, without allowing any swing. In `vjsim` only the squat jump is simulated and analyzed. Thus, when I refer to vertical jump, I refer to static squat jump with arms held constantly at the hips.
 
 ```{r, echo=FALSE, mechanical-model, fig.cap="Mechanical model that is used to represent vertical jump"}
 knitr::include_graphics(path = "mechanical-model.png")

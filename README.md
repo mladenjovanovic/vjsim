@@ -14,7 +14,7 @@ biomechanical concepts and jump profiles used in sport science.
 ## Installation
 
 You can install the development version from
-[GitHub](https://github.com/) with:
+[GitHub](https://github.com/mladenjovanovic/vjsim) with:
 
 ``` r
 # install.packages("devtools")
@@ -23,4 +23,8 @@ devtools::install_github("mladenjovanovic/vjsim")
 
 ## Usage
 
-This is a basic example which shows you how to solve a common problem:
+Please read accompanying vignette for examples and usage of the vjsim
+
+``` r
+vignette("understanding-vjsim")
+```

@@ -1,0 +1,106 @@
+---
+title: "Understanding and using `vjsim`"
+author: "Mladen Jovanović"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{understanding-vjsim}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.align = "center",
+  fig.width = 6,
+  fig.height = 4,
+  #out.width = "70%",
+  auto_pdf = TRUE,
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+# Introduction
+
+The goal of `vjsim` is to simulate a simple vertical jump model with the aim of providing an educational tool used to understand elementary biomechanical concepts and jump profiles used in sport science.
+
+Vertical jump (actually the **squat jump** since there is no *counter-movement action*[^countermovement]) is represented with a simple mechanical model (see Figure). 
+
+[^countermovement]: Vertical jump can be done in multiple ways. One ways is dip down and then rebound as high as possible. This vertical jump containts countermovement action which increase vertical jump height due various mechanism (which are not in our interest in this simulation). Other way is to squat down, hold the position for a second or two, and then explode upward without any dip. This is can be considered purely *concentric* jump and it is usually termed *squat jump* to be differentiated from the countermovement jump. In `vjsim` only the squat jump is simulated and analyzed. 
+
+```{r, echo=FALSE, mechanical-model, out.width="80%", fig.cap="Mechanical model that is used to represent vertical jump"}
+knitr::include_graphics(path = "mechanical-model.png")
+```
+
+Athlete is represented with a simple object (with a `mass` (measured using kilograms (kg)) and `weight`; where $weight = mass \times 9.81$ Newtons (N)), that needs to be propelled over `Take-off Distance` (measured in meters; usually around 0.4m for human subjects) by the action of the `Force Generator`. Vertical jump height is the height reached *not* taking `Take-off Distance` into account and can be calculated with a simple ballistic equation from the `Take-off Velocity` (measured in meters per second (m/s)):
+
+$$
+Height = \frac{v_{takeoff}^2}{2\times9.81}(m)
+$$
+
+Initial velocity is assumed to be 0m/s, angle is assumed to be 90degrees, gravity constant is 9.81$m/s^2$. For example, if `Take-off Velocity` is 3m/s, the calculated height reached is equal to:
+
+$$
+Height = \frac{v_{takeoff}^2}{2\times9.81} \:(m) \\
+\\
+Height = \frac{3^2}{19.62} \:(m) \\
+\\
+Height = \frac{9}{19.62} \:(m) \\
+\\
+Height = 0.46 \:(m)
+
+$$
+
+Please note that the bodyweight (or the object mass) doesn't influence height reached. What bodyweight influences though is `Take-off Velocity` reached given characteristics of the `Force Generator`. 
+
+# Force Generator
+
+`Force Generator` is believed to be some *entity* in the muscles and lower body with distinct characteristics[^distinct_characteristics]. In `vjsim`, these characteristics are explained with three relationships: (1) force-length, (2) force-time, and (3) force-velocity relationships (see Figure). 
+
+[^distinct_characteristics]: This is generally something I do not agree with 100% and will be the topic of the simulation analyses and discussions in another document. 
+
+```{r, echo=FALSE, force-generator, out.width="80%", fig.cap="Force Generator components"}
+knitr::include_graphics(path = "force-generator-components.png")
+```
+
+## Force-Length Relationship
+
+## Force-Time Relationship
+
+## Force-Velocity Relationship
+
+## List of Force Generator Parameters
+
+unconstrained
+
+```{r setup}
+library(vjsim)
+library(tidyverse)
+```
+
+```{r}
+
+ x <- seq(0, 0.5, length.out = 1000)
+
+ y1 <- fgen_force_length(
+   current_distance = x,
+   start_force = 0.6,
+   threshold = 0.90,
+   end = 0
+ )
+
+ plot(x, y1, "l")
+
+ y2 <- fgen_force_length(
+   current_distance = x,
+   start_force = 0.8,
+   threshold = 0.95,
+   end = 0
+ )
+
+ lines(x, y2, col = "red")
+```
+

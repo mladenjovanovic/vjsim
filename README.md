@@ -1,4 +1,4 @@
- 
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 # vjsim
@@ -23,7 +23,9 @@ devtools::install_github("mladenjovanovic/vjsim")
 
 ## Usage
 
-Please read accompanying vignette for examples and usage of the vjsim
+Please read accompanying
+[vignette](https://htmlpreview.github.io/?https://github.com/mladenjovanovic/vjsim/blob/master/doc/understanding-vjsim.html)
+for examples and usage of the vjsim
 
 ``` r
 vignette("understanding-vjsim")

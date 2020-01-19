@@ -44,13 +44,13 @@ $$
 Initial velocity is assumed to be 0m/s, angle is assumed to be 90degrees, gravity constant is 9.81$m/s^2$. For example, if `Take-off Velocity` is 3m/s, the calculated height reached is equal to:
 
 $$
-Height = \frac{v_{takeoff}^2}{2\times9.81} \:(m) \\
+Height = \frac{v_{takeoff}^2}{2\times9.81}(m) \\
 \\
-Height = \frac{3^2}{19.62} \:(m) \\
+Height = \frac{3^2}{19.62}(m) \\
 \\
-Height = \frac{9}{19.62} \:(m) \\
+Height = \frac{9}{19.62}(m) \\
 \\
-Height = 0.46 \:(m)
+Height = 0.46(m)
 
 $$
 

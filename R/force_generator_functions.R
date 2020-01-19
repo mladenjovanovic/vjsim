@@ -3,9 +3,9 @@
 #' @param current_distance Numeric vector
 #' @param start_force Numeric value. Indicates starting percentage. Allowed range from 0.5 to 1. Default is 0.8
 #' @param end_force Numeric value. Indicates ending percentage. Allowed range from 0.5 to 1. Default is 0
-#' @param threshold Numeric value. Indicates threshold where the line starts to break. Use values from 0 to 1, where
-#'     1 is equal to \code{push_off_distance} position. Allowed range from 0.8 to 1. Default is 0.9
-#' @param push_off_distance Numeric value. Indicates the push off distance/length. Default is 0.4.
+#' @param threshold Numeric value. Indicates threshold where the line starts to break. Use values from 0.8 to 1, where
+#'     1 is equal to \code{push_off_distance} position. Default is 0.9
+#' @param push_off_distance Numeric value. Indicates the push off distance/length. Use values from 0.2 to 0.7. Default is 0.4.
 #' @param ... Used to allow different parameters to be passes without error
 #' @return Numeric vector with values from 0 to 1, indicating percentage of Force at particular \code{current_distance}
 #' @export
@@ -38,14 +38,17 @@ fgen_force_length <- function(current_distance,
   if (any(current_distance < 0))
     stop("Current distance cannot be below zero.", call. = FALSE)
 
-  if (start_force > 1 || start_force < 0.5)
+  if (any(start_force > 1 | start_force < 0.5))
     stop("Start force needs to be within 0.5 - 1.")
 
-  if (end_force > 1 || end_force < 0)
+  if (any(end_force > 1 | end_force < 0))
     stop("End force needs to be within 0 - 1.")
 
-  if (threshold > 1 || threshold < 0.8)
+  if (any(threshold > 1 || threshold < 0.8))
     stop("Threshold needs to be within 0.8 - 1.")
+
+  if (any(push_off_distance > 0.7 || push_off_distance < 0.2))
+    stop("Push off distance needs to be within 0.2 - 0.7.")
 
   current_distance <- (1 / push_off_distance) * current_distance
   y1 <- (1 - start_force) * sin((pi * current_distance) / (2 * threshold)) + start_force

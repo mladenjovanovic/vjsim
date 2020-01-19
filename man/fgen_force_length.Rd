@@ -16,12 +16,12 @@ fgen_force_length(
 \arguments{
 \item{current_distance}{Numeric vector}
 
-\item{start_force}{Numeric value. Indicates starting percentage. Default is 0.8}
+\item{start_force}{Numeric value. Indicates starting percentage. Allowed range from 0.5 to 1. Default is 0.8}
 
-\item{end_force}{Numeric value. Indicates ending percentage. Default is 0}
+\item{end_force}{Numeric value. Indicates ending percentage. Allowed range from 0.5 to 1. Default is 0}
 
 \item{threshold}{Numeric value. Indicates threshold where the line starts to break. Use values from 0 to 1, where
-1 is equal to \code{push_off_distance} position. Default is 0.9}
+1 is equal to \code{push_off_distance} position. Allowed range from 0.8 to 1. Default is 0.9}
 
 \item{push_off_distance}{Numeric value. Indicates the push off distance/length. Default is 0.4.}
 

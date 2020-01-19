@@ -104,11 +104,5 @@ gg
 
  lines(x, y2, col = "red")
 
- y3 <- fgen_force_time(
-   current_time = x,
-   initial_force = 200,
-   max_force = 1000,
-   time_to_max_force = 0.3
- )
 
- lines(x, y3, col = "blue")
+fgen_force_time(0.0000001, 1000, 2000)

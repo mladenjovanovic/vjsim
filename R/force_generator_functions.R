@@ -1,10 +1,10 @@
 #' Force Length Relationship
 #'
 #' @param current_distance Numeric vector
-#' @param start_force Numeric value. Indicates starting percentage. Default is 0.8
-#' @param end_force Numeric value. Indicates ending percentage. Default is 0
+#' @param start_force Numeric value. Indicates starting percentage. Allowed range from 0.5 to 1. Default is 0.8
+#' @param end_force Numeric value. Indicates ending percentage. Allowed range from 0.5 to 1. Default is 0
 #' @param threshold Numeric value. Indicates threshold where the line starts to break. Use values from 0 to 1, where
-#'     1 is equal to \code{push_off_distance} position. Default is 0.9
+#'     1 is equal to \code{push_off_distance} position. Allowed range from 0.8 to 1. Default is 0.9
 #' @param push_off_distance Numeric value. Indicates the push off distance/length. Default is 0.4.
 #' @param ... Used to allow different parameters to be passes without error
 #' @return Numeric vector with values from 0 to 1, indicating percentage of Force at particular \code{current_distance}
@@ -35,6 +35,18 @@ fgen_force_length <- function(current_distance,
                               threshold = 0.9,
                               push_off_distance = 0.4,
                               ...) {
+  if (any(current_distance < 0))
+    stop("Current distance cannot be below zero.", call. = FALSE)
+
+  if (start_force > 1 || start_force < 0.5)
+    stop("Start force needs to be within 0.5 - 1.")
+
+  if (end_force > 1 || end_force < 0)
+    stop("End force needs to be within 0 - 1.")
+
+  if (threshold > 1 || threshold < 0.8)
+    stop("Threshold needs to be within 0.8 - 1.")
+
   current_distance <- (1 / push_off_distance) * current_distance
   y1 <- (1 - start_force) * sin((pi * current_distance) / (2 * threshold)) + start_force
   alpha <- (end_force - 1) / (threshold - 1)^2
@@ -91,8 +103,17 @@ fgen_force_time <- function(current_time,
                             max_force = 3000,
                             time_to_max_force = 0.3,
                             ...) {
+
+  if (any(current_time < 0))
+    stop("Current time cannot be below zero.", call. = FALSE)
+
+  # The case when system will go down, due weight higher than force generated
+  if (any(current_time == 0 & max_force <= initial_force))
+    stop("Unable to jump, since weight is higher than force generated", call. = FALSE)
+
   IES <- max_force / (time_to_max_force)
   time_to_max_force <- time_to_max_force * ((max_force - initial_force) / max_force)
+
   alpha <- (4 * IES) / (max_force - initial_force) * 2.5
   force <- (max_force - initial_force) / (1 + exp(-alpha * (current_time - time_to_max_force / 2))) + initial_force
 

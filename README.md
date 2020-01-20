@@ -7,10 +7,9 @@
 
 <!-- badges: end -->
 
-The goal of vjsim is to simulate a simple vertical jump model with the
-aim of providing an educational tool for helping in understanding
-elementary biomechanical concepts and jump profiles used in sport
-science.
+The goal of `vjsim` is to simulate a simple vertical jump model to
+provide an educational tool for helping in understanding elementary
+biomechanical concepts and jump profiles used in sport science.
 
 ## Installation
 

@@ -7,9 +7,9 @@ Authors@R:
            role = c("aut", "cre"),
            email = "coach.mladen.jovanovic@gmail.com")
 Version: 0.0.0.9000
-Description: The goal of vjsim is to simulate a simple vertical jump model 
-    with the aim of providing an educational tool for helping in understanding elementary
-    biomechanical concepts and jump profiles used in sport science.
+Description: The goal of vjsim is to simulate a simple vertical jump model to provide
+    an educational tool for helping in understanding elementary biomechanical concepts
+    and jump profiles used in sport science.
 URL: https://github.com/mladenjovanovic/vjsim
 BugReports: https://github.com/mladenjovanovic/vjsim/issues
 License: MIT + file LICENSE

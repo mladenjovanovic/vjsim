@@ -439,7 +439,7 @@ The force generation mechanism is a follows:
 3. Based on the *current time* ($t$; where $t=0s$ is the moment of the push-off start), particular *level of activation* is reached due to the Force-Time characteristic
 3. **Generated force** is the product of level of activation and potential force
 4. Due to the Force-Velocity characteristic, **viscous force** is deducted from generated force to yield **total force**
-5. Total force is the force acting on the load. But load also has weights. To get **propulsive force**, we need to deduct **weight** from the total force
+5. Total force is the force acting on the load. Thus, total load represents *ground reaction force* (GRF). But load also has weights. To get **propulsive force**, we need to deduct **weight** from the total force
 6. Once we have propulsive or net force, to calculate acceleration, we need to divide it with load inertia or **mass**
 
 This whole process is integrated in the `vjsim::fgen_get_output` function. This function calculates all the forces and acceleration based on the `current_time`, `current_distance`,  `current_velocity` as well as the other system constrains and parameters of the Forge Generator. 

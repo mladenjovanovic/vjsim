@@ -680,7 +680,7 @@ Schematic diagrom of the components, parameters, and resulting forces in vjsim
 <li>Based on the <em>current time</em> (<span class="math inline">\(t\)</span>; where <span class="math inline">\(t=0s\)</span> is the moment of the push-off start), particular <em>level of activation</em> is reached due to the Force-Time characteristic</li>
 <li><strong>Generated force</strong> is the product of level of activation and potential force</li>
 <li>Due to the Force-Velocity characteristic, <strong>viscous force</strong> is deducted from generated force to yield <strong>total force</strong></li>
-<li>Total force is the force acting on the load. But load also has weights. To get <strong>propulsive force</strong>, we need to deduct <strong>weight</strong> from the total force</li>
+<li>Total force is the force acting on the load. Thus, total load represents <em>ground reaction force</em> (GRF). But load also has weights. To get <strong>propulsive force</strong>, we need to deduct <strong>weight</strong> from the total force</li>
 <li>Once we have propulsive or net force, to calculate acceleration, we need to divide it with load inertia or <strong>mass</strong></li>
 </ol>
 <p>This whole process is integrated in the <code>vjsim::fgen_get_output</code> function. This function calculates all the forces and acceleration based on the <code>current_time</code>, <code>current_distance</code>, <code>current_velocity</code> as well as the other system constrains and parameters of the Forge Generator.</p>
@@ -727,8 +727,8 @@ Schematic diagrom of the components, parameters, and resulting forces in vjsim
 <a class="sourceLine" id="cb8-41" data-line-number="41"><span class="co">#&gt; #   fgen_parameters.max_force &lt;dbl&gt;, fgen_parameters.max_velocity &lt;dbl&gt;,</span></a>
 <a class="sourceLine" id="cb8-42" data-line-number="42"><span class="co">#&gt; #   fgen_parameters.start_perc &lt;dbl&gt;, fgen_parameters.threshold &lt;dbl&gt;,</span></a>
 <a class="sourceLine" id="cb8-43" data-line-number="43"><span class="co">#&gt; #   fgen_parameters.time_to_max_activation &lt;dbl&gt;,</span></a>
-<a class="sourceLine" id="cb8-44" data-line-number="44"><span class="co">#&gt; #   fgen_output.push_off_perc &lt;dbl&gt;, fgen_output.force_percentage &lt;dbl&gt;,</span></a>
-<a class="sourceLine" id="cb8-45" data-line-number="45"><span class="co">#&gt; #   fgen_output.potential_force &lt;dbl&gt;, fgen_output.initial_activation &lt;dbl&gt;,</span></a>
+<a class="sourceLine" id="cb8-44" data-line-number="44"><span class="co">#&gt; #   fgen_parameters.initial_activation &lt;dbl&gt;, fgen_output.push_off_perc &lt;dbl&gt;,</span></a>
+<a class="sourceLine" id="cb8-45" data-line-number="45"><span class="co">#&gt; #   fgen_output.force_percentage &lt;dbl&gt;, fgen_output.potential_force &lt;dbl&gt;,</span></a>
 <a class="sourceLine" id="cb8-46" data-line-number="46"><span class="co">#&gt; #   fgen_output.activation &lt;dbl&gt;, fgen_output.generated_force &lt;dbl&gt;,</span></a>
 <a class="sourceLine" id="cb8-47" data-line-number="47"><span class="co">#&gt; #   fgen_output.viscous_force &lt;dbl&gt;, kinetics.total_force &lt;dbl&gt;,</span></a>
 <a class="sourceLine" id="cb8-48" data-line-number="48"><span class="co">#&gt; #   kinetics.propulsive_force &lt;dbl&gt;, kinetics.acceleration &lt;dbl&gt;</span></a></code></pre></div>

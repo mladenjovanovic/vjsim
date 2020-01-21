@@ -265,16 +265,22 @@ fgen_get_output <- function( # The parameters forwarded by `vj_simulate` functio
     max_velocity = max_velocity
   )
 
+  # ----
+  # We need to "scale" viscous force as we did max force using force percentage
+  viscous_force <- viscous_force * force_percentage
+
   # Total force, acting on the object
   ground_reaction_force <- generated_force - viscous_force
 
+  # ----
+  # check if GRF is below zero (which is imposible)
+  if (any(ground_reaction_force < 0)) {
+    ground_reaction_force <- ifelse(ground_reaction_force < 0, 0, ground_reaction_force)
+    warning("GRF below zero. Please check your model", call. = FALSE)
+  }
+
   # Propulsive or Net force acting to accelerate the object
   propulsive_force <- ground_reaction_force - weight
-
-  # Check if propulsive force is negative
-  if (any(propulsive_force <= 0 & current_time == 0)) {
-    stop("Negative propulsive force at the beginning of the push-off phase. Athlete cannot jump. Check your parameters", call. = FALSE)
-  }
 
   # Get acceleration
   acceleration <- propulsive_force / mass

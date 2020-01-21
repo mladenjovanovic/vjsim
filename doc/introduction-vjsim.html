@@ -662,9 +662,9 @@ v_{peak} = \frac{F_{max} - F_{external}}{\frac{F_{max}}{v_{max}}}
 <ul>
 <li><p><strong>Max force</strong>, which is the ultimate force that Force Generator can manifest in isometric conditions with 100% Force-Length relationship.</p></li>
 <li><p><strong>Max velocity</strong>, which is the ultimate velocity that Force Generator can manifest in <em>unconstrained</em> conditions (unlimited Push-off Distance and zero external resistance).</p></li>
-<li><p><strong>Max force</strong> and <strong>Max velocity</strong> represent <em>unconstrained</em> Force Generator Force-Velocity profile.</p></li>
+<li><p>Max force and max velocity represent <em>unconstrained</em> Force Generator Force-Velocity profile.</p></li>
 <li><p><em>Force-Length</em> characteristic has two parameters: <strong>start perc</strong> and <strong>threshold</strong>.</p></li>
-<li><p><em>Force-Time</em> characteristic has one parameter: <strong>time to max activation</strong>. <strong>Initial force</strong> parameter represents the weight of the moving object (i.e. <span class="math inline">\((bodyweight + external \; load) \times 9.81\)</span>) since the vertical jumps starts from a dead start (and thus will not be considered further as simulation parameter).</p></li>
+<li><p><em>Force-Time</em> characteristic has one parameter: <strong>time to max activation</strong>. <strong>Initial activation</strong> parameter is (or should be) automatically calculated to represents the activation needed to support the weight of the moving object (i.e. <span class="math inline">\((bodyweight + external \; load) \times 9.81\)</span>). This is needed since the vertical jumps starts from a dead start. Initial activation will not be considered a parameter that can vary in the simulations.</p></li>
 </ul>
 <p>Schematic diagram on the Figure below depicts all the important concepts covered so far that are important for further analysis and simulation.</p>
 <div class="figure" style="text-align: center">
@@ -707,26 +707,31 @@ Schematic diagrom of the components, parameters, and resulting forces in vjsim
 <a class="sourceLine" id="cb8-21" data-line-number="21">  <span class="dt">time_to_max_activation =</span> <span class="fl">0.3</span></a>
 <a class="sourceLine" id="cb8-22" data-line-number="22">)</a>
 <a class="sourceLine" id="cb8-23" data-line-number="23"></a>
-<a class="sourceLine" id="cb8-24" data-line-number="24"><span class="kw">as_tibble</span>(fgen_data)</a>
+<a class="sourceLine" id="cb8-24" data-line-number="24"><span class="kw">as_tibble</span>(<span class="kw">as.data.frame</span>(fgen_data))</a>
 <a class="sourceLine" id="cb8-25" data-line-number="25"><span class="co">#&gt; # A tibble: 5,000 x 21</span></a>
-<a class="sourceLine" id="cb8-26" data-line-number="26"><span class="co">#&gt;    current_time current_distance current_velocity  mass weight push_off_distan…</span></a>
-<a class="sourceLine" id="cb8-27" data-line-number="27"><span class="co">#&gt;           &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;            &lt;dbl&gt;</span></a>
-<a class="sourceLine" id="cb8-28" data-line-number="28"><span class="co">#&gt;  1     0                     0.1                0    75   736.              0.4</span></a>
-<a class="sourceLine" id="cb8-29" data-line-number="29"><span class="co">#&gt;  2     0.000250              0.1                0    75   736.              0.4</span></a>
-<a class="sourceLine" id="cb8-30" data-line-number="30"><span class="co">#&gt;  3     0.000501              0.1                0    75   736.              0.4</span></a>
-<a class="sourceLine" id="cb8-31" data-line-number="31"><span class="co">#&gt;  4     0.000751              0.1                0    75   736.              0.4</span></a>
-<a class="sourceLine" id="cb8-32" data-line-number="32"><span class="co">#&gt;  5     0.00100               0.1                0    75   736.              0.4</span></a>
-<a class="sourceLine" id="cb8-33" data-line-number="33"><span class="co">#&gt;  6     0.00125               0.1                0    75   736.              0.4</span></a>
-<a class="sourceLine" id="cb8-34" data-line-number="34"><span class="co">#&gt;  7     0.00150               0.1                0    75   736.              0.4</span></a>
-<a class="sourceLine" id="cb8-35" data-line-number="35"><span class="co">#&gt;  8     0.00175               0.1                0    75   736.              0.4</span></a>
-<a class="sourceLine" id="cb8-36" data-line-number="36"><span class="co">#&gt;  9     0.00200               0.1                0    75   736.              0.4</span></a>
-<a class="sourceLine" id="cb8-37" data-line-number="37"><span class="co">#&gt; 10     0.00225               0.1                0    75   736.              0.4</span></a>
-<a class="sourceLine" id="cb8-38" data-line-number="38"><span class="co">#&gt; # … with 4,990 more rows, and 15 more variables: max_force &lt;dbl&gt;,</span></a>
-<a class="sourceLine" id="cb8-39" data-line-number="39"><span class="co">#&gt; #   max_velocity &lt;dbl&gt;, start_perc &lt;dbl&gt;, threshold &lt;dbl&gt;,</span></a>
-<a class="sourceLine" id="cb8-40" data-line-number="40"><span class="co">#&gt; #   time_to_max_activation &lt;dbl&gt;, push_off_perc &lt;dbl&gt;, force_percentage &lt;dbl&gt;,</span></a>
-<a class="sourceLine" id="cb8-41" data-line-number="41"><span class="co">#&gt; #   potential_force &lt;dbl&gt;, initial_activation &lt;dbl&gt;, activation &lt;dbl&gt;,</span></a>
-<a class="sourceLine" id="cb8-42" data-line-number="42"><span class="co">#&gt; #   generated_force &lt;dbl&gt;, viscous_force &lt;dbl&gt;, total_force &lt;dbl&gt;,</span></a>
-<a class="sourceLine" id="cb8-43" data-line-number="43"><span class="co">#&gt; #   propulsive_force &lt;dbl&gt;, acceleration &lt;dbl&gt;</span></a></code></pre></div>
+<a class="sourceLine" id="cb8-26" data-line-number="26"><span class="co">#&gt;    kinematics.curr… kinematics.curr… kinematics.curr… system_constrai…</span></a>
+<a class="sourceLine" id="cb8-27" data-line-number="27"><span class="co">#&gt;               &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;</span></a>
+<a class="sourceLine" id="cb8-28" data-line-number="28"><span class="co">#&gt;  1         0                     0.1                0               75</span></a>
+<a class="sourceLine" id="cb8-29" data-line-number="29"><span class="co">#&gt;  2         0.000250              0.1                0               75</span></a>
+<a class="sourceLine" id="cb8-30" data-line-number="30"><span class="co">#&gt;  3         0.000501              0.1                0               75</span></a>
+<a class="sourceLine" id="cb8-31" data-line-number="31"><span class="co">#&gt;  4         0.000751              0.1                0               75</span></a>
+<a class="sourceLine" id="cb8-32" data-line-number="32"><span class="co">#&gt;  5         0.00100               0.1                0               75</span></a>
+<a class="sourceLine" id="cb8-33" data-line-number="33"><span class="co">#&gt;  6         0.00125               0.1                0               75</span></a>
+<a class="sourceLine" id="cb8-34" data-line-number="34"><span class="co">#&gt;  7         0.00150               0.1                0               75</span></a>
+<a class="sourceLine" id="cb8-35" data-line-number="35"><span class="co">#&gt;  8         0.00175               0.1                0               75</span></a>
+<a class="sourceLine" id="cb8-36" data-line-number="36"><span class="co">#&gt;  9         0.00200               0.1                0               75</span></a>
+<a class="sourceLine" id="cb8-37" data-line-number="37"><span class="co">#&gt; 10         0.00225               0.1                0               75</span></a>
+<a class="sourceLine" id="cb8-38" data-line-number="38"><span class="co">#&gt; # … with 4,990 more rows, and 17 more variables:</span></a>
+<a class="sourceLine" id="cb8-39" data-line-number="39"><span class="co">#&gt; #   system_constraints.weight &lt;dbl&gt;,</span></a>
+<a class="sourceLine" id="cb8-40" data-line-number="40"><span class="co">#&gt; #   system_constraints.push_off_distance &lt;dbl&gt;,</span></a>
+<a class="sourceLine" id="cb8-41" data-line-number="41"><span class="co">#&gt; #   fgen_parameters.max_force &lt;dbl&gt;, fgen_parameters.max_velocity &lt;dbl&gt;,</span></a>
+<a class="sourceLine" id="cb8-42" data-line-number="42"><span class="co">#&gt; #   fgen_parameters.start_perc &lt;dbl&gt;, fgen_parameters.threshold &lt;dbl&gt;,</span></a>
+<a class="sourceLine" id="cb8-43" data-line-number="43"><span class="co">#&gt; #   fgen_parameters.time_to_max_activation &lt;dbl&gt;,</span></a>
+<a class="sourceLine" id="cb8-44" data-line-number="44"><span class="co">#&gt; #   fgen_output.push_off_perc &lt;dbl&gt;, fgen_output.force_percentage &lt;dbl&gt;,</span></a>
+<a class="sourceLine" id="cb8-45" data-line-number="45"><span class="co">#&gt; #   fgen_output.potential_force &lt;dbl&gt;, fgen_output.initial_activation &lt;dbl&gt;,</span></a>
+<a class="sourceLine" id="cb8-46" data-line-number="46"><span class="co">#&gt; #   fgen_output.activation &lt;dbl&gt;, fgen_output.generated_force &lt;dbl&gt;,</span></a>
+<a class="sourceLine" id="cb8-47" data-line-number="47"><span class="co">#&gt; #   fgen_output.viscous_force &lt;dbl&gt;, kinetics.total_force &lt;dbl&gt;,</span></a>
+<a class="sourceLine" id="cb8-48" data-line-number="48"><span class="co">#&gt; #   kinetics.propulsive_force &lt;dbl&gt;, kinetics.acceleration &lt;dbl&gt;</span></a></code></pre></div>
 </div>
 </div>
 <div id="want-to-learn-more" class="section level1">

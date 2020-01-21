@@ -42,7 +42,7 @@ fgen_get_output(
 \item{time_to_max_activation}{Numeric vector. Default is 0.3s}
 }
 \value{
-Data frame with 21 columns
+List with five elements: kinematics, system_constraints, fgen_parameters, fgen_output, and kinetics
 }
 \description{
 \code{fgen_get_output} returns acceleration and force data based on the current system state (\code{current_time},
@@ -53,9 +53,10 @@ Data frame with 21 columns
 }
 \examples{
 state <- expand.grid(
-current_time = seq(0, 0.25, length.out = 1000),
-current_distance = c(0.1, 0.15, 0.2, 0.25, 0.3),
-current_velocity = 0)
+  current_time = seq(0, 0.25, length.out = 1000),
+  current_distance = c(0.1, 0.15, 0.2, 0.25, 0.3),
+  current_velocity = 0
+)
 
 fgen_data <- fgen_get_output(
   max_force = 3000,

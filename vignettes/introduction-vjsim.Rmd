@@ -420,11 +420,11 @@ Parameters of the Force Generator involve the following:
 
 - **Max velocity**, which is the ultimate velocity that Force Generator can manifest in *unconstrained* conditions (unlimited Push-off Distance and zero external resistance).
 
-- **Max force** and **Max velocity** represent *unconstrained* Force Generator Force-Velocity profile.
+- Max force and max velocity represent *unconstrained* Force Generator Force-Velocity profile.
 
 - *Force-Length* characteristic has two parameters: **start perc** and **threshold**.
 
-- *Force-Time* characteristic has one parameter: **time to max activation**. **Initial force** parameter represents the weight of the moving object (i.e. $(bodyweight + external \; load) \times 9.81$) since the vertical jumps starts from a dead start (and thus will not be considered further as simulation parameter).
+- *Force-Time* characteristic has one parameter: **time to max activation**. **Initial activation** parameter is (or should be) automatically calculated to represents the activation needed to support the weight of the moving object (i.e. $(bodyweight + external \; load) \times 9.81$). This is needed since the vertical jumps starts from a dead start. Initial activation will not be considered a parameter that can vary in the simulations. 
 
 Schematic diagram on the Figure below depicts all the important concepts covered so far that are important for further analysis and simulation.
 
@@ -468,7 +468,7 @@ fgen_data <- fgen_get_output(
   time_to_max_activation = 0.3
 )
 
-as_tibble(fgen_data)
+as_tibble(as.data.frame(fgen_data))
 ```
 
 # Want to learn more?

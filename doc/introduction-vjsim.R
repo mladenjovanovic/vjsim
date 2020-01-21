@@ -257,7 +257,7 @@ fgen_data <- fgen_get_output(
   time_to_max_activation = 0.3
 )
 
-as_tibble(fgen_data)
+as_tibble(as.data.frame(fgen_data))
 
 ## ----eval=FALSE---------------------------------------------------------------
 #  vignette("simulation-vjsim")

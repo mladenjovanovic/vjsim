@@ -266,10 +266,10 @@ fgen_get_output <- function( # The parameters forwarded by `vj_simulate` functio
   )
 
   # Total force, acting on the object
-  total_force <- generated_force - viscous_force
+  ground_reaction_force <- generated_force - viscous_force
 
   # Propulsive or Net force acting to accelerate the object
-  propulsive_force <- total_force - weight
+  propulsive_force <- ground_reaction_force - weight
 
   # Check if propulsive force is negative
   if (any(propulsive_force <= 0 & current_time == 0)) {
@@ -324,7 +324,7 @@ fgen_get_output <- function( # The parameters forwarded by `vj_simulate` functio
     # Resulting kinetics
     # These MUST be returned since they are used in `vj_simulate`
     kinetics = list(
-      total_force = total_force,
+      ground_reaction_force = ground_reaction_force,
       propulsive_force = propulsive_force,
       acceleration = acceleration
     )

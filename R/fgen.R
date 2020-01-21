@@ -95,7 +95,7 @@ fgen_get_activation <- function(current_time,
   }
 
   if (any(initial_activation < 0 | initial_activation > 1)) {
-    stop("Initial activation needs to be between 0 and 1.", call. = FALSE)
+    stop("Initial activation must be between 0 and 1.", call. = FALSE)
   }
 
   if (any(time_to_max_activation < 0)) {
@@ -235,8 +235,20 @@ fgen_get_output <- function( # The parameters forwarded by `vj_simulate` functio
   # Maximal force that can be generate at particular position
   potential_force <- max_force * force_percentage
 
+  # -----------------------------
   # Get Force Generator activation
-  initial_activation <- weight / potential_force
+
+  # To calculate activation we need initial force percentage (t=0, d=0)
+  # NOT the current force percentage
+  force_percentage_init <- fgen_get_force_percentage(
+    push_off_perc = 0,
+    start_perc = start_perc,
+    threshold = threshold
+  )
+  potential_force_init <- max_force * force_percentage_init
+
+  initial_activation <- weight / potential_force_init
+  # ----------------------------
 
   activation <- fgen_get_activation(
     current_time = current_time,
@@ -261,7 +273,7 @@ fgen_get_output <- function( # The parameters forwarded by `vj_simulate` functio
 
   # Check if propulsive force is negative
   if (any(propulsive_force <= 0 & current_time == 0)) {
-    stop("Negative for at the beginning of the push-off phase. Athlete cannot jump. Check your parameters", call. = FALSE)
+    stop("Negative propulsive force at the beginning of the push-off phase. Athlete cannot jump. Check your parameters", call. = FALSE)
   }
 
   # Get acceleration
@@ -294,7 +306,8 @@ fgen_get_output <- function( # The parameters forwarded by `vj_simulate` functio
       start_perc = start_perc,
       threshold = threshold,
 
-      time_to_max_activation = time_to_max_activation
+      time_to_max_activation = time_to_max_activation,
+      initial_activation = initial_activation
     ),
 
     # Force Generator  output and intermediary forces & variables
@@ -303,7 +316,6 @@ fgen_get_output <- function( # The parameters forwarded by `vj_simulate` functio
       push_off_perc = push_off_perc,
       force_percentage = force_percentage,
       potential_force = potential_force,
-      initial_activation = initial_activation,
       activation = activation,
       generated_force = generated_force,
       viscous_force = viscous_force

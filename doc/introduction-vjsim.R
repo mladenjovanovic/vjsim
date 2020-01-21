@@ -240,7 +240,7 @@ state <- expand.grid(
   current_velocity = 0
 )
 
-fgen_data <- fgen_get_output(
+fgen_data <- vjsim::fgen_get_output(
   current_time = state$current_time,
   current_distance = state$current_distance,
   current_velocity = state$current_velocity,

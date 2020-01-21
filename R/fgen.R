@@ -255,6 +255,11 @@ fgen_get_output <- function(current_time = 0,
   # Propulsive or Net force acting to accelerate the object
   propulsive_force <- total_force - weight
 
+  # Check if propulsive force is negative
+  if (any(propulsive_force <= 0 & current_time == 0)) {
+    stop("Negative for at the beginning of the push-off phase. Athlete cannot jump. Check your parameters", call. = FALSE)
+  }
+
   # Get acceleration
   acceleration <- propulsive_force / mass
 

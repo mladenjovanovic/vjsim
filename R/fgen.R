@@ -142,8 +142,8 @@ fgen_get_activation <- function(current_time,
 #'
 #' lines(x, y2, col = "red")
 fgen_get_viscous_force <- function(current_velocity,
-                                max_force = 3000,
-                                max_velocity = 4) {
+                                   max_force = 3000,
+                                   max_velocity = 4) {
   visc_factor <- max_force / max_velocity
   return(current_velocity * visc_factor)
 }
@@ -163,7 +163,6 @@ fgen_get_viscous_force <- function(current_velocity,
 #' fgen_get_velocity(0, 3000, 4)
 #' fgen_get_velocity(3000, 3000, 4)
 #' fgen_get_velocity(1500, 3000, 4)
-
 fgen_get_velocity <- function(external_force, max_force = 3000, max_velocity = 4) {
   (max_force - external_force) / (max_force / max_velocity)
 }
@@ -175,7 +174,7 @@ fgen_get_velocity <- function(external_force, max_force = 3000, max_velocity = 4
 #'     \code{current_distance}, and \code{current_velocity}), system constraints (\code{mass}, \code{weight}, and \code{push_off_distance}),
 #'     and parameters of the Forge Generator (\code{max_force}, \code{current_velocity}, \code{start_perc}, \code{threshold},
 #'     and \code{time_to_max_activation})
-#'#
+#' #
 #' @param current_time Numeric vector. Default is 0
 #' @param current_distance Numeric vector. Default is 0
 #' @param current_velocity Numeric vector. Default is 0
@@ -187,13 +186,14 @@ fgen_get_velocity <- function(external_force, max_force = 3000, max_velocity = 4
 #' @param start_perc Numeric vector. Default is 0.8
 #' @param threshold Numeric vector. Default is 0.9
 #' @param time_to_max_activation Numeric vector. Default is 0.3s
-#' @return Data frame with 21 columns
+#' @return List with five elements: kinematics, system_constraints, fgen_parameters, fgen_output, and kinetics
 #' @export
 #' @examples
 #' state <- expand.grid(
-#' current_time = seq(0, 0.25, length.out = 1000),
-#' current_distance = c(0.1, 0.15, 0.2, 0.25, 0.3),
-#' current_velocity = 0)
+#'   current_time = seq(0, 0.25, length.out = 1000),
+#'   current_distance = c(0.1, 0.15, 0.2, 0.25, 0.3),
+#'   current_velocity = 0
+#' )
 #'
 #' fgen_data <- fgen_get_output(
 #'   max_force = 3000,
@@ -202,13 +202,18 @@ fgen_get_velocity <- function(external_force, max_force = 3000, max_velocity = 4
 #'   current_distance = state$current_distance,
 #'   current_velocity = state$current_velocity
 #' )
-fgen_get_output <- function(current_time = 0,
+fgen_get_output <- function( # The parameters forwarded by `vj_simulate` function
+                            # kinematics
+                            current_time = 0,
                             current_distance = 0,
                             current_velocity = 0,
 
+                            # system constrains
                             mass = 75,
                             weight = mass * 9.81,
                             push_off_distance = 0.4,
+
+                            # These are the extra parameters `...`
 
                             max_force = 3000,
                             max_velocity = 4,
@@ -216,8 +221,7 @@ fgen_get_output <- function(current_time = 0,
                             start_perc = 0.8,
                             threshold = 0.9,
 
-                            time_to_max_activation = 0.3
-                            ) {
+                            time_to_max_activation = 0.3) {
 
   # Get percent of maximal force based on the current position (distance)
   push_off_perc <- current_distance / push_off_distance
@@ -232,15 +236,15 @@ fgen_get_output <- function(current_time = 0,
   potential_force <- max_force * force_percentage
 
   # Get Force Generator activation
-  initial_activation = weight / potential_force
+  initial_activation <- weight / potential_force
 
-  activation = fgen_get_activation(
+  activation <- fgen_get_activation(
     current_time = current_time,
     initial_activation = initial_activation,
     time_to_max_activation = time_to_max_activation
   )
 
-  generated_force = activation * potential_force
+  generated_force <- activation * potential_force
 
   # Viscous force
   viscous_force <- fgen_get_viscous_force(
@@ -263,34 +267,55 @@ fgen_get_output <- function(current_time = 0,
   # Get acceleration
   acceleration <- propulsive_force / mass
 
-  # Save the force and acceleration to the data frame
-  results <- data.frame(
-    current_time = current_time,
-    current_distance = current_distance,
-    current_velocity = current_velocity,
+  # Save the force and acceleration to the object
+  results <- list(
+    # Kinematics data - current time, distance, velocity
+    # These are optional to be returned in custom function
+    kinematics = list(
+      current_time = current_time,
+      current_distance = current_distance,
+      current_velocity = current_velocity
+    ),
 
-    mass = mass,
-    weight = weight,
-    push_off_distance = push_off_distance,
+    # System constraints
+    # These are optional to be returned in custom function
+    system_constraints = list(
+      mass = mass,
+      weight = weight,
+      push_off_distance = push_off_distance
+    ),
 
-    max_force = max_force,
-    max_velocity = max_velocity,
+    # Force Generator parameters
+    # These are optional to be returned in custom function
+    fgen_parameters = list(
+      max_force = max_force,
+      max_velocity = max_velocity,
 
-    start_perc = start_perc,
-    threshold = threshold,
+      start_perc = start_perc,
+      threshold = threshold,
 
-    time_to_max_activation = time_to_max_activation,
+      time_to_max_activation = time_to_max_activation
+    ),
 
-    push_off_perc = push_off_perc,
-    force_percentage = force_percentage,
-    potential_force = potential_force,
-    initial_activation = initial_activation,
-    activation = activation,
-    generated_force = generated_force,
-    viscous_force = viscous_force,
-    total_force = total_force,
-    propulsive_force = propulsive_force,
-    acceleration = acceleration
+    # Force Generator  output and intermediary forces & variables
+    # These are optional
+    fgen_output = list(
+      push_off_perc = push_off_perc,
+      force_percentage = force_percentage,
+      potential_force = potential_force,
+      initial_activation = initial_activation,
+      activation = activation,
+      generated_force = generated_force,
+      viscous_force = viscous_force
+    ),
+
+    # Resulting kinetics
+    # These MUST be returned since they are used in `vj_simulate`
+    kinetics = list(
+      total_force = total_force,
+      propulsive_force = propulsive_force,
+      acceleration = acceleration
+    )
   )
   return(results)
 }

@@ -15,7 +15,7 @@ get_height(take_off_velocity, gravity_const = 9.81)
 Numeric vector
 }
 \description{
-Function calculates height reached using the ballistic equation
+Function \code{get_height} calculates height reached using the ballistic equation
 }
 \examples{
 get_height(2.75)

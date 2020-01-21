@@ -31,3 +31,9 @@ knitr::opts_chunk$set(
 # Can FV relationsip manifest itself withou FV characteristic in the Force Generator
 ## System behavior with simple Force Generator
 ## System behavior with Forge Generator with only Force-Time characteristic
+
+# Averaging force over time and over distance
+
+# Peak Velocity vs Mean Velocity
+
+# Is Peak Power related to Force Generator Peak Power?

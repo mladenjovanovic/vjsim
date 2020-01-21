@@ -18,18 +18,55 @@ vj_simulate(
 )
 }
 \arguments{
+\item{mass}{Numeric value. Default is 75kg}
+
+\item{weight}{Numeric value. Deafult is \code{mass} * \code{gravity_const}}
+
+\item{push_off_distance}{Numeric value. Default is 0.4m}
+
 \item{gravity_const}{Numeric value. Default is 9.81}
+
+\item{time_step}{Numeric value. Time step used in simulation. Default is 0.01}
+
+\item{save_trace}{Logical. Default is TRUE}
+
+\item{fgen_func}{Function used to represent Force Generator. Defauls it \code{link{fgen_get_output}}.}
+
+\item{iter}{Logical. Default is FALSE}
 
 \item{max_iter}{Numeric value. Defaut value 1000}
 
 \item{...}{Forwarded to \code{fgen_func}}
 }
 \value{
-
+List object with \code{summary} data frame and \code{trace} data frame
 }
 \description{
-Vertical Jump Simulation
+Simulates vertical jump using Runge-Kutta method
 }
 \examples{
+vertical_jump <- vj_simulate(
+   mass = 85,
+   push_off_distance = 0.4,
+   time_step = 0.001)
 
+round(t(vertical_jump$summary), 3)
+
+plot(
+   x = vertical_jump$trace$kinematics.current_distance,
+   y = vertical_jump$trace$kinematics.current_velocity,
+   type = "l"
+)
+
+plot(
+   x = vertical_jump$trace$kinematics.current_time,
+   y = vertical_jump$trace$kinetics.ground_reaction_force,
+   type = "l"
+)
+
+plot(
+   x = vertical_jump$trace$kinematics.current_distance,
+   y = vertical_jump$trace$kinetics.ground_reaction_force,
+   type = "l"
+)
 }

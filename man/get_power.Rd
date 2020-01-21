@@ -9,13 +9,13 @@ get_power(max_force, max_velocity)
 \arguments{
 \item{max_force}{Numeric vector}
 
-\item{max_velocity}{Numeric vector. Default 9.81}
+\item{max_velocity}{Numeric vector.}
 }
 \value{
 Numeric vector
 }
 \description{
-Function calculates maximal power assuming linear relationship between
+Function \code{get_power} calculates maximal power assuming linear relationship between
     \code{max_force} and \code{max_velocity}
 }
 \examples{

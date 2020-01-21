@@ -1,18 +1,44 @@
 #' Vertical Jump Simulation
-#' @param mass
-#' @param weight
-#' @param push_off_distance
+#'
+#' Simulates vertical jump using Runge-Kutta method
+#'
+#' @param mass Numeric value. Default is 75kg
+#' @param weight Numeric value. Deafult is \code{mass} * \code{gravity_const}
+#' @param push_off_distance Numeric value. Default is 0.4m
 #' @param gravity_const Numeric value. Default is 9.81
-#' @param time_step
-#' @param save_trace
-#' @param fgen_func
-#' @param iter
+#' @param time_step Numeric value. Time step used in simulation. Default is 0.01
+#' @param save_trace Logical. Default is TRUE
+#' @param fgen_func Function used to represent Force Generator. Defauls it \code{link{fgen_get_output}}.
+#' @param iter Logical. Default is FALSE
 #' @param max_iter Numeric value. Defaut value 1000
 #' @param ... Forwarded to \code{fgen_func}
-#' @return
+#' @return List object with \code{summary} data frame and \code{trace} data frame
 #' @export
 #' @examples
+#' vertical_jump <- vj_simulate(
+#'    mass = 85,
+#'    push_off_distance = 0.4,
+#'    time_step = 0.001)
 #'
+#' round(t(vertical_jump$summary), 3)
+#'
+#' plot(
+#'    x = vertical_jump$trace$kinematics.current_distance,
+#'    y = vertical_jump$trace$kinematics.current_velocity,
+#'    type = "l"
+#' )
+#'
+#' plot(
+#'    x = vertical_jump$trace$kinematics.current_time,
+#'    y = vertical_jump$trace$kinetics.ground_reaction_force,
+#'    type = "l"
+#' )
+#'
+#' plot(
+#'    x = vertical_jump$trace$kinematics.current_distance,
+#'    y = vertical_jump$trace$kinetics.ground_reaction_force,
+#'    type = "l"
+#' )
 vj_simulate <- function( # system constrains
                         mass = 75,
                         weight = mass * gravity_const,
@@ -42,6 +68,9 @@ vj_simulate <- function( # system constrains
 
   current_acceleration <- 0
 
+  # Used to calculate RFD
+  previous_GRF <- 0
+
   # List for saving kinetics trace
   trace_data <- list(max_iter)
   trace_index <- 1
@@ -53,11 +82,6 @@ vj_simulate <- function( # system constrains
   summary_peak_GRF <- 0
   summary_peak_GRF_time <- 0
   summary_peak_GRF_distance <- 0
-
-  # Explosive Strength Index
-  summary_ESI <- 0
-  summary_ESI_time <- 0
-  summary_ESI_distance <- 0
 
   # Peak Velocity
   summary_peak_velocity <- 0
@@ -196,6 +220,30 @@ vj_simulate <- function( # system constrains
        summary_peak_velocity_time <- current_time
     }
 
+    if (ground_reaction_force > summary_peak_GRF) {
+       summary_peak_GRF <- ground_reaction_force
+       summary_peak_GRF_distance <- current_distance
+       summary_peak_GRF_time <- current_time
+    }
+
+    current_power <- current_velocity * ground_reaction_force
+
+    if (current_power > summary_peak_power) {
+       summary_peak_power <- current_power
+       summary_peak_power_distance <- current_distance
+       summary_peak_power_time <- current_time
+    }
+
+    if(trace_index > 1) {
+       current_RFD <- (ground_reaction_force - previous_GRF) / time_step
+
+       if (current_RFD > summary_peak_RFD) {
+          summary_peak_RFD <- current_RFD
+          summary_peak_RFD_distance <- current_distance
+          summary_peak_RFD_time <- current_time
+       }
+    }
+
     # --------------------------------------------
     # Save trace
     if (save_trace) {
@@ -208,6 +256,9 @@ vj_simulate <- function( # system constrains
 
     # update trace index
     trace_index <- trace_index + 1
+
+    # Update previous_GRF
+    previous_GRF <- ground_reaction_force
   } # Main loop finished
 
 
@@ -224,10 +275,52 @@ vj_simulate <- function( # system constrains
      current_propulsive_force = propulsive_force,
 
      take_off_velocity = current_velocity,
+     height = get_height(
+        take_off_velocity = current_velocity,
+        gravity_const = gravity_const
+        ),
+
+     mean_GRF_over_distance = get_mean_force_over_distance(
+        mass = mass,
+        weight = weight,
+        take_off_velocity = current_velocity,
+        push_off_distance = current_distance
+     ),
+
+     mean_GRF_over_time = get_mean_force_over_time(
+        mass = mass,
+        weight = weight,
+        take_off_velocity = current_velocity,
+        time_taken = current_time
+     ),
+
+     mean_velocity = current_distance / current_time,
+
+     mean_power = get_mean_power(
+        mass = mass,
+        weight = weight,
+        take_off_velocity = current_velocity,
+        push_off_distance = current_distance,
+        time_taken = current_time
+        ),
+
+     mean_RFD = summary_peak_GRF / summary_peak_GRF_time,
+
+     peak_GRF = summary_peak_GRF,
+     peak_GRF_time = summary_peak_GRF_time,
+     peak_GRF_distance = summary_peak_GRF_distance,
 
      peak_velocity = summary_peak_velocity,
      peak_velocity_time = summary_peak_velocity_time,
-     peak_velocity_distance = summary_peak_velocity_distance
+     peak_velocity_distance = summary_peak_velocity_distance,
+
+     peak_power = summary_peak_power,
+     peak_power_distance = summary_peak_power_distance,
+     peak_power_time = summary_peak_power_time,
+
+     peak_RFD = summary_peak_RFD,
+     peak_RFD_distance = summary_peak_RFD_distance,
+     peak_RFD_time = summary_peak_RFD_time
 
   )
 

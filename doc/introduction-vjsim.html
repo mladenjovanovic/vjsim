@@ -710,7 +710,7 @@ Schematic diagrom of the components, parameters, and resulting forces in vjsim
 <a class="sourceLine" id="cb8-22" data-line-number="22">)</a>
 <a class="sourceLine" id="cb8-23" data-line-number="23"></a>
 <a class="sourceLine" id="cb8-24" data-line-number="24"><span class="kw">as_tibble</span>(<span class="kw">as.data.frame</span>(fgen_data))</a>
-<a class="sourceLine" id="cb8-25" data-line-number="25"><span class="co">#&gt; # A tibble: 5,000 x 21</span></a>
+<a class="sourceLine" id="cb8-25" data-line-number="25"><span class="co">#&gt; # A tibble: 5,000 x 22</span></a>
 <a class="sourceLine" id="cb8-26" data-line-number="26"><span class="co">#&gt;    kinematics.curr… kinematics.curr… kinematics.curr… system_constrai…</span></a>
 <a class="sourceLine" id="cb8-27" data-line-number="27"><span class="co">#&gt;               &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;</span></a>
 <a class="sourceLine" id="cb8-28" data-line-number="28"><span class="co">#&gt;  1         0                     0.1                0               75</span></a>
@@ -723,17 +723,18 @@ Schematic diagrom of the components, parameters, and resulting forces in vjsim
 <a class="sourceLine" id="cb8-35" data-line-number="35"><span class="co">#&gt;  8         0.00175               0.1                0               75</span></a>
 <a class="sourceLine" id="cb8-36" data-line-number="36"><span class="co">#&gt;  9         0.00200               0.1                0               75</span></a>
 <a class="sourceLine" id="cb8-37" data-line-number="37"><span class="co">#&gt; 10         0.00225               0.1                0               75</span></a>
-<a class="sourceLine" id="cb8-38" data-line-number="38"><span class="co">#&gt; # … with 4,990 more rows, and 17 more variables:</span></a>
+<a class="sourceLine" id="cb8-38" data-line-number="38"><span class="co">#&gt; # … with 4,990 more rows, and 18 more variables:</span></a>
 <a class="sourceLine" id="cb8-39" data-line-number="39"><span class="co">#&gt; #   system_constraints.weight &lt;dbl&gt;,</span></a>
 <a class="sourceLine" id="cb8-40" data-line-number="40"><span class="co">#&gt; #   system_constraints.push_off_distance &lt;dbl&gt;,</span></a>
-<a class="sourceLine" id="cb8-41" data-line-number="41"><span class="co">#&gt; #   fgen_parameters.max_force &lt;dbl&gt;, fgen_parameters.max_velocity &lt;dbl&gt;,</span></a>
-<a class="sourceLine" id="cb8-42" data-line-number="42"><span class="co">#&gt; #   fgen_parameters.start_perc &lt;dbl&gt;, fgen_parameters.threshold &lt;dbl&gt;,</span></a>
-<a class="sourceLine" id="cb8-43" data-line-number="43"><span class="co">#&gt; #   fgen_parameters.time_to_max_activation &lt;dbl&gt;,</span></a>
-<a class="sourceLine" id="cb8-44" data-line-number="44"><span class="co">#&gt; #   fgen_parameters.initial_activation &lt;dbl&gt;, fgen_output.push_off_perc &lt;dbl&gt;,</span></a>
-<a class="sourceLine" id="cb8-45" data-line-number="45"><span class="co">#&gt; #   fgen_output.force_percentage &lt;dbl&gt;, fgen_output.potential_force &lt;dbl&gt;,</span></a>
-<a class="sourceLine" id="cb8-46" data-line-number="46"><span class="co">#&gt; #   fgen_output.activation &lt;dbl&gt;, fgen_output.generated_force &lt;dbl&gt;,</span></a>
-<a class="sourceLine" id="cb8-47" data-line-number="47"><span class="co">#&gt; #   fgen_output.viscous_force &lt;dbl&gt;, kinetics.ground_reaction_force &lt;dbl&gt;,</span></a>
-<a class="sourceLine" id="cb8-48" data-line-number="48"><span class="co">#&gt; #   kinetics.propulsive_force &lt;dbl&gt;, kinetics.acceleration &lt;dbl&gt;</span></a></code></pre></div>
+<a class="sourceLine" id="cb8-41" data-line-number="41"><span class="co">#&gt; #   system_constraints.gravity_const &lt;dbl&gt;, fgen_parameters.max_force &lt;dbl&gt;,</span></a>
+<a class="sourceLine" id="cb8-42" data-line-number="42"><span class="co">#&gt; #   fgen_parameters.max_velocity &lt;dbl&gt;, fgen_parameters.start_perc &lt;dbl&gt;,</span></a>
+<a class="sourceLine" id="cb8-43" data-line-number="43"><span class="co">#&gt; #   fgen_parameters.threshold &lt;dbl&gt;,</span></a>
+<a class="sourceLine" id="cb8-44" data-line-number="44"><span class="co">#&gt; #   fgen_parameters.time_to_max_activation &lt;dbl&gt;,</span></a>
+<a class="sourceLine" id="cb8-45" data-line-number="45"><span class="co">#&gt; #   fgen_parameters.initial_activation &lt;dbl&gt;, fgen_output.push_off_perc &lt;dbl&gt;,</span></a>
+<a class="sourceLine" id="cb8-46" data-line-number="46"><span class="co">#&gt; #   fgen_output.force_percentage &lt;dbl&gt;, fgen_output.potential_force &lt;dbl&gt;,</span></a>
+<a class="sourceLine" id="cb8-47" data-line-number="47"><span class="co">#&gt; #   fgen_output.activation &lt;dbl&gt;, fgen_output.generated_force &lt;dbl&gt;,</span></a>
+<a class="sourceLine" id="cb8-48" data-line-number="48"><span class="co">#&gt; #   fgen_output.viscous_force &lt;dbl&gt;, kinetics.ground_reaction_force &lt;dbl&gt;,</span></a>
+<a class="sourceLine" id="cb8-49" data-line-number="49"><span class="co">#&gt; #   kinetics.propulsive_force &lt;dbl&gt;, kinetics.acceleration &lt;dbl&gt;</span></a></code></pre></div>
 </div>
 </div>
 <div id="want-to-learn-more" class="section level1">

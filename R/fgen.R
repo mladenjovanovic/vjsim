@@ -179,8 +179,9 @@ fgen_get_velocity <- function(external_force, max_force = 3000, max_velocity = 4
 #' @param current_distance Numeric vector. Default is 0
 #' @param current_velocity Numeric vector. Default is 0
 #' @param mass Numeric vector. Default is 75kg
-#' @param weight Numeric vector. Default is mass x 9.81
+#' @param weight Numeric vector. Default is mass x \code{gravity_const}
 #' @param push_off_distance Numeric vector. Default is 0.4
+#' @param gravity_const Numeric value. Default is 9.81
 #' @param max_force Numeric value. Default is 3000N
 #' @param max_velocity Numeric vector. Default is 4m/s
 #' @param start_perc Numeric vector. Default is 0.8
@@ -210,8 +211,9 @@ fgen_get_output <- function( # The parameters forwarded by `vj_simulate` functio
 
                             # system constrains
                             mass = 75,
-                            weight = mass * 9.81,
+                            weight = mass * gravity_const,
                             push_off_distance = 0.4,
+                            gravity_const = 9.81,
 
                             # These are the extra parameters `...`
 
@@ -300,7 +302,8 @@ fgen_get_output <- function( # The parameters forwarded by `vj_simulate` functio
     system_constraints = list(
       mass = mass,
       weight = weight,
-      push_off_distance = push_off_distance
+      push_off_distance = push_off_distance,
+      gravity_const = gravity_const
     ),
 
     # Force Generator parameters

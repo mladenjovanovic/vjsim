@@ -6,8 +6,9 @@
 \usage{
 vj_simulate(
   mass = 75,
-  weight = mass * 9.81,
+  weight = mass * gravity_const,
   push_off_distance = 0.4,
+  gravity_const = 9.81,
   time_step = 0.01,
   save_trace = TRUE,
   fgen_func = fgen_get_output,
@@ -17,6 +18,8 @@ vj_simulate(
 )
 }
 \arguments{
+\item{gravity_const}{Numeric value. Default is 9.81}
+
 \item{max_iter}{Numeric value. Defaut value 1000}
 
 \item{...}{Forwarded to \code{fgen_func}}

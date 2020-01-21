@@ -2,6 +2,7 @@
 #' @param mass
 #' @param weight
 #' @param push_off_distance
+#' @param gravity_const Numeric value. Default is 9.81
 #' @param time_step
 #' @param save_trace
 #' @param fgen_func
@@ -14,8 +15,9 @@
 #'
 vj_simulate <- function( # system constrains
                         mass = 75,
-                        weight = mass * 9.81,
+                        weight = mass * gravity_const,
                         push_off_distance = 0.4,
+                        gravity_const = 9.81,
 
                         # simulation parameters
                         time_step = 0.01,
@@ -103,6 +105,7 @@ vj_simulate <- function( # system constrains
       mass = mass,
       weight = weight,
       push_off_distance = push_off_distance,
+      gravity_const = gravity_const,
 
       # Forward extra arguments (Force Generator parameters)
       ...
@@ -132,6 +135,7 @@ vj_simulate <- function( # system constrains
       mass = mass,
       weight = weight,
       push_off_distance = push_off_distance,
+      gravity_const = gravity_const,
 
       # Forward extra arguments (Force Generator parameters)
       ...
@@ -150,6 +154,7 @@ vj_simulate <- function( # system constrains
       mass = mass,
       weight = weight,
       push_off_distance = push_off_distance,
+      gravity_const = gravity_const,
 
       # Forward extra arguments (Force Generator parameters)
       ...
@@ -168,6 +173,7 @@ vj_simulate <- function( # system constrains
       mass = mass,
       weight = weight,
       push_off_distance = push_off_distance,
+      gravity_const = gravity_const,
 
       # Forward extra arguments (Force Generator parameters)
       ...
@@ -210,6 +216,7 @@ vj_simulate <- function( # system constrains
      mass = mass,
      weight = weight,
      push_off_distance = push_off_distance,
+     gravity_const = gravity_const,
 
      current_distance = current_distance,
      current_time = current_time,

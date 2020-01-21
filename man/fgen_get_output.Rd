@@ -9,8 +9,9 @@ fgen_get_output(
   current_distance = 0,
   current_velocity = 0,
   mass = 75,
-  weight = mass * 9.81,
+  weight = mass * gravity_const,
   push_off_distance = 0.4,
+  gravity_const = 9.81,
   max_force = 3000,
   max_velocity = 4,
   start_perc = 0.8,
@@ -27,9 +28,11 @@ fgen_get_output(
 
 \item{mass}{Numeric vector. Default is 75kg}
 
-\item{weight}{Numeric vector. Default is mass x 9.81}
+\item{weight}{Numeric vector. Default is mass x \code{gravity_const}}
 
 \item{push_off_distance}{Numeric vector. Default is 0.4}
+
+\item{gravity_const}{Numeric value. Default is 9.81}
 
 \item{max_force}{Numeric value. Default is 3000N}
 

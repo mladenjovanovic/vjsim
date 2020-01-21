@@ -30,19 +30,19 @@ knitr::opts_chunk$set(
 
 The goal of `vjsim` is to simulate a simple vertical jump model to provide an educational tool for helping in understanding elementary biomechanical concepts and jump profiles used in sport science.
 
-Vertical jump can be done in multiple ways. One way is to quickly dip down and then rebound as high as possible. This vertical jump containts *countermovement action* which increase vertical jump height due to various mechanism (which are not in our interest for this simulation). Other way involves squating down, holding the squat position for a second or two, and then exploding upward without any dip. This can be considered purely *concentric* (or static) jump, and it is usually termed *squat jump* to be differentiated from the countermovement jump. The hands are usually held at the hip, without allowing any swinging action. In `vjsim` only the squat jump is simulated and analyzed. Thus, when I refer to vertical jump, I refer to a static squat jump with arms continuously held at the hips.
+A vertical jump can be done in multiple ways. One way is to quickly dip down and then rebound as high as possible. This vertical jump contains *countermovement action*, which increases vertical jump height due to various mechanisms (which are not in our interest for this simulation). Another way involves squatting down, holding the squat position for a second or two, and then exploding upward without any dip. This can be considered purely *concentric* (or static) jump, and it is usually termed *squat jump* to be differentiated from the countermovement jump. The hands are typically held at the hip, without allowing any swinging action. In `vjsim` only the squat jump is simulated and analyzed. Thus, when I refer to vertical jump, I refer to a static squat jump with arms continuously held at the hips.
 
-In `vjsim`, vertical jump is represented with a simple mechanical model (see Figure). 
+In `vjsim`, the vertical jump is represented with a simple mechanical model (see Figure). 
 
 ```{r, echo=FALSE, mechanical-model, fig.cap="Mechanical model that is used to represent vertical jump"}
 knitr::include_graphics(path = "mechanical-model.png")
 ```
 
-Athlete is represented as a simple moving object that needs to be propelled over **push-off distance** ($d_{po}$measured in meters; usually around 0.4m for human subjects) by the action of the **Force Generator**. Moving object has a **mass** (or *inertia*) ($m$, measured using kilograms (kg)) and **weight** ($w$; measured in Newtons (N)). Weight is calculated by multipying mass with the gravity constant, that is equal to 9.81 for the planet Earth: 
+The athlete is represented as a simple moving object that needs to be propelled over **push-off distance** ($d_{po}$measured in meters; usually around 0.4m for human subjects) by the action of the **Force Generator**. Moving object has a **mass** (or *inertia*) ($m$, measured using kilograms (kg)) and **weight** ($w$; measured in Newtons (N)). Weight is calculated by multiplying mass with the gravity constant, that is equal to 9.81 for the planet Earth: 
  
 $$w = m \times 9.81(N)$$ 
 
-If the external load, e.g. barbell, is carried, the mass of the object is equal to athlete bodyweight plus external load (mass). For example, if athlete weights 75kg and carries 100kg on his shoulder, total mass is equal to 175kg and weight is equal to $175 \times 9.81$ or 1,717N. 
+If the external load, e.g. barbell, is carried, the mass of the object is equal to athlete bodyweight plus the external load (mass). For example, if the athlete weights 75kg and takes 100kg on his shoulder, the total mass is equal to 175kg, and weight is equal to $175 \times 9.81$ or 1,717N. 
 
 Vertical jump height ($h$; measured in meters (m)) can be calculated with a simple ballistic equation from the known **take-off velocity** ($v_{to}$; measured in meters per second (m/s)):
 
@@ -50,7 +50,7 @@ $$
 h = \frac{v_{to}^2}{2\times9.81}(m)
 $$
 
-In the vertical jump (i.e. static/concetric squat jump), initial velocity is assumed to be 0m/s. Jump angle is assumed to be 90degrees, and of course, gravity constant is assumed to be 9.81$m/s^2$ (since we are interested in jumps on Earth, duh). 
+In the vertical jump (i.e. static/concentric squat jump), the initial velocity is assumed to be 0m/s. Jump angle is expected to be 90degrees, and of course, gravity constant is 9.81$m/s^2$ (since we are interested in jumps on Earth, duh). 
 
 For example, if take-off velocity is equal to 3m/s, the calculated height reached is equal to:
 
@@ -80,11 +80,11 @@ knitr::include_graphics(path = "force-generator-components.png")
 
 ## Force-Length Characteristic
 
-The main characteristic of the Force Generator is ability to produce force. Thus the main parameter of the Force Generator is the **max force** ($F_{max}$), or the maximal force that Force Generator is capable of producing.  
+The main characteristic of the Force Generator is the ability to produce force. Thus the main parameter of the Force Generator is the **max force** ($F_{max}$), or the maximal force that Force Generator is capable of producing.  
 
-Unfortunatelly, Force Generator cannot express 100% of the maximal force across the whole push-off distance. Assuming *isometric* conditions (i.e. we move the Force Generator at a particular position alongside push-off distance and hold it *firmly* there), at particular point in the push-off distance, Force Generator can express certain **force percentage** of the max force. The shape of this relationsip (i.e. force percentage ~ percent of push-off distance) represents Force-Length characteristic of the Force Generator. 
+Unfortunately, Force Generator cannot express 100% of the maximal force across the whole push-off distance. Assuming *isometric* conditions (i.e. we move the Force Generator at a particular position alongside push-off distance and hold it *firmly* there), at a particular point in the push-off distance, Force Generator can express certain **force percentage** of the max force. The shape of this relationship (i.e. force percentage ~ percent of push-off distance) represents the Force-Length characteristic of the Force Generator. 
 
-The following code and Figure contains few examples how this relationship is modeled in `vjsim` using the `vjsim::fgen_get_force_percentage`[^functions] function. Rather than using raw distance (in meters), `vjsim::fgen_get_force_percentage` uses perceon of the push-off distance (`push_off_percent`). Force-Length characteristic implemented in the `vjsim` depends on two parameters: **starting percentage** (`start_perc`) and **threshold** (`threshold`). Starting percentage indicated the force percentage at the start of the vertical jump ($d=0m$, $t=0s$), while threshold indicate percent of push-off distance where force percentage is equal to 100%. The usualy values for starting percentage are between 0.6 and 0.8, and for threshold between 0.8 and 0.9. 
+The following code and Figure contains few examples how this relationship is modeled in `vjsim` using the `vjsim::fgen_get_force_percentage`[^functions] function. Rather than using raw distance (in meters), `vjsim::fgen_get_force_percentage` uses perceon of the push-off distance (`push_off_percent`). Force-Length characteristic implemented in the `vjsim` depends on two parameters: **starting percentage** (`start_perc`) and **threshold** (`threshold`). The starting percentage indicated the force percentage at the start of the vertical jump ($d=0m$, $t=0s$), while the threshold indicates the percent of push-off distance where force percentage is equal to 100%. The typical values for the starting percentage are between 0.6 and 0.8, and for the threshold between 0.8 and 0.9. 
 
 [^functions]: You can either use `vjsim::fgen_get_force_percentage` or simply `fgen_get_force_percentage`. I am using prefix `vjsim::` to indicate functions from the `vjsim` package
 
@@ -139,11 +139,11 @@ ggplot(
 
 ## Force-Time Characteristic
 
-Besides being able to achieve only force percentage at a given percent of the push-off distance, Force Generator cannot be activated instantaneously. It takes time ($t$) to reach *full activation level*. Let's assume here that "no activation" equals to 0%, while "full activation" equals 100% of the activation level. The shape of this relationship (i.e. activation level ~ time) represents Force-Time characteristic of the Force Generator.
+Besides being able to achieve only force percentage at a given percent of the push-off distance, Force Generator cannot be activated instantaneously. It takes time ($t$) to reach *full activation level*. Let's assume here that "no activation" equals to 0%, while "full activation" equals 100% of the activation level. The shape of this relationship (i.e. activation level ~ time) represents the Force-Time characteristic of the Force Generator.
 
 In `vjsim`, this characteristic is represented with the *sigmoid* curve using the `vjsim::fgen_get_activation` function. Parameter of this curve (and function), and thus Force-Time characteristic, is the **time to max activation** (`time_to_max_activation`). Time to max activation represents time it takes to reach full activation (100%) from zero activation. 
 
-But at the beginning of the vertical jump push-off ($d=0m$ and $t=0s$) there is some activation needed due to the weight of the load that needs to be supported. Reaching full activation from some *initial activation* takes less time than reacing full activation from zero activation for the same time to max activation parameter. This represents an assumption in the `vjsim` and `vjsim::fgen_get_activation` function. The code and figure below demonstrates this relationship.
+But at the beginning of the vertical jump push-off ($d=0m$ and $t=0s$) there is some activation needed due to the weight of the load that needs to be supported. Reaching full activation from some *initial activation* takes less time than reaching full activation from zero activation for the same time to the max activation parameter. This represents an assumption in the `vjsim` and `vjsim::fgen_get_activation` function. The code and Figure below demonstrate this relationship.
 
 ```{r force-time-characteristic, fig.cap="Force-Time characteristic"}
 parameters <- expand.grid(
@@ -180,7 +180,7 @@ ggplot(
   labs(color = "Initial activation")
 ```
 
-As already explained in the Force-Length characteristic, Force Generator at particular percent of the push-off distance can generate only a percent of max force (e.g. 80% at the beginning of the vertical jump push-off; $d=0$ and $t=0$). Combining max force and force percentage, gives us the **potential force** ($F_{potential}$) that can be reached with the full activation. For example, if the max force is equal to 3,000N, and force percentage at particular percent of the push-off distance is 90%, potential force is equal to 2,700N. But as explained, this force cannot be reached instantaneously due to Force-Time characteristic of the Force Generator. This potential force can only be reached when full activation is reached. The product of the activation level and potential force yields **generated force** ($F_{generated}$). 
+As already explained in the Force-Length characteristic, Force Generator at a particular percent of the push-off distance can generate only a percent of max force (e.g. 80% at the beginning of the vertical jump push-off; $d=0$ and $t=0$). Combining max force and force percentage gives us the **potential force** ($F_{potential}$) that can be reached with the full activation. For example, if the max force is equal to 3,000N, and force percentage at a particular percent of the push-off distance is 90%, the potential force is equal to 2,700N. But as explained, this force cannot be reached instantaneously due to Force-Time characteristics of the Force Generator. This potential force can only be reached when full activation is reached. The product of the activation level and potential force yields **generated force** ($F_{generated}$). 
 
 How is initial activation calculated assuming max force, force percentage, and weight? In `vjsim`, initial activation is calculated with the following equation:
 
@@ -260,7 +260,7 @@ $$
 
 In *real-life*, the faster the muscles (i.e. Force Generator) are shortening, the less force they can exert. The mechanism behind this is not really understood (pardon my ignorance if I am wrong), but it is hypothesized that it is due to the shortening of the time *cross-bridges* in the muscle cell have to perform the cycling. Another explanation might be an increase in the viscous forces inside the muscle, that resist movement. Anyway, this *phenomenological* characteristic (i.e. muscle or Force Generator decrease force production as velocity increases) can be modeled with the above equation. The higher the $k$ parameter, the bigger the resistance. 
 
-Let's assume that the max force is 2700N, and that $k=675$. In *unconstrained* conditions (hypothetical conditions where Force Generator has unlimited push-off distance, unlimited time, zero external load, and maximal force percentage) the **max velocity** is achieve when max force becomes equal to viscous force:
+Let's assume that the max force is 2700N and that $k=675$. In *unconstrained* conditions (hypothetical conditions where Force Generator has unlimited push-off distance, unlimited time, zero external load, and maximal force percentage) the **max velocity** is achieved when max force becomes equal to viscous force:
 
 $$
 F_{max} = F_{viscous}
@@ -288,7 +288,7 @@ $$
 v_{max} = \frac{F_{max}}{k}
 $$
 
-Rather than using $k$ as a parameter (which is not very intuitive), we can use **max velocity** as a parameter of this Force Generator component. Max velocity and max force represent *intrinsic* characteristics of the Force Generator. Please note that the max velocity parameter represents maximal velocity Force Generator can achieve in unconstrained environment (unlimited Push-off Distance and no external resistance; i.e. force). 
+Rather than using $k$ as a parameter (which is not very intuitive), we can use **max velocity** as a parameter of this Force Generator component. Max velocity and max force represent *intrinsic* characteristics of the Force Generator. Please note that the max velocity parameter represents maximal velocity Force Generator can achieve in the unconstrained environment (unlimited Push-off Distance and no external resistance; i.e. force). 
 
 Using the `vjsim::fgen_get_viscous_force` function, we can get viscous or opposing force inside the Force Generator. 
 
@@ -328,9 +328,9 @@ ggplot(
   labs(color = "Max Velocity")
 ```
 
-The above Figure represents intrinsic viscous force generated at particular velocities. Assuming unconstrained conditions we are interested in estimating maximal velocity that can be achieved when Force Generator faces some external resistance. Since we are assuming unconstrained conditions, the mass of the resistance is not important (due unlimited Push-off Distance to accelerate), but only the facing external resisting force. The Force Generator faces two opposing forces then: external resistance force and viscous force (which is internal or intrinsic part of the Force Generator itself). **Peak velocity** is achieved when the sum of forces is equal to zero. I keep saying sum of force, because $F_{viscous}$ and $F_{external}$ are in opposite direction to $F_{max}$, thus they have negative sign.
+The above Figure represents intrinsic viscous force generated at particular velocities. Assuming unconstrained conditions, we are interested in estimating maximal velocity that can be achieved when the Force Generator faces some external resistance. Since we are assuming unconstrained conditions, the mass of the resistance is not important (due unlimited Push-off Distance to accelerate), but only the facing external resisting force. The Force Generator faces two opposing forces then: external resistance force and viscous force (which is internal or intrinsic part of the Force Generator itself). **Peak velocity** is achieved when the sum of forces is equal to zero. I keep saying the sum of force, because $F_{viscous}$ and $F_{external}$ are in the opposite direction to $F_{max}$; thus, they have a negative sign.
 
-Please note the difference betwen peak velocity, which is maximal velocity that can be reached in unconstrained conditions at particular level of external resistance force, an maximal velocity which is maximal maximal velocity that can be reached in unconstrained conditions when there iz zero external resistance force. 
+Please note the difference between peak velocity, which is the maximal velocity that can be reached in unconstrained conditions at a particular level of the external resistance force, a maximal velocity, which is "maximal" maximal velocity that can be reached in unconstrained conditions when there iz zero external resistance force. 
 
 $$
 F_{max} - F_{viscous} - F_{external} = 0
@@ -356,7 +356,7 @@ $$
 v_{peak} = \frac{F_{max} - F_{external}}{\frac{F_{max}}{v_{max}}}
 $$
 
-Assuming few combinations of max force and max velocity of the Force Generator, depending on the level of facing external resistance (N), we can calculate peak velocity ($v$) that can hypothetically be reached in the unconstrained conditions. You can use the above equation, or the `vjsim::fgen_get_velocity` function.
+Assuming few combinations of max force and a max velocity of the Force Generator, depending on the level of facing external resistance (N), we can calculate peak velocity ($v$) that can hypothetically be reached in the unconstrained conditions. You can use the above equation, or the `vjsim::fgen_get_velocity` function.
 
 ```{r}
 parameters <- expand.grid(
@@ -397,11 +397,11 @@ ggplot(
   labs(color = "Max Velocity", linetype = "Max Force")
 ```
 
-The above represent unconstrained Force Generator **Force-Velocity profile**. It is intrinsic (or latent) quality (characteristic or trait) of the Force Generator that can be *manifested* when Force Generator faces external force under unconstrained conditions.
+The above represent unconstrained Force Generator **Force-Velocity profile**. It is the intrinsic (or latent) quality (characteristic or trait) of the Force Generator that can be *manifested* when Force Generator faces external force under unconstrained conditions.
 
-Unfortunately, the Force Generator functions in the *constrained* environment, facing a particular inertia (bodyweight and external load) and limited distance over which that inertia can be accelerated (i.e. push-off distance). Plus, there are Force-Length and Force-Time characteristics that will affect performance in the constrained environment. 
+Unfortunately, the Force Generator functions in the *constrained* environment, facing particular inertia (bodyweight and external load) and limited distance over which that inertia can be accelerated (i.e. push-off distance). Plus, there are Force-Length and Force-Time characteristics that will affect performance in the constrained environment. 
 
-How will these affect the constrained, or *manifested*, Force Generator Force-Velocity profile? This is what (among a few other things) we are interested in figuring out by using the `vjsim` simulations. This is discussed in `simulation-vjsim` vignette.
+How will these affect the constrained, or *manifested*, Force Generator force-velocity profile? This is what (among a few other things) we are interested in figuring out by using the `vjsim` simulations. This is discussed in `simulation-vjsim` vignette.
 
 Let's quickly review the parameters of the Force Generator and the simulation in general before finishing this vignette.
 
@@ -418,15 +418,15 @@ Parameters of the Force Generator involve the following:
 
 - **Max force**, which is the ultimate force that Force Generator can manifest in isometric conditions with 100% Force-Length relationship.
 
-- **Max velocity**, which is the ultimate velocity that Force Generator can manifest in *unconstrained* conditions (unlimited Push-off Distance and zero external resistance).
+- **Max velocity**, which is the final velocity that Force Generator can manifest in *unconstrained* conditions (unlimited Push-off Distance and zero external resistance).
 
 - Max force and max velocity represent *unconstrained* Force Generator Force-Velocity profile.
 
 - *Force-Length* characteristic has two parameters: **start perc** and **threshold**.
 
-- *Force-Time* characteristic has one parameter: **time to max activation**. **Initial activation** parameter is (or should be) automatically calculated to represents the activation needed to support the weight of the moving object (i.e. $(bodyweight + external \; load) \times 9.81$). This is needed since the vertical jumps starts from a dead start. Initial activation will not be considered a parameter that can vary in the simulations. 
+- *Force-Time* characteristic has one parameter: **time to max activation**. **Initial activation** parameter is (or should be) automatically calculated to represents the activation needed to support the weight of the moving object (i.e. $(bodyweight + external \; load) \times 9.81$). This is required since the vertical jumps start from a dead start. Initial activation will not be considered a parameter that can vary in the simulations. 
 
-Schematic diagram on the Figure below depicts all the important concepts covered so far that are important for further analysis and simulation.
+The schematic diagram on the Figure below depicts all the essential concepts covered so far that are important for further analysis and simulation.
 
 ```{r, echo=FALSE, schematic-diagram, fig.cap="Schematic diagrom of the components, parameters, and resulting forces in vjsim"}
 knitr::include_graphics(path = "schematic-diagram.png")
@@ -437,14 +437,14 @@ The force generation mechanism is a follows:
 1. **Max force** of the Force Generator represent major parameter, together with **Max Velocity**
 2. Based on the *current position* ($d$; where $d=0m$ is the position of the push-off start) on the Push-off Distance, based on the Force-Length characteristic, particular **force percentage** limits the  **potential force** than can be expressed
 3. Based on the *current time* ($t$; where $t=0s$ is the moment of the push-off start), particular *level of activation* is reached due to the Force-Time characteristic
-3. **Generated force** is the product of level of activation and potential force
+3. **Generated force** is the product of the level of activation and potential force
 4. Due to the Force-Velocity characteristic, **viscous force** is deducted from generated force to yield **ground reaction force** (**GRF**).
-5. Before deducting viscous force from generated force, viscous force needs to be *scaled down* using force percentage. In more complex simulation, viscous force would have it's own Force-Length characteristic, but in this simple version, we are going to assume it is the same as Force-Length charcteristic for the max force. If we do not scale viscous force, at the last moments before the take-off, due sudden drop of force percentage to 0, viscous force would be much higher than the generated force, which would yield negative ground reaction force (which is imposible for a jump). 
-6. Ground reaction force (GRF) is the force acting on the load. GRF is the *most important force* in the `vjsim`, since it represent the foce usually tracked in the sport science.
+5. Before deducting viscous force from the generated force, viscous force needs to be *scaled-down* using force percentage. In a more complex simulation, the viscous force would have its own Force-Length characteristic, but in this simple version, we are going to assume it is the same as Force-Length characteristic for the max force. If we do not scale viscous force, at the last moments before the take-off, due to sudden drop of force percentage to 0, the viscous force would be much higher than the generated force, which would yield negative ground reaction force (which is impossible for a jump). 
+6. Ground reaction force (GRF) is the force acting on the load. GRF is the *most important force* in the `vjsim`, since it represents the force usually tracked in the sports science.
 7. GRF is acting on the load object, but load also has weight. To get **propulsive force**, we need to deduct **weight** from the GRF
 8. Once we have propulsive or net force, to calculate acceleration, we need to divide it with load inertia or **mass**
 
-This whole process is integrated in the `vjsim::fgen_get_output` function. This function calculates all the forces and acceleration based on the `current_time`, `current_distance`,  `current_velocity` as well as the other system constrains and parameters of the Forge Generator. 
+This whole process is integrated in the `vjsim::fgen_get_output` function. This function calculates all the forces and acceleration based on the `current_time`, `current_distance`,  `current_velocity`, as well as the other system constraints and parameters of the Forge Generator. 
 
 ```{r}
 state <- expand.grid(

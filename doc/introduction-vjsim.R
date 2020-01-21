@@ -24,12 +24,11 @@ knitr::include_graphics(path = "force-generator-components.png")
 # devtools::install_github("mladenjovanovic/vjsim")
 
 # Install tidyverse and cowplot packages
-# install.packages(c("tidyverse", "cowplot", "DT"), dependencies = TRUE)
+# install.packages(c("tidyverse", "cowplot"), dependencies = TRUE)
 
 library(vjsim)
 library(tidyverse)
 library(cowplot)
-library(DT)
 
 ## ----force-length-characteristic, fig.cap="Force-Length characteristic"-------
 parameters <- expand.grid(
@@ -258,7 +257,7 @@ fgen_data <- fgen_get_output(
   time_to_max_activation = 0.3
 )
 
-datatable(round(fgen_data,2), rownames = FALSE)
+as_tibble(fgen_data)
 
 ## ----eval=FALSE---------------------------------------------------------------
 #  vignette("simulation-vjsim")

@@ -27,7 +27,7 @@ Please read accompanying vignettes for examples and usage of the `vjsim`
 package
 
 1.  [Introduction to
-    vjsim](https://htmlpreview.github.io/?https://github.com/mladenjovanovic/vjsim/blob/master/doc/introduction-vjsim.html)
+    vjsim](https://htmlpreview.github.io/?https://github.com/mladenjovanovic/vjsim/master/doc/introduction-vjsim.html)
 
 <!-- end list -->
 
@@ -36,7 +36,7 @@ vignette("introduction-vjsim")
 ```
 
 2.  [Simulation in
-    vjsim](https://htmlpreview.github.io/?https://github.com/mladenjovanovic/vjsim/blob/master/doc/simulation-vjsim.html)
+    vjsim](https://htmlpreview.github.io/?https://github.com/mladenjovanovic/vjsim/master/doc/simulation-vjsim.html)
 
 <!-- end list -->
 

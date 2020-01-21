@@ -21,6 +21,5 @@ Suggests:
     rmarkdown,
     tidyverse,
     ggplot2,
-    cowplot,
-    DT
+    cowplot
 VignetteBuilder: knitr

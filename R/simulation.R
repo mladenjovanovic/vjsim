@@ -71,6 +71,9 @@ vj_simulate <- function( # system constrains
   # Used to calculate RFD
   previous_GRF <- 0
 
+  # Used to calculate RPD
+  previous_power <- 0
+
   # List for saving kinetics trace
   trace_data <- list(max_iter)
   trace_index <- 1
@@ -98,6 +101,12 @@ vj_simulate <- function( # system constrains
   summary_peak_power <- 0
   summary_peak_power_time <- 0
   summary_peak_power_distance <- 0
+
+  # Rate of Power Development
+  summary_RPD <- 0
+  summary_peak_RPD <- 0
+  summary_peak_RPD_time <- 0
+  summary_peak_RPD_distance <- 0
 
   # ----------------------------------------
   # Simulation loop
@@ -242,12 +251,21 @@ vj_simulate <- function( # system constrains
           summary_peak_RFD_distance <- current_distance
           summary_peak_RFD_time <- current_time
        }
+
+       current_RPD <- (current_power - previous_power) / time_step
+
+       if (current_RPD > summary_peak_RPD) {
+         summary_peak_RPD <- current_RPD
+         summary_peak_RPD_distance <- current_distance
+         summary_peak_RPD_time <- current_time
+       }
     }
 
     # --------------------------------------------
     # Save trace
     if (save_trace) {
-       trace_data[[trace_index]] <- as.data.frame(fgen_output)
+      names(fgen_output) <- NULL
+      trace_data[[trace_index]] <- as.data.frame(fgen_output)
     }
 
     # --------------------------------------------
@@ -259,6 +277,9 @@ vj_simulate <- function( # system constrains
 
     # Update previous_GRF
     previous_GRF <- ground_reaction_force
+
+    # Update previous_power
+    previous_power <- current_power
   } # Main loop finished
 
 
@@ -305,6 +326,7 @@ vj_simulate <- function( # system constrains
         ),
 
      mean_RFD = summary_peak_GRF / summary_peak_GRF_time,
+     mean_RPD = summary_peak_power / summary_peak_power_time,
 
      peak_GRF = summary_peak_GRF,
      peak_GRF_time = summary_peak_GRF_time,
@@ -320,11 +342,15 @@ vj_simulate <- function( # system constrains
 
      peak_RFD = summary_peak_RFD,
      peak_RFD_distance = summary_peak_RFD_distance,
-     peak_RFD_time = summary_peak_RFD_time
+     peak_RFD_time = summary_peak_RFD_time,
+
+     peak_RPD = summary_peak_RPD,
+     peak_RPD_distance = summary_peak_RPD_distance,
+     peak_RPD_time = summary_peak_RPD_time
 
   )
 
-
+  names(trace_data) <- NULL
   return(
      list(
         summary = summary_data,

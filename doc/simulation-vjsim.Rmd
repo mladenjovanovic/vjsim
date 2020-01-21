@@ -1,0 +1,52 @@
+---
+title: "Simulation in `vjsim`"
+author: "Mladen Jovanović"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{simulation-vjsim}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.align = "center",
+  fig.width = 6,
+  fig.height = 4,
+  dpi = 300,
+  out.width = "90%",
+  auto_pdf = TRUE,
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+
+# Simulation
+
+```{r setup}
+# Install vjsim if you haven't already by running the following commands
+# install.packages("devtools")
+# devtools::install_github("mladenjovanovic/vjsim")
+
+# Install tidyverse and cowplot packages
+# install.packages(c("tidyverse", "cowplot"), dependencies = TRUE)
+
+library(vjsim)
+library(tidyverse)
+library(cowplot)
+```
+
+Before reading this vignette, please read [Introduction](https://htmlpreview.github.io/?https://github.com/mladenjovanovic/vjsim/blob/master/doc/introduction-vjsim.html) vignette by running:
+
+```{r eval=FALSE}
+vignette("introduction-vjsim")
+```
+
+
+(to be written...)

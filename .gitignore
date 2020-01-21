@@ -6,3 +6,4 @@
 .gitignore
 .Rbuildignore
 Meta
+inst/doc

@@ -20,5 +20,7 @@ Suggests:
     knitr,
     rmarkdown,
     tidyverse,
-    ggplot2
+    ggplot2,
+    cowplot,
+    DT
 VignetteBuilder: knitr

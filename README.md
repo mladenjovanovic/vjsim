@@ -23,10 +23,23 @@ devtools::install_github("mladenjovanovic/vjsim")
 
 ## Usage
 
-Please read accompanying
-[vignette](https://htmlpreview.github.io/?https://github.com/mladenjovanovic/vjsim/blob/master/doc/understanding-vjsim.html)
-for examples and usage of the vjsim
+Please read accompanying vignettes for examples and usage of the `vjsim`
+package
+
+1.  [Introduction to
+    vjsim](https://htmlpreview.github.io/?https://github.com/mladenjovanovic/vjsim/blob/master/doc/introduction-vjsim.html)
+
+<!-- end list -->
 
 ``` r
-vignette("understanding-vjsim")
+vignette("introduction-vjsim")
+```
+
+2.  [Simulation in
+    vjsim](https://htmlpreview.github.io/?https://github.com/mladenjovanovic/vjsim/blob/master/doc/simulation-vjsim.html)
+
+<!-- end list -->
+
+``` r
+vignette("simulation-vjsim")
 ```

@@ -475,7 +475,7 @@ as_tibble(as.data.frame(fgen_data))
 
 # Want to learn more?
 
-Please continue by reading "Simulation in `vjsim`" ([LINK](https://htmlpreview.github.io/?https://github.com/mladenjovanovic/vjsim/blob/master/doc/simulation-vjsim.html)) vignette:
+Please continue by reading "Simulation in `vjsim`" ([LINK](https://mladenjovanovic.github.io/vjsim/articles/simulation-vjsim.html)) vignette:
 
 ```{r eval=FALSE}
 vignette("simulation-vjsim")

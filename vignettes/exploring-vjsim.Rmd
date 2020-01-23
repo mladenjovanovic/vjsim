@@ -1,5 +1,5 @@
 ---
-title: "exploring-vjsim"
+title: "Exploring using `vjsim`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{exploring-vjsim}

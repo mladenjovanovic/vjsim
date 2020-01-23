@@ -1,5 +1,5 @@
 ---
-title: "profiling-vjsim"
+title: "Profiling in `vjsim`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{profiling-vjsim}

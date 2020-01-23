@@ -92,16 +92,16 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/exploring-vjsim.html">exploring-vjsim</a>
+      <a href="../articles/introduction-vjsim.html">Introduction to vjsim</a>
     </li>
     <li>
-      <a href="../articles/introduction-vjsim.html">Introduction to `vjsim`</a>
+      <a href="../articles/simulation-vjsim.html">Simulation basic</a>
     </li>
     <li>
-      <a href="../articles/profiling-vjsim.html">profiling-vjsim</a>
+      <a href="../articles/profiling-vjsim.html">Profiling in vjsim</a>
     </li>
     <li>
-      <a href="../articles/simulation-vjsim.html">Simulation in `vjsim`</a>
+      <a href="../articles/explore-vjsim.html">Exploration</a>
     </li>
   </ul>
 </li>
@@ -236,20 +236,20 @@
 #&gt; peak_RPD_distance                 0.017
 #&gt; peak_RPD_time                     0.131</div><div class='input'>
 <span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(
-   <span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>vertical_jump</span>$<span class='no'>trace</span>$<span class='no'>kinematics.current_distance</span>,
-   <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>vertical_jump</span>$<span class='no'>trace</span>$<span class='no'>kinematics.current_velocity</span>,
+   <span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>vertical_jump</span>$<span class='no'>trace</span>$<span class='no'>current_distance</span>,
+   <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>vertical_jump</span>$<span class='no'>trace</span>$<span class='no'>current_velocity</span>,
    <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>
-)</div><div class='output co'>#&gt; <span class='warning'>Warning: no non-missing arguments to min; returning Inf</span></div><div class='output co'>#&gt; <span class='warning'>Warning: no non-missing arguments to max; returning -Inf</span></div><div class='output co'>#&gt; <span class='warning'>Warning: no non-missing arguments to min; returning Inf</span></div><div class='output co'>#&gt; <span class='warning'>Warning: no non-missing arguments to max; returning -Inf</span></div><div class='output co'>#&gt; <span class='error'>Error in plot.window(...): need finite 'xlim' values</span></div><div class='img'><img src='vj_simulate-1.png' alt='' width='700' height='433' /></div><div class='input'>
+)</div><div class='img'><img src='vj_simulate-1.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(
-   <span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>vertical_jump</span>$<span class='no'>trace</span>$<span class='no'>kinematics.current_time</span>,
-   <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>vertical_jump</span>$<span class='no'>trace</span>$<span class='no'>kinetics.ground_reaction_force</span>,
+   <span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>vertical_jump</span>$<span class='no'>trace</span>$<span class='no'>current_time</span>,
+   <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>vertical_jump</span>$<span class='no'>trace</span>$<span class='no'>ground_reaction_force</span>,
    <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>
-)</div><div class='output co'>#&gt; <span class='warning'>Warning: no non-missing arguments to min; returning Inf</span></div><div class='output co'>#&gt; <span class='warning'>Warning: no non-missing arguments to max; returning -Inf</span></div><div class='output co'>#&gt; <span class='warning'>Warning: no non-missing arguments to min; returning Inf</span></div><div class='output co'>#&gt; <span class='warning'>Warning: no non-missing arguments to max; returning -Inf</span></div><div class='output co'>#&gt; <span class='error'>Error in plot.window(...): need finite 'xlim' values</span></div><div class='input'>
+)</div><div class='img'><img src='vj_simulate-2.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(
-   <span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>vertical_jump</span>$<span class='no'>trace</span>$<span class='no'>kinematics.current_distance</span>,
-   <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>vertical_jump</span>$<span class='no'>trace</span>$<span class='no'>kinetics.ground_reaction_force</span>,
+   <span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>vertical_jump</span>$<span class='no'>trace</span>$<span class='no'>current_distance</span>,
+   <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>vertical_jump</span>$<span class='no'>trace</span>$<span class='no'>ground_reaction_force</span>,
    <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>
-)</div><div class='output co'>#&gt; <span class='warning'>Warning: no non-missing arguments to min; returning Inf</span></div><div class='output co'>#&gt; <span class='warning'>Warning: no non-missing arguments to max; returning -Inf</span></div><div class='output co'>#&gt; <span class='warning'>Warning: no non-missing arguments to min; returning Inf</span></div><div class='output co'>#&gt; <span class='warning'>Warning: no non-missing arguments to max; returning -Inf</span></div><div class='output co'>#&gt; <span class='error'>Error in plot.window(...): need finite 'xlim' values</span></div></pre>
+)</div><div class='img'><img src='vj_simulate-3.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

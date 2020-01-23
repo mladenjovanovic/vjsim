@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get Mean Force over Distance — get_mean_force_over_distance • vjsim</title>
+<title>Get Max Power — get_max_power • vjsim</title>
 
 
 <!-- jquery -->
@@ -35,8 +35,9 @@
 
 
 
-<meta property="og:title" content="Get Mean Force over Distance — get_mean_force_over_distance" />
-<meta property="og:description" content="Function get_mean_force_over_distance calculates mean force over push-off distance using work equation" />
+<meta property="og:title" content="Get Max Power — get_max_power" />
+<meta property="og:description" content="Function get_max_power calculates maximal power assuming linear relationship between
+    max_force and max_velocity" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -126,40 +127,28 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get Mean Force over Distance</h1>
+    <h1>Get Max Power</h1>
     <small class="dont-index">Source: <a href='https://github.com/mladenjovanovic/vjsim/blob/master/R/utils.R'><code>R/utils.R</code></a></small>
-    <div class="hidden name"><code>get_mean_force_over_distance.Rd</code></div>
+    <div class="hidden name"><code>get_max_power.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Function <code>get_mean_force_over_distance</code> calculates mean force over push-off distance using work equation</p>
+    <p>Function <code>get_max_power</code> calculates maximal power assuming linear relationship between
+    <code>max_force</code> and <code>max_velocity</code></p>
     </div>
 
-    <pre class="usage"><span class='fu'>get_mean_force_over_distance</span>(
-  <span class='no'>mass</span>,
-  <span class='kw'>weight</span> <span class='kw'>=</span> <span class='no'>mass</span> * <span class='fl'>9.81</span>,
-  <span class='no'>take_off_velocity</span>,
-  <span class='no'>push_off_distance</span>
-)</pre>
+    <pre class="usage"><span class='fu'>get_max_power</span>(<span class='no'>max_force</span>, <span class='no'>max_velocity</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>mass</th>
+      <th>max_force</th>
       <td><p>Numeric vector</p></td>
     </tr>
     <tr>
-      <th>weight</th>
-      <td><p>Numeric vector. Default <code>mass</code> * 9.81</p></td>
-    </tr>
-    <tr>
-      <th>take_off_velocity</th>
-      <td><p>Numeric vector</p></td>
-    </tr>
-    <tr>
-      <th>push_off_distance</th>
-      <td><p>Numeric vector</p></td>
+      <th>max_velocity</th>
+      <td><p>Numeric vector.</p></td>
     </tr>
     </table>
 
@@ -168,7 +157,7 @@
     <p>Numeric vector</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>get_mean_force_over_distance</span>(<span class='fl'>100</span>, <span class='fl'>100</span>*<span class='fl'>9.81</span>, <span class='fl'>4</span>, <span class='fl'>0.4</span>)</div><div class='output co'>#&gt; [1] 2981</div></pre>
+    <pre class="examples"><div class='input'><span class='fu'>get_max_power</span>(<span class='fl'>3000</span>, <span class='fl'>4</span>)</div><div class='output co'>#&gt; [1] 3000</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

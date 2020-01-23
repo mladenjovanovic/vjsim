@@ -26,8 +26,7 @@ devtools::install_github("mladenjovanovic/vjsim")
 Please read accompanying vignettes for examples and usage of the `vjsim`
 package
 
-1.  [Introduction to
-    vjsim](https://htmlpreview.github.io/?https://github.com/mladenjovanovic/vjsim/master/doc/introduction-vjsim.html)
+1.  [Introduction](https://mladenjovanovic.github.io/vjsim/articles/introduction-vjsim.html)
 
 This vignette discusses the basic mechanical representation of the
 vertical jump system. Please read this to understand the overall setup.
@@ -37,8 +36,7 @@ Access it by clicking the above link or running the following code:
 vignette("introduction-vjsim")
 ```
 
-2.  [Simulation in
-    vjsim](https://htmlpreview.github.io/?https://github.com/mladenjovanovic/vjsim/master/doc/simulation-vjsim.html)
+2.  [Simulation](https://mladenjovanovic.github.io/vjsim/articles/simulation-vjsim.html)
 
 This vignette continues the [Introduction to
 vjsim](https://htmlpreview.github.io/?https://github.com/mladenjovanovic/vjsim/master/doc/introduction-vjsim.html)
@@ -50,8 +48,7 @@ code:
 vignette("simulation-vjsim")
 ```
 
-3.  [Profiling in
-    vjsim](https://htmlpreview.github.io/?https://github.com/mladenjovanovic/vjsim/master/doc/profiling-vjsim.html)
+3.  [Profiling](https://mladenjovanovic.github.io/vjsim/articles/profiling-vjsim.html)
 
 Once you understand how the [Simulation in
 vjsim](https://htmlpreview.github.io/?https://github.com/mladenjovanovic/vjsim/master/doc/simulation-vjsim.html)
@@ -64,8 +61,7 @@ running the following code:
 vignette("profiling-vjsim")
 ```
 
-4.  [Exploring
-    vjsim](https://htmlpreview.github.io/?https://github.com/mladenjovanovic/vjsim/master/doc/exploring-vjsim.html)
+4.  [Exploring](https://mladenjovanovic.github.io/vjsim/articles/exploring-vjsim.html)
 
 In this vignette we are going to explore various assumptions of the
 model, “optimal” FV profiles and some other interesting questions.

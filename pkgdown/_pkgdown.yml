@@ -1,0 +1,13 @@
+navbar:
+  components:
+    articles:
+      text: Articles
+      menu:
+      - text: 'Introduction to vjsim'
+        href: articles/introduction-vjsim.html
+      - text: 'Simulation basic'
+        href: articles/simulation-vjsim.html
+      - text: 'Profiling in vjsim'
+        href: articles/profiling-vjsim.html
+      - text: 'Exploration'
+        href: articles/explore-vjsim.html

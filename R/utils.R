@@ -12,20 +12,19 @@ get_height <- function(take_off_velocity, gravity_const = 9.81) {
 }
 
 
-#' Get Power
+#' Get Max Power
 #'
-#' Function \code{get_power} calculates maximal power assuming linear relationship between
+#' Function \code{get_max_power} calculates maximal power assuming linear relationship between
 #'     \code{max_force} and \code{max_velocity}
 #' @param max_force Numeric vector
 #' @param max_velocity Numeric vector.
 #' @return Numeric vector
 #' @export
 #' @examples
-#' get_power(3000, 4)
-get_power <- function(max_force, max_velocity) {
+#' get_max_power(3000, 4)
+get_max_power <- function(max_force, max_velocity) {
   (max_force * max_velocity) / 4
 }
-
 
 #' Get Mean Power
 #'

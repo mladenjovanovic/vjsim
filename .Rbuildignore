@@ -2,8 +2,6 @@
 ^\.Rproj\.user$
 ^data-raw$
 ^README\.Rmd$
-<<<<<<< HEAD
 ^doc$
 ^Meta$
-=======
->>>>>>> 3f81782fc3aedad37b162d0ebb364ddf1c3f78a7
+^docs$

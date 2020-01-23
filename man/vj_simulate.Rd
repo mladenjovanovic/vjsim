@@ -53,20 +53,20 @@ vertical_jump <- vj_simulate(
 round(t(vertical_jump$summary), 3)
 
 plot(
-   x = vertical_jump$trace$kinematics.current_distance,
-   y = vertical_jump$trace$kinematics.current_velocity,
+   x = vertical_jump$trace$current_distance,
+   y = vertical_jump$trace$current_velocity,
    type = "l"
 )
 
 plot(
-   x = vertical_jump$trace$kinematics.current_time,
-   y = vertical_jump$trace$kinetics.ground_reaction_force,
+   x = vertical_jump$trace$current_time,
+   y = vertical_jump$trace$ground_reaction_force,
    type = "l"
 )
 
 plot(
-   x = vertical_jump$trace$kinematics.current_distance,
-   y = vertical_jump$trace$kinetics.ground_reaction_force,
+   x = vertical_jump$trace$current_distance,
+   y = vertical_jump$trace$ground_reaction_force,
    type = "l"
 )
 }

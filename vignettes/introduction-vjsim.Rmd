@@ -230,7 +230,7 @@ ggplot(
   geom_line() +
   facet_wrap(~time_to_max_activation_label) +
   xlab("Time (s)") +
-  ylab("Generated Force (N)") +
+  ylab("Activation") +
   labs(color = "Weight (N)", linetype = "Force Percentage")
 
 ggplot(

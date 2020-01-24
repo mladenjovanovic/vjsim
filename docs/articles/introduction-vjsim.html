@@ -242,7 +242,7 @@ Force-Time characteristic
 <p>As already explained in the Force-Length characteristic, Force Generator at a particular percent of the push-off distance can generate only a percent of max force (e.g. 80% at the beginning of the vertical jump push-off; <span class="math inline">\(d=0\)</span> and <span class="math inline">\(t=0\)</span>). Combining max force and force percentage gives us the <strong>potential force</strong> (<span class="math inline">\(F_{potential}\)</span>) that can be reached with the full activation. For example, if the max force is equal to 3,000N, and force percentage at a particular percent of the push-off distance is 90%, the potential force is equal to 2,700N. But as explained, this force cannot be reached instantaneously due to Force-Time characteristics of the Force Generator. This potential force can only be reached when full activation is reached. The product of the activation level and potential force yields <strong>generated force</strong> (<span class="math inline">\(F_{generated}\)</span>).</p>
 <p>How is initial activation calculated assuming max force, force percentage, and weight? In <code>vjsim</code>, initial activation is calculated with the following equation:</p>
 <p><span class="math display">\[
-Activation_{initial} = \frac{w}{F_{potentail}}
+Activation_{initial} = \frac{w}{F_{potential}}
 \]</span></p>
 <p>The following code and Figure demonstrates this calculus and the effects of the assumptions.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>parameters &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/expand.grid.html">expand.grid</a></span>(</span>
@@ -284,7 +284,7 @@ Activation_{initial} = \frac{w}{F_{potentail}}
 <span id="cb4-37"><a href="#cb4-37"></a><span class="st">  </span><span class="kw">geom_line</span>() <span class="op">+</span></span>
 <span id="cb4-38"><a href="#cb4-38"></a><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>time_to_max_activation_label) <span class="op">+</span></span>
 <span id="cb4-39"><a href="#cb4-39"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Time (s)"</span>) <span class="op">+</span></span>
-<span id="cb4-40"><a href="#cb4-40"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">"Generated Force (N)"</span>) <span class="op">+</span></span>
+<span id="cb4-40"><a href="#cb4-40"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">"Activation"</span>) <span class="op">+</span></span>
 <span id="cb4-41"><a href="#cb4-41"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">color =</span> <span class="st">"Weight (N)"</span>, <span class="dt">linetype =</span> <span class="st">"Force Percentage"</span>)</span></code></pre></div>
 <div class="figure" style="text-align: center">
 <img src="introduction-vjsim_files/figure-html/initial-activation-1.png" alt="Calculating initial activation" width="90%"><p class="caption">

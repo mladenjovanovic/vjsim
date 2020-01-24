@@ -7,9 +7,9 @@
 
 <!-- badges: end -->
 
-The goal of `vjsim` is to simulate a simple vertical jump model to
-provide an educational tool for helping in understanding elementary
-biomechanical concepts and jump profiles used in sport science.
+`vjsim` is R package that simulates vertical jump with the aim of
+teaching basic biomechanical principles, FV profiling, and exploring
+assumptions of FV optimization models.
 
 ## Installation
 

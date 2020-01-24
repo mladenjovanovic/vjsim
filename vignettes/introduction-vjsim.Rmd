@@ -28,7 +28,7 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-The goal of `vjsim` is to simulate a simple vertical jump model to provide an educational tool for helping in understanding elementary biomechanical concepts and jump profiles used in sport science.
+`vjsim` is R package that simulates vertical jump with the aim of teaching basic biomechanical principles, FV profiling, and exploring assumptions of FV optimization models. 
 
 A vertical jump can be done in multiple ways. One way is to quickly dip down and then rebound as high as possible. This vertical jump contains *countermovement action*, which increases vertical jump height due to various mechanisms (which are not in our interest for this simulation). Another way involves squatting down, holding the squat position for a second or two, and then exploding upward without any dip. This can be considered purely *concentric* (or static) jump, and it is usually termed *squat jump* to be differentiated from the countermovement jump. The hands are typically held at the hip, without allowing any swinging action. In `vjsim` only the squat jump is simulated and analyzed. Thus, when I refer to vertical jump, I refer to a static squat jump with arms continuously held at the hips.
 

@@ -44,7 +44,7 @@ vignette("introduction-vjsim")
 
 2. [Simulation](https://mladenjovanovic.github.io/vjsim/articles/simulation-vjsim.html)
 
-This vignette continues the [Introduction to vjsim](https://htmlpreview.github.io/?https://github.com/mladenjovanovic/vjsim/master/doc/introduction-vjsim.html) vignette and expands on the topic of simulation and how vertical jump is simulated. Access it by clicking the above link or running the following code:
+This vignette continues the [Introduction](https://mladenjovanovic.github.io/vjsim/articles/introduction-vjsim.html) vignette and expands on the topic of simulation and how vertical jump is simulated. Access it by clicking the above link or running the following code:
 
 ``` r
 vignette("simulation-vjsim")
@@ -52,7 +52,7 @@ vignette("simulation-vjsim")
 
 3. [Profiling](https://mladenjovanovic.github.io/vjsim/articles/profiling-vjsim.html)
 
-Once you understand how the [Simulation in vjsim](https://htmlpreview.github.io/?https://github.com/mladenjovanovic/vjsim/master/doc/simulation-vjsim.html) works, we can start playing with profiling. Force-Velocity (FV), Load-Velocity (LV), and other profiles are discussed, as well as the idea of "optimal" FV profile. Access it by clicking the above link or running the following code:
+Once you understand how the [Simulation](https://mladenjovanovic.github.io/vjsim/articles/simulation-vjsim.html) works, we can start playing with profiling. Force-Velocity (FV), Load-Velocity (LV), and other profiles are discussed, as well as the idea of "optimal" FV profile. Access it by clicking the above link or running the following code:
 
 ``` r
 vignette("profiling-vjsim")

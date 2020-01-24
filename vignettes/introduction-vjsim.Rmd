@@ -185,7 +185,7 @@ As already explained in the Force-Length characteristic, Force Generator at a pa
 How is initial activation calculated assuming max force, force percentage, and weight? In `vjsim`, initial activation is calculated with the following equation:
 
 $$
-Activation_{initial} = \frac{w}{F_{potentail}}
+Activation_{initial} = \frac{w}{F_{potential}}
 $$
 
 The following code and Figure demonstrates this calculus and the effects of the assumptions. 

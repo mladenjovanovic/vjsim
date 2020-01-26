@@ -19,6 +19,8 @@ You can install the development version from
 ``` r
 # install.packages("devtools")
 devtools::install_github("mladenjovanovic/vjsim")
+
+require(vjsim)
 ```
 
 ## Usage
@@ -71,6 +73,14 @@ Access it by clicking the above link or running the following code:
 vignette("exploring-vjsim")
 ```
 
-## Shiny App
+## [Shiny App](https://athletess.shinyapps.io/shiny-simulator/)
 
-(Video and App will be added)
+To run the Shiny app, use the following code, or by clicking on the
+above link (this will take you to the *shinyapps.io*)
+
+``` r
+# install.packages(c("shiny", "plotly", "DT"))
+run_simulator()
+```
+
+(App is in ongoing development; Instructional Video will be added)

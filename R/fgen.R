@@ -3,9 +3,9 @@
 #' Due to the Force Generator Force-Length characteristic, maximal force is unable to be expressed across whole Push-off Distance.
 #'    \code{fgen_get_force_percentage} is a function that represents the force percentage at \code{push_off_perc}
 #' @param push_off_perc Numeric vector. Indicates percentage of the Push-off Distance. Values needs to be positive
-#' @param start_perc Numeric vector. Indicates starting percentage. Allowed range from 0 to 1. Default is 0.8
-#' @param threshold Numeric vector. Indicates threshold where the line starts to break. Use values from 0.8 to 1, where
-#'     1 is equal to \code{push_off_perc} position. Default is 0.9
+#' @param start_perc Numeric vector. Indicates starting percentage. Allowed range from 0.5 to 1. Default is 0.8
+#' @param threshold Numeric vector. Indicates threshold where the line starts to break. Use values from 0.8 to 1.
+#'      Default is 0.9
 #' @return Numeric vector with values from 0 to 1, indicating Force Percentage at particular \code{push_off_perc}
 #' @export
 #' @examples
@@ -33,8 +33,8 @@ fgen_get_force_percentage <- function(push_off_perc,
     stop("Push-off distance percentage (push_off_perc) cannot be below zero.", call. = FALSE)
   }
 
-  if (any(start_perc < 0 | start_perc > 1)) {
-    stop("Start percentage (start_perc) needs to be within 0.8 - 1.")
+  if (any(start_perc < 0.5 | start_perc > 1)) {
+    stop("Start percentage (start_perc) needs to be within 0.5 - 1.")
   }
 
   if (any(threshold > 1 | threshold < 0.8)) {

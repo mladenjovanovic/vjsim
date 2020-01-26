@@ -100,7 +100,9 @@
 <a href="#installation" class="anchor"></a>Installation</h2>
 <p>You can install the development version from <a href="https://github.com/mladenjovanovic/vjsim">GitHub</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># install.packages("devtools")</span></span>
-<span id="cb1-2"><a href="#cb1-2"></a>devtools<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/devtools/man/remote-reexports.html">install_github</a></span>(<span class="st">"mladenjovanovic/vjsim"</span>)</span></code></pre></div>
+<span id="cb1-2"><a href="#cb1-2"></a>devtools<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/devtools/man/remote-reexports.html">install_github</a></span>(<span class="st">"mladenjovanovic/vjsim"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3"></a></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span>(vjsim)</span></code></pre></div>
 </div>
 <div id="usage" class="section level2">
 <h2 class="hasAnchor">
@@ -137,8 +139,12 @@
 </div>
 <div id="shiny-app" class="section level2">
 <h2 class="hasAnchor">
-<a href="#shiny-app" class="anchor"></a>Shiny App</h2>
-<p>(Video and App will be added)</p>
+<a href="#shiny-app" class="anchor"></a><a href="https://athletess.shinyapps.io/shiny-simulator/">Shiny App</a>
+</h2>
+<p>To run the Shiny app, use the following code, or by clicking on the above link (this will take you to the <em>shinyapps.io</em>)</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="co"># install.packages(c("shiny", "plotly", "DT"))</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/run_simulator.html">run_simulator</a></span>()</span></code></pre></div>
+<p>(App is in ongoing development; Instructional Video will be added)</p>
 </div>
 </div>
   </div>

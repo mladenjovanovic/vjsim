@@ -1,0 +1,12 @@
+name: shiny-simulator
+title: shiny-simulator
+username:
+account: athletess
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1706171
+bundleId: 2754667
+url: https://athletess.shinyapps.io/shiny-simulator/
+when: 1580073833.70389
+asMultiple: FALSE
+asStatic: FALSE

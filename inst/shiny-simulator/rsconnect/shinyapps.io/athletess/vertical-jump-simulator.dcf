@@ -1,0 +1,12 @@
+name: vertical-jump-simulator
+title: vertical-jump-simulator
+username:
+account: athletess
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1706124
+bundleId: 2754654
+url: https://athletess.shinyapps.io/vertical-jump-simulator/
+when: 1580073076.11486
+asMultiple: FALSE
+asStatic: FALSE

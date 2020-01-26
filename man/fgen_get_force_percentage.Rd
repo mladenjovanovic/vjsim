@@ -9,10 +9,10 @@ fgen_get_force_percentage(push_off_perc, start_perc = 0.8, threshold = 0.9)
 \arguments{
 \item{push_off_perc}{Numeric vector. Indicates percentage of the Push-off Distance. Values needs to be positive}
 
-\item{start_perc}{Numeric vector. Indicates starting percentage. Allowed range from 0 to 1. Default is 0.8}
+\item{start_perc}{Numeric vector. Indicates starting percentage. Allowed range from 0.5 to 1. Default is 0.8}
 
-\item{threshold}{Numeric vector. Indicates threshold where the line starts to break. Use values from 0.8 to 1, where
-1 is equal to \code{push_off_perc} position. Default is 0.9}
+\item{threshold}{Numeric vector. Indicates threshold where the line starts to break. Use values from 0.8 to 1.
+Default is 0.9}
 }
 \value{
 Numeric vector with values from 0 to 1, indicating Force Percentage at particular \code{push_off_perc}

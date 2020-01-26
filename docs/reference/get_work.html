@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get Mean Power — get_mean_power • vjsim</title>
+<title>Get Work Done — get_work • vjsim</title>
 
 
 <!-- jquery -->
@@ -35,8 +35,9 @@
 
 
 
-<meta property="og:title" content="Get Mean Power — get_mean_power" />
-<meta property="og:description" content="Function get_mean_power calculates the vertical jump mean power using kinetic and potential enery" />
+<meta property="og:title" content="Get Work Done — get_work" />
+<meta property="og:description" content="Function get_work calculates the work needed for the vertical jump using
+    kinetic and potential energy" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -126,22 +127,17 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get Mean Power</h1>
+    <h1>Get Work Done</h1>
     <small class="dont-index">Source: <a href='https://github.com/mladenjovanovic/vjsim/blob/master/R/utils.R'><code>R/utils.R</code></a></small>
-    <div class="hidden name"><code>get_mean_power.Rd</code></div>
+    <div class="hidden name"><code>get_work.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Function <code>get_mean_power</code> calculates the vertical jump mean power using kinetic and potential enery</p>
+    <p>Function <code>get_work</code> calculates the work needed for the vertical jump using
+    kinetic and potential energy</p>
     </div>
 
-    <pre class="usage"><span class='fu'>get_mean_power</span>(
-  <span class='no'>mass</span>,
-  <span class='kw'>weight</span> <span class='kw'>=</span> <span class='no'>mass</span> * <span class='fl'>9.81</span>,
-  <span class='no'>take_off_velocity</span>,
-  <span class='no'>push_off_distance</span>,
-  <span class='no'>time_taken</span>
-)</pre>
+    <pre class="usage"><span class='fu'>get_work</span>(<span class='no'>mass</span>, <span class='kw'>weight</span> <span class='kw'>=</span> <span class='no'>mass</span> * <span class='fl'>9.81</span>, <span class='no'>take_off_velocity</span>, <span class='no'>push_off_distance</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -162,10 +158,6 @@
       <th>push_off_distance</th>
       <td><p>Numeric vector</p></td>
     </tr>
-    <tr>
-      <th>time_taken</th>
-      <td><p>Numeric vector</p></td>
-    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -173,7 +165,7 @@
     <p>Numeric vector</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>get_mean_power</span>(<span class='fl'>100</span>, <span class='fl'>100</span> * <span class='fl'>9.81</span>, <span class='fl'>4</span>, <span class='fl'>0.4</span>, <span class='fl'>0.3</span>)</div><div class='output co'>#&gt; [1] 3974.667</div></pre>
+    <pre class="examples"><div class='input'><span class='fu'>get_work</span>(<span class='fl'>100</span>, <span class='fl'>100</span> * <span class='fl'>9.81</span>, <span class='fl'>4</span>, <span class='fl'>0.4</span>)</div><div class='output co'>#&gt; [1] 1192.4</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

@@ -46,27 +46,28 @@ Simulates vertical jump using Runge-Kutta method
 }
 \examples{
 vertical_jump <- vj_simulate(
-   mass = 85,
-   push_off_distance = 0.4,
-   time_step = 0.001)
+  mass = 85,
+  push_off_distance = 0.4,
+  time_step = 0.001
+)
 
 round(t(vertical_jump$summary), 3)
 
 plot(
-   x = vertical_jump$trace$current_distance,
-   y = vertical_jump$trace$current_velocity,
-   type = "l"
+  x = vertical_jump$trace$current_distance,
+  y = vertical_jump$trace$current_velocity,
+  type = "l"
 )
 
 plot(
-   x = vertical_jump$trace$current_time,
-   y = vertical_jump$trace$ground_reaction_force,
-   type = "l"
+  x = vertical_jump$trace$current_time,
+  y = vertical_jump$trace$ground_reaction_force,
+  type = "l"
 )
 
 plot(
-   x = vertical_jump$trace$current_distance,
-   y = vertical_jump$trace$ground_reaction_force,
-   type = "l"
+  x = vertical_jump$trace$current_distance,
+  y = vertical_jump$trace$ground_reaction_force,
+  type = "l"
 )
 }

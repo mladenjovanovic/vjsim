@@ -16,28 +16,29 @@
 #' @export
 #' @examples
 #' vertical_jump <- vj_simulate(
-#'    mass = 85,
-#'    push_off_distance = 0.4,
-#'    time_step = 0.001)
+#'   mass = 85,
+#'   push_off_distance = 0.4,
+#'   time_step = 0.001
+#' )
 #'
 #' round(t(vertical_jump$summary), 3)
 #'
 #' plot(
-#'    x = vertical_jump$trace$current_distance,
-#'    y = vertical_jump$trace$current_velocity,
-#'    type = "l"
+#'   x = vertical_jump$trace$current_distance,
+#'   y = vertical_jump$trace$current_velocity,
+#'   type = "l"
 #' )
 #'
 #' plot(
-#'    x = vertical_jump$trace$current_time,
-#'    y = vertical_jump$trace$ground_reaction_force,
-#'    type = "l"
+#'   x = vertical_jump$trace$current_time,
+#'   y = vertical_jump$trace$ground_reaction_force,
+#'   type = "l"
 #' )
 #'
 #' plot(
-#'    x = vertical_jump$trace$current_distance,
-#'    y = vertical_jump$trace$ground_reaction_force,
-#'    type = "l"
+#'   x = vertical_jump$trace$current_distance,
+#'   y = vertical_jump$trace$ground_reaction_force,
+#'   type = "l"
 #' )
 vj_simulate <- function( # system constrains
                         mass = 75,
@@ -114,8 +115,8 @@ vj_simulate <- function( # system constrains
 
     # Do the safety check
     if (trace_index > max_iter) {
-       message("Maximal iterations reached. Returning NULL. Check the simulation parameters")
-       return(NULL)
+      message("Maximal iterations reached. Returning NULL. Check the simulation parameters")
+      return(NULL)
     }
 
     # Update kinematic variables
@@ -124,7 +125,7 @@ vj_simulate <- function( # system constrains
     current_velocity <- next_velocity
 
     if (iter) {
-      message(paste("t=", round(current_time,3), " d=", round(current_distance, 3)))
+      message(paste("t=", round(current_time, 3), " d=", round(current_distance, 3)))
     }
 
     # Get Force Generator output
@@ -224,41 +225,41 @@ vj_simulate <- function( # system constrains
     # Summary metrics
 
     if (current_velocity > summary_peak_velocity) {
-       summary_peak_velocity <- current_velocity
-       summary_peak_velocity_distance <- current_distance
-       summary_peak_velocity_time <- current_time
+      summary_peak_velocity <- current_velocity
+      summary_peak_velocity_distance <- current_distance
+      summary_peak_velocity_time <- current_time
     }
 
     if (ground_reaction_force > summary_peak_GRF) {
-       summary_peak_GRF <- ground_reaction_force
-       summary_peak_GRF_distance <- current_distance
-       summary_peak_GRF_time <- current_time
+      summary_peak_GRF <- ground_reaction_force
+      summary_peak_GRF_distance <- current_distance
+      summary_peak_GRF_time <- current_time
     }
 
     current_power <- current_velocity * ground_reaction_force
 
     if (current_power > summary_peak_power) {
-       summary_peak_power <- current_power
-       summary_peak_power_distance <- current_distance
-       summary_peak_power_time <- current_time
+      summary_peak_power <- current_power
+      summary_peak_power_distance <- current_distance
+      summary_peak_power_time <- current_time
     }
 
-    if(trace_index > 1) {
-       current_RFD <- (ground_reaction_force - previous_GRF) / time_step
+    if (trace_index > 1) {
+      current_RFD <- (ground_reaction_force - previous_GRF) / time_step
 
-       if (current_RFD > summary_peak_RFD) {
-          summary_peak_RFD <- current_RFD
-          summary_peak_RFD_distance <- current_distance
-          summary_peak_RFD_time <- current_time
-       }
+      if (current_RFD > summary_peak_RFD) {
+        summary_peak_RFD <- current_RFD
+        summary_peak_RFD_distance <- current_distance
+        summary_peak_RFD_time <- current_time
+      }
 
-       current_RPD <- (current_power - previous_power) / time_step
+      current_RPD <- (current_power - previous_power) / time_step
 
-       if (current_RPD > summary_peak_RPD) {
-         summary_peak_RPD <- current_RPD
-         summary_peak_RPD_distance <- current_distance
-         summary_peak_RPD_time <- current_time
-       }
+      if (current_RPD > summary_peak_RPD) {
+        summary_peak_RPD <- current_RPD
+        summary_peak_RPD_distance <- current_distance
+        summary_peak_RPD_time <- current_time
+      }
     }
 
     # --------------------------------------------
@@ -285,76 +286,88 @@ vj_simulate <- function( # system constrains
 
   # Summary metrics
   summary_data <- data.frame(
-     mass = mass,
-     weight = weight,
-     push_off_distance = push_off_distance,
-     gravity_const = gravity_const,
+    mass = mass,
+    weight = weight,
+    push_off_distance = push_off_distance,
+    gravity_const = gravity_const,
 
-     current_distance = current_distance,
-     current_time = current_time,
-     current_ground_reaction_force = ground_reaction_force,
-     current_propulsive_force = propulsive_force,
+    current_distance = current_distance,
+    current_time = current_time,
+    current_ground_reaction_force = ground_reaction_force,
+    current_propulsive_force = propulsive_force,
 
-     take_off_velocity = current_velocity,
-     height = get_height(
-        take_off_velocity = current_velocity,
-        gravity_const = gravity_const
-        ),
+    take_off_velocity = current_velocity,
 
-     mean_GRF_over_distance = get_mean_force_over_distance(
-        mass = mass,
-        weight = weight,
-        take_off_velocity = current_velocity,
-        push_off_distance = current_distance
-     ),
+    height = get_height(
+      take_off_velocity = current_velocity,
+      gravity_const = gravity_const
+    ),
 
-     mean_GRF_over_time = get_mean_force_over_time(
-        mass = mass,
-        weight = weight,
-        take_off_velocity = current_velocity,
-        time_taken = current_time
-     ),
+    mean_GRF_over_distance = get_mean_force_over_distance(
+      mass = mass,
+      weight = weight,
+      take_off_velocity = current_velocity,
+      push_off_distance = current_distance
+    ),
 
-     mean_velocity = current_distance / current_time,
+    mean_GRF_over_time = get_mean_force_over_time(
+      mass = mass,
+      weight = weight,
+      take_off_velocity = current_velocity,
+      time_taken = current_time
+    ),
 
-     mean_power = get_mean_power(
-        mass = mass,
-        weight = weight,
-        take_off_velocity = current_velocity,
-        push_off_distance = current_distance,
-        time_taken = current_time
-        ),
+    mean_velocity = current_distance / current_time,
 
-     mean_RFD = summary_peak_GRF / summary_peak_GRF_time,
-     mean_RPD = summary_peak_power / summary_peak_power_time,
+    work_done = get_work(
+      mass = mass,
+      weight = weight,
+      take_off_velocity = current_velocity,
+      push_off_distance = current_distance
+    ),
 
-     peak_GRF = summary_peak_GRF,
-     peak_GRF_time = summary_peak_GRF_time,
-     peak_GRF_distance = summary_peak_GRF_distance,
+    impulse = get_impuse(
+      mass = mass,
+      take_off_velocity = current_velocity
+    ),
 
-     peak_velocity = summary_peak_velocity,
-     peak_velocity_time = summary_peak_velocity_time,
-     peak_velocity_distance = summary_peak_velocity_distance,
+    mean_power = get_mean_power(
+      mass = mass,
+      weight = weight,
+      take_off_velocity = current_velocity,
+      push_off_distance = current_distance,
+      time_taken = current_time
+    ),
 
-     peak_power = summary_peak_power,
-     peak_power_distance = summary_peak_power_distance,
-     peak_power_time = summary_peak_power_time,
+    mean_RFD = summary_peak_GRF / summary_peak_GRF_time,
+    mean_RPD = summary_peak_power / summary_peak_power_time,
 
-     peak_RFD = summary_peak_RFD,
-     peak_RFD_distance = summary_peak_RFD_distance,
-     peak_RFD_time = summary_peak_RFD_time,
+    peak_GRF = summary_peak_GRF,
+    peak_GRF_time = summary_peak_GRF_time,
+    peak_GRF_distance = summary_peak_GRF_distance,
 
-     peak_RPD = summary_peak_RPD,
-     peak_RPD_distance = summary_peak_RPD_distance,
-     peak_RPD_time = summary_peak_RPD_time
+    peak_velocity = summary_peak_velocity,
+    peak_velocity_time = summary_peak_velocity_time,
+    peak_velocity_distance = summary_peak_velocity_distance,
 
+    peak_power = summary_peak_power,
+    peak_power_distance = summary_peak_power_distance,
+    peak_power_time = summary_peak_power_time,
+
+    peak_RFD = summary_peak_RFD,
+    peak_RFD_distance = summary_peak_RFD_distance,
+    peak_RFD_time = summary_peak_RFD_time,
+
+    peak_RPD = summary_peak_RPD,
+    peak_RPD_distance = summary_peak_RPD_distance,
+    peak_RPD_time = summary_peak_RPD_time
   )
 
   names(trace_data) <- NULL
   return(
-     list(
-        summary = summary_data,
-        trace = do.call(rbind, trace_data)
-        )
+    list(
+      summary = summary_data,
+      trace = do.call(rbind, trace_data)
+    )
   )
 }

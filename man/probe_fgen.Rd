@@ -45,7 +45,7 @@ fgen_probe_data <- probe_fgen(
 
 plot_data <- gather(fgen_probe_data, key = "variable", value = "value", -(1:2))
 
-ggplot(plot_data, aes(x = change_ratio, y = value,  color = probing)) +
+ggplot(plot_data, aes(x = change_ratio, y = value, color = probing)) +
   geom_line() +
   facet_wrap(~variable, scales = "free_y") +
   xlab("Current state change") +

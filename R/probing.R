@@ -14,28 +14,29 @@
 #' require(ggplot2)
 #' fgen_probe_data <- get_probing_data(
 #'   args_list = list(current_time = 0.3, current_distance = 0.1, current_velocity = 0),
-#'   probe_func = function(...){fgen_get_output(...)}, aggregate = "raw",
+#'   probe_func = function(...) {
+#'     fgen_get_output(...)
+#'   }, aggregate = "raw",
 #'   mass = 70, max_force = 5000
 #' )
 #'
 #' ggplot(
-#' fgen_probe_data,
-#'  aes(
-#'    x = change_ratio,
-#'    y = kinetics.ground_reaction_force,
-#'    color = probing
+#'   fgen_probe_data,
+#'   aes(
+#'     x = change_ratio,
+#'     y = kinetics.ground_reaction_force,
+#'     color = probing
 #'   )
 #' ) +
-#' geom_line()
-
+#'   geom_line()
 get_probing_data <- function(args_list,
-                             probe_func = function(...){},
+                             probe_func = function(...) {},
                              change_ratio = seq(0.8, 1.2, length.out = 100),
                              aggregate = "raw",
                              ...) {
 
-  #do.call(pred_func, c(args_list, ...))
-  #do.call(expand.grid, c(args_list, list(probe = probe)))
+  # do.call(pred_func, c(args_list, ...))
+  # do.call(expand.grid, c(args_list, list(probe = probe)))
   args_names <- names(args_list)
   args_number <- length(args_list)
 
@@ -54,7 +55,7 @@ get_probing_data <- function(args_list,
 
   # Modify only one args while keeping others the same
   for (i in seq(1, args_number)) {
-    probing_data[seq((i-1)*change_number + 1, i * change_number), 2 + i] <- change_ratio * unlist(args_list)[[i]]
+    probing_data[seq((i - 1) * change_number + 1, i * change_number), 2 + i] <- change_ratio * unlist(args_list)[[i]]
   }
 
   # Get output data
@@ -67,19 +68,19 @@ get_probing_data <- function(args_list,
   init_out_data <- do.call(data.frame, init_out_data)
 
   # Repeat init_out_data so it has equal rows to out_data
-  init_out_data[seq(1, nrow(out_data)),] <- init_out_data[1 ,]
+  init_out_data[seq(1, nrow(out_data)), ] <- init_out_data[1, ]
 
 
   if (aggregate == "diff") {
-    out_data <-  out_data -  init_out_data
+    out_data <- out_data - init_out_data
   }
 
   if (aggregate == "ratio") {
-    out_data <-  out_data /  init_out_data
+    out_data <- out_data / init_out_data
   }
 
   # Bind the output
-  cbind(probing_data,  out_data)
+  cbind(probing_data, out_data)
 }
 
 #' Probe Force Generator
@@ -105,32 +106,29 @@ get_probing_data <- function(args_list,
 #'
 #' plot_data <- gather(fgen_probe_data, key = "variable", value = "value", -(1:2))
 #'
-#' ggplot(plot_data, aes(x = change_ratio, y = value,  color = probing)) +
+#' ggplot(plot_data, aes(x = change_ratio, y = value, color = probing)) +
 #'   geom_line() +
 #'   facet_wrap(~variable, scales = "free_y") +
 #'   xlab("Current state change") +
 #'   ylab(NULL)
-
 probe_fgen <- function(current_time = 0,
                        current_distance = 0,
                        current_velocity = 0,
                        change_ratio = seq(0.8, 1.2, length.out = 100),
                        aggregate = "raw",
                        ...) {
-
- fgen_probe_data <- get_probing_data(
+  fgen_probe_data <- get_probing_data(
     args_list = list(
       current_time = current_time,
       current_distance = current_distance,
       current_velocity = current_velocity
-      ),
-    probe_func = function(...){fgen_get_output(...)},
+    ),
+    probe_func = function(...) {
+      fgen_get_output(...)
+    },
     aggregate = aggregate,
     ...
   )
 
- return(fgen_probe_data)
+  return(fgen_probe_data)
 }
-
-
-

@@ -36,17 +36,19 @@ Get Probing Data
 require(ggplot2)
 fgen_probe_data <- get_probing_data(
   args_list = list(current_time = 0.3, current_distance = 0.1, current_velocity = 0),
-  probe_func = function(...){fgen_get_output(...)}, aggregate = "raw",
+  probe_func = function(...) {
+    fgen_get_output(...)
+  }, aggregate = "raw",
   mass = 70, max_force = 5000
 )
 
 ggplot(
-fgen_probe_data,
- aes(
-   x = change_ratio,
-   y = kinetics.ground_reaction_force,
-   color = probing
+  fgen_probe_data,
+  aes(
+    x = change_ratio,
+    y = kinetics.ground_reaction_force,
+    color = probing
   )
 ) +
-geom_line()
+  geom_line()
 }

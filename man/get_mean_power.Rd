@@ -30,5 +30,5 @@ Numeric vector
 Function \code{get_mean_power} calculates the vertical jump mean power using kinetic and potential enery
 }
 \examples{
-get_mean_power(100, 100*9.81, 4, 0.4, 0.3)
+get_mean_power(100, 100 * 9.81, 4, 0.4, 0.3)
 }

@@ -26,6 +26,30 @@ get_max_power <- function(max_force, max_velocity) {
   (max_force * max_velocity) / 4
 }
 
+#' Get Work Done
+#'
+#' Function \code{get_work} calculates the work needed for the vertical jump using
+#'     kinetic and potential energy
+#' @param mass Numeric vector
+#' @param weight Numeric vector. Default \code{mass} * 9.81
+#' @param take_off_velocity Numeric vector
+#' @param push_off_distance Numeric vector
+#' @return Numeric vector
+#' @export
+#' @examples
+#' get_work(100, 100 * 9.81, 4, 0.4)
+get_work <- function(mass,
+                     weight = mass * 9.81,
+                     take_off_velocity,
+                     push_off_distance) {
+  kinetic_energy <- (mass * take_off_velocity^2) / 2
+  potential_energy <- weight * push_off_distance
+
+  total_energy <- kinetic_energy + potential_energy
+
+  return(total_energy)
+}
+
 #' Get Mean Power
 #'
 #' Function \code{get_mean_power} calculates the vertical jump mean power using kinetic and potential enery
@@ -37,16 +61,18 @@ get_max_power <- function(max_force, max_velocity) {
 #' @return Numeric vector
 #' @export
 #' @examples
-#' get_mean_power(100, 100*9.81, 4, 0.4, 0.3)
+#' get_mean_power(100, 100 * 9.81, 4, 0.4, 0.3)
 get_mean_power <- function(mass,
                            weight = mass * 9.81,
                            take_off_velocity,
                            push_off_distance,
                            time_taken) {
-  kinetic_energy <- (mass * take_off_velocity^2) / 2
-  potential_energy <- weight * push_off_distance
-
-  total_energy <- kinetic_energy + potential_energy
+  total_energy <- get_work(
+    mass = mass,
+    weight = weight,
+    take_off_velocity = take_off_velocity,
+    push_off_distance = push_off_distance
+  )
 
   # mean power
   total_energy / time_taken
@@ -62,12 +88,12 @@ get_mean_power <- function(mass,
 #' @return Numeric vector
 #' @export
 #' @examples
-#' get_mean_force_over_distance(100, 100*9.81, 4, 0.4)
+#' get_mean_force_over_distance(100, 100 * 9.81, 4, 0.4)
 get_mean_force_over_distance <- function(mass,
                                          weight = mass * 9.81,
                                          take_off_velocity,
                                          push_off_distance) {
-  weight + (mass * (take_off_velocity^2) / (2*push_off_distance))
+  weight + (mass * (take_off_velocity^2) / (2 * push_off_distance))
 }
 
 
@@ -81,10 +107,24 @@ get_mean_force_over_distance <- function(mass,
 #' @return Numeric vector
 #' @export
 #' @examples
-#' get_mean_force_over_time(100, 100*9.81, 4, 0.3)
+#' get_mean_force_over_time(100, 100 * 9.81, 4, 0.3)
 get_mean_force_over_time <- function(mass,
-                                         weight = mass * 9.81,
-                                         take_off_velocity,
-                                         time_taken) {
+                                     weight = mass * 9.81,
+                                     take_off_velocity,
+                                     time_taken) {
   (mass * take_off_velocity / (time_taken)) + (weight)
+}
+
+
+#' Get Impulse
+#'
+#' @param mass Numeric vector
+#' @param take_off_velocity Numeric vector
+#' @return Numeric vector
+#' @export
+#' @examples
+#' get_impuse(75, 2)
+get_impuse <- function(mass,
+                       take_off_velocity) {
+  mass * take_off_velocity
 }

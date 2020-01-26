@@ -199,9 +199,10 @@
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='no'>vertical_jump</span> <span class='kw'>&lt;-</span> <span class='fu'>vj_simulate</span>(
-   <span class='kw'>mass</span> <span class='kw'>=</span> <span class='fl'>85</span>,
-   <span class='kw'>push_off_distance</span> <span class='kw'>=</span> <span class='fl'>0.4</span>,
-   <span class='kw'>time_step</span> <span class='kw'>=</span> <span class='fl'>0.001</span>)
+  <span class='kw'>mass</span> <span class='kw'>=</span> <span class='fl'>85</span>,
+  <span class='kw'>push_off_distance</span> <span class='kw'>=</span> <span class='fl'>0.4</span>,
+  <span class='kw'>time_step</span> <span class='kw'>=</span> <span class='fl'>0.001</span>
+)
 
 <span class='fu'><a href='https://rdrr.io/r/base/Round.html'>round</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/t.html'>t</a></span>(<span class='no'>vertical_jump</span>$<span class='no'>summary</span>), <span class='fl'>3</span>)</div><div class='output co'>#&gt;                                    [,1]
 #&gt; mass                             85.000
@@ -217,6 +218,8 @@
 #&gt; mean_GRF_over_distance         1439.526
 #&gt; mean_GRF_over_time             1400.489
 #&gt; mean_velocity                     1.116
+#&gt; work_done                       575.319
+#&gt; impulse                         202.857
 #&gt; mean_power                     1607.036
 #&gt; mean_RFD                      13007.171
 #&gt; mean_RPD                       9510.547
@@ -236,19 +239,19 @@
 #&gt; peak_RPD_distance                 0.017
 #&gt; peak_RPD_time                     0.131</div><div class='input'>
 <span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(
-   <span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>vertical_jump</span>$<span class='no'>trace</span>$<span class='no'>current_distance</span>,
-   <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>vertical_jump</span>$<span class='no'>trace</span>$<span class='no'>current_velocity</span>,
-   <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>
+  <span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>vertical_jump</span>$<span class='no'>trace</span>$<span class='no'>current_distance</span>,
+  <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>vertical_jump</span>$<span class='no'>trace</span>$<span class='no'>current_velocity</span>,
+  <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>
 )</div><div class='img'><img src='vj_simulate-1.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(
-   <span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>vertical_jump</span>$<span class='no'>trace</span>$<span class='no'>current_time</span>,
-   <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>vertical_jump</span>$<span class='no'>trace</span>$<span class='no'>ground_reaction_force</span>,
-   <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>
+  <span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>vertical_jump</span>$<span class='no'>trace</span>$<span class='no'>current_time</span>,
+  <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>vertical_jump</span>$<span class='no'>trace</span>$<span class='no'>ground_reaction_force</span>,
+  <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>
 )</div><div class='img'><img src='vj_simulate-2.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(
-   <span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>vertical_jump</span>$<span class='no'>trace</span>$<span class='no'>current_distance</span>,
-   <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>vertical_jump</span>$<span class='no'>trace</span>$<span class='no'>ground_reaction_force</span>,
-   <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>
+  <span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>vertical_jump</span>$<span class='no'>trace</span>$<span class='no'>current_distance</span>,
+  <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>vertical_jump</span>$<span class='no'>trace</span>$<span class='no'>ground_reaction_force</span>,
+  <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"l"</span>
 )</div><div class='img'><img src='vj_simulate-3.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

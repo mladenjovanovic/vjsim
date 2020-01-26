@@ -27,5 +27,5 @@ Numeric vector
 Function \code{get_mean_force_over_time} calculates mean force over push-off time using impulse equation
 }
 \examples{
-get_mean_force_over_time(100, 100*9.81, 4, 0.3)
+get_mean_force_over_time(100, 100 * 9.81, 4, 0.3)
 }

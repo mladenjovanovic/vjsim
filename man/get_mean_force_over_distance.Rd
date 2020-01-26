@@ -27,5 +27,5 @@ Numeric vector
 Function \code{get_mean_force_over_distance} calculates mean force over push-off distance using work equation
 }
 \examples{
-get_mean_force_over_distance(100, 100*9.81, 4, 0.4)
+get_mean_force_over_distance(100, 100 * 9.81, 4, 0.4)
 }

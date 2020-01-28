@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# vjsim <img src="man/figures/vjsim-logo.png" align="right" width="100" />
+# vjsim <img src="man/figures/vjsim-logo.png" align="right" width="200" />
 
 <!-- badges: start -->
 

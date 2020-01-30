@@ -84,9 +84,9 @@ The main characteristic of the Force Generator is the ability to produce force. 
 
 Unfortunately, Force Generator cannot express 100% of the maximal force across the whole push-off distance. Assuming *isometric* conditions (i.e. we move the Force Generator at a particular position alongside push-off distance and hold it *firmly* there), at a particular point in the push-off distance, Force Generator can express certain **force percentage** of the max force. The shape of this relationship (i.e. force percentage ~ percent of push-off distance) represents the Force-Length characteristic of the Force Generator. 
 
-The following code and Figure contains few examples how this relationship is modeled in `vjsim` using the `vjsim::fgen_get_force_percentage`[^functions] function. Rather than using raw distance (in meters), `vjsim::fgen_get_force_percentage` uses perceon of the push-off distance (`push_off_percent`). Force-Length characteristic implemented in the `vjsim` depends on two parameters: **starting percentage** (`start_perc`) and **threshold** (`threshold`). The starting percentage indicated the force percentage at the start of the vertical jump ($d=0m$, $t=0s$), while the threshold indicates the percent of push-off distance where force percentage is equal to 100%. The typical values for the starting percentage are between 0.6 and 0.8, and for the threshold between 0.8 and 0.9. 
+The following code and Figure contains few examples how this relationship is modeled in `vjsim` using the `vjsim::fgen_get_force_percentage_`[^functions] function. Rather than using raw distance (in meters), `vjsim::fgen_get_force_percentage_` uses perceon of the push-off distance (`push_off_percent`). Force-Length characteristic implemented in the `vjsim` depends on two parameters: **starting percentage** (`start_perc`) and **threshold** (`threshold`). The starting percentage indicated the force percentage at the start of the vertical jump ($d=0m$, $t=0s$), while the threshold indicates the percent of push-off distance where force percentage is equal to 100%. The typical values for the starting percentage are between 0.6 and 0.8, and for the threshold between 0.8 and 0.9. 
 
-[^functions]: You can either use `vjsim::fgen_get_force_percentage` or simply `fgen_get_force_percentage`. I am using prefix `vjsim::` to indicate functions from the `vjsim` package
+[^functions]: You can either use `vjsim::fgen_get_force_percentage_` or simply `fgen_get_force_percentage_`. I am using prefix `vjsim::` to indicate functions from the `vjsim` package
 
 ```{r setup}
 # Install vjsim if you haven't already by running the following commands
@@ -110,7 +110,7 @@ parameters <- expand.grid(
 
 force_length <- parameters %>%
   mutate(
-    force_perc = vjsim::fgen_get_force_percentage(
+    force_perc = vjsim::fgen_get_force_percentage_(
       push_off_perc = push_off_perc,
       start_perc = start_perc,
       threshold = threshold

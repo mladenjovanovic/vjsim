@@ -12,7 +12,7 @@
 
 <meta name="author" content="Mladen Jovanović" />
 
-<meta name="date" content="2020-01-28" />
+<meta name="date" content="2020-01-30" />
 
 <title>Introduction to vjsim</title>
 
@@ -315,7 +315,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Introduction to <code>vjsim</code></h1>
 <h4 class="author">Mladen Jovanović</h4>
-<h4 class="date">2020-01-28</h4>
+<h4 class="date">2020-01-30</h4>
 
 
 
@@ -364,7 +364,7 @@ Force Generator characteristics
 <h2>Force-Length Characteristic</h2>
 <p>The main characteristic of the Force Generator is the ability to produce force. Thus the main parameter of the Force Generator is the <strong>max force</strong> (<span class="math inline">\(F_{max}\)</span>), or the maximal force that Force Generator is capable of producing.</p>
 <p>Unfortunately, Force Generator cannot express 100% of the maximal force across the whole push-off distance. Assuming <em>isometric</em> conditions (i.e. we move the Force Generator at a particular position alongside push-off distance and hold it <em>firmly</em> there), at a particular point in the push-off distance, Force Generator can express certain <strong>force percentage</strong> of the max force. The shape of this relationship (i.e. force percentage ~ percent of push-off distance) represents the Force-Length characteristic of the Force Generator.</p>
-<p>The following code and Figure contains few examples how this relationship is modeled in <code>vjsim</code> using the <code>vjsim::fgen_get_force_percentage</code><a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> function. Rather than using raw distance (in meters), <code>vjsim::fgen_get_force_percentage</code> uses perceon of the push-off distance (<code>push_off_percent</code>). Force-Length characteristic implemented in the <code>vjsim</code> depends on two parameters: <strong>starting percentage</strong> (<code>start_perc</code>) and <strong>threshold</strong> (<code>threshold</code>). The starting percentage indicated the force percentage at the start of the vertical jump (<span class="math inline">\(d=0m\)</span>, <span class="math inline">\(t=0s\)</span>), while the threshold indicates the percent of push-off distance where force percentage is equal to 100%. The typical values for the starting percentage are between 0.6 and 0.8, and for the threshold between 0.8 and 0.9.</p>
+<p>The following code and Figure contains few examples how this relationship is modeled in <code>vjsim</code> using the <code>vjsim::fgen_get_force_percentage_</code><a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> function. Rather than using raw distance (in meters), <code>vjsim::fgen_get_force_percentage_</code> uses perceon of the push-off distance (<code>push_off_percent</code>). Force-Length characteristic implemented in the <code>vjsim</code> depends on two parameters: <strong>starting percentage</strong> (<code>start_perc</code>) and <strong>threshold</strong> (<code>threshold</code>). The starting percentage indicated the force percentage at the start of the vertical jump (<span class="math inline">\(d=0m\)</span>, <span class="math inline">\(t=0s\)</span>), while the threshold indicates the percent of push-off distance where force percentage is equal to 100%. The typical values for the starting percentage are between 0.6 and 0.8, and for the threshold between 0.8 and 0.9.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># Install vjsim if you haven&#39;t already by running the following commands</span></span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="co"># install.packages(&quot;devtools&quot;)</span></span>
 <span id="cb1-3"><a href="#cb1-3"></a><span class="co"># devtools::install_github(&quot;mladenjovanovic/vjsim&quot;)</span></span>
@@ -383,7 +383,7 @@ Force Generator characteristics
 <span id="cb2-6"><a href="#cb2-6"></a></span>
 <span id="cb2-7"><a href="#cb2-7"></a>force_length &lt;-<span class="st"> </span>parameters <span class="op">%&gt;%</span></span>
 <span id="cb2-8"><a href="#cb2-8"></a><span class="st">  </span><span class="kw">mutate</span>(</span>
-<span id="cb2-9"><a href="#cb2-9"></a>    <span class="dt">force_perc =</span> vjsim<span class="op">::</span><span class="kw">fgen_get_force_percentage</span>(</span>
+<span id="cb2-9"><a href="#cb2-9"></a>    <span class="dt">force_perc =</span> vjsim<span class="op">::</span><span class="kw">fgen_get_force_percentage_</span>(</span>
 <span id="cb2-10"><a href="#cb2-10"></a>      <span class="dt">push_off_perc =</span> push_off_perc,</span>
 <span id="cb2-11"><a href="#cb2-11"></a>      <span class="dt">start_perc =</span> start_perc,</span>
 <span id="cb2-12"><a href="#cb2-12"></a>      <span class="dt">threshold =</span> threshold</span>
@@ -757,7 +757,7 @@ Schematic diagrom of the components, parameters, and resulting forces in vjsim
 <div class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p>You can either use <code>vjsim::fgen_get_force_percentage</code> or simply <code>fgen_get_force_percentage</code>. I am using prefix <code>vjsim::</code> to indicate functions from the <code>vjsim</code> package<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn1"><p>You can either use <code>vjsim::fgen_get_force_percentage_</code> or simply <code>fgen_get_force_percentage_</code>. I am using prefix <code>vjsim::</code> to indicate functions from the <code>vjsim</code> package<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
 

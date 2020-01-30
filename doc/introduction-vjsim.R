@@ -39,7 +39,7 @@ parameters <- expand.grid(
 
 force_length <- parameters %>%
   mutate(
-    force_perc = vjsim::fgen_get_force_percentage(
+    force_perc = vjsim::fgen_get_force_percentage_(
       push_off_perc = push_off_perc,
       start_perc = start_perc,
       threshold = threshold

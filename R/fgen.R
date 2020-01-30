@@ -1,17 +1,21 @@
-#' Get Force Generator Force Percentage
+
+
+
+
+#' Get Force Generator Force Percentage (unadjusted using \code{push_off_perc})
 #'
 #' Due to the Force Generator Force-Length characteristic, maximal force is unable to be expressed across whole Push-off Distance.
-#'    \code{fgen_get_force_percentage} is a function that represents the force percentage at \code{push_off_perc}
+#'    \code{fgen_get_force_percentage_} is a function that represents the force percentage at \code{push_off_perc}
 #' @param push_off_perc Numeric vector. Indicates percentage of the Push-off Distance. Values needs to be positive
 #' @param start_perc Numeric vector. Indicates starting percentage. Allowed range from 0.5 to 1. Default is 0.8
-#' @param threshold Numeric vector. Indicates threshold where the line starts to break. Use values from 0.8 to 1.
+#' @param threshold Numeric vector. Indicates threshold where the line starts to break. Use values from 0.5 to 1.
 #'      Default is 0.9
 #' @return Numeric vector with values from 0 to 1, indicating Force Percentage at particular \code{push_off_perc}
 #' @export
 #' @examples
 #' x <- seq(0, 1.1, length.out = 1000)
 #'
-#' y1 <- fgen_get_force_percentage(
+#' y1 <- fgen_get_force_percentage_(
 #'   push_off_perc = x,
 #'   start_perc = 0.6,
 #'   threshold = 0.90
@@ -19,26 +23,26 @@
 #'
 #' plot(x, y1, "l")
 #'
-#' y2 <- fgen_get_force_percentage(
+#' y2 <- fgen_get_force_percentage_(
 #'   push_off_perc = x,
 #'   start_perc = 0.8,
 #'   threshold = 0.95
 #' )
 #'
 #' lines(x, y2, col = "red")
-fgen_get_force_percentage <- function(push_off_perc,
+fgen_get_force_percentage_ <- function(push_off_perc,
                                       start_perc = 0.8,
                                       threshold = 0.9) {
   if (any(push_off_perc < 0)) {
     stop("Push-off distance percentage (push_off_perc) cannot be below zero.", call. = FALSE)
   }
 
-  if (any(start_perc < 0.5 | start_perc > 1)) {
-    stop("Start percentage (start_perc) needs to be within 0.5 - 1.")
-  }
+  #if (any(start_perc < 0.5 | start_perc > 1)) {
+  #  stop("Start percentage (start_perc) needs to be within 0.5 - 1.")
+  #}
 
-  if (any(threshold > 1 | threshold < 0.8)) {
-    stop("Threshold needs to be within 0.8 - 1.")
+  if (any(threshold > 1 | threshold < 0.5)) {
+    stop("Threshold needs to be within 0.5 - 1.")
   }
 
 
@@ -228,7 +232,7 @@ fgen_get_output <- function( # The parameters forwarded by `vj_simulate` functio
   # Get percent of maximal force based on the current position (distance)
   push_off_perc <- current_distance / push_off_distance
 
-  force_percentage <- fgen_get_force_percentage(
+  force_percentage <- fgen_get_force_percentage_(
     push_off_perc = push_off_perc,
     start_perc = start_perc,
     threshold = threshold
@@ -242,7 +246,7 @@ fgen_get_output <- function( # The parameters forwarded by `vj_simulate` functio
 
   # To calculate activation we need initial force percentage (t=0, d=0)
   # NOT the current force percentage
-  force_percentage_init <- fgen_get_force_percentage(
+  force_percentage_init <- fgen_get_force_percentage_(
     push_off_perc = 0,
     start_perc = start_perc,
     threshold = threshold

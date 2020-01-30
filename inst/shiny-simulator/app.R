@@ -149,7 +149,7 @@ server <- function(input, output) {
         athlete1_DF <- data.frame(
             push_off_perc = push_off_perc,
             distance = push_off_perc * input$athlete1_push_off_distance,
-            force_perc = vjsim::fgen_get_force_percentage(
+            force_perc = vjsim::fgen_get_force_percentage_(
                 push_off_perc = push_off_perc,
                 start_perc = input$athlete1_start_perc / 100,
                 threshold = input$athlete1_threshold / 100
@@ -160,7 +160,7 @@ server <- function(input, output) {
         athlete2_DF <- data.frame(
             push_off_perc = push_off_perc,
             distance = push_off_perc * input$athlete2_push_off_distance,
-            force_perc = vjsim::fgen_get_force_percentage(
+            force_perc = vjsim::fgen_get_force_percentage_(
                 push_off_perc = push_off_perc,
                 start_perc = input$athlete2_start_perc / 100,
                 threshold = input$athlete2_threshold / 100

@@ -1,66 +1,54 @@
-ggplot(
-  filter(force_length, push_off_distance == 0.4, decline_rate == 1.5, peak_location == -0.1),
-  aes(
-    x = current_distance,
-    y = force_perc
-  )
-) +
-  theme_cowplot(18) +
-  geom_line(color = "blue", size = 2) +
-  #facet_grid(decline_rate_label~peak_location_label) +
-  xlab("Distance (m)") +
-  ylab("Force percentage") +
-  labs(color = "Push-off distance") +
-  theme(legend.position =  "none")
+require(tidyverse)
 
-# ---------------------------
-
-fgen_get_fp <- function(current_distance,
-                        push_off_distance = 0.4,
-                        decline_rate = 1.05,
-                        peak_location = -push_off_distance * 0.2) {
-
-  peak_location <- push_off_distance + peak_location
-
-  y1 <- sin((decline_rate * (peak_location - current_distance) + 1) * pi/2)
-  y2 <- sin(((current_distance - peak_location) / (push_off_distance - peak_location)) * pi/2 + pi/2)
-
-  force_percentage <- ifelse(current_distance < peak_location, y1, y2)
-  force_percentage <- ifelse(current_distance > push_off_distance, 0, force_percentage)
-
-}
-
-parameters <- expand.grid(
-  current_distance = seq(0, 0.5, length.out = 1000),
-  decline_rate = c(1, 1.05, 0.8, 2),
-  peak_location = c(-0.05, -0.1),
-  push_off_distance = c(0.4, 0.45)
+vj_probe_data <- probe_vj(
+  mass = 75,
+  max_force = 3000,
+  max_velocity = 3,
+  time_to_max_activation = 0.3,
+  time_step = 0.001
 )
 
-force_length <- parameters %>%
-  mutate(
-    force_perc = fgen_get_fp(current_distance, push_off_distance, decline_rate, peak_location),
-    remaining_distance = push_off_distance - current_distance,
-    peak_location_label = factor(paste("peak_location = ", peak_location)),
-    decline_rate_label = factor(paste("decline_rate =", decline_rate)),
-    push_off_distance_label = factor(paste("Push-off =", push_off_distance))
-         )
+# Invert for mass and time_to_max_activation
+vj_probe_data$change_ratio <- ifelse(
+  vj_probe_data$probing == "time_to_max_activation",
+  1 / vj_probe_data$change_ratio,
+  vj_probe_data$change_ratio
+)
 
-ggplot(
-  force_length,
-  aes(
-    x = current_distance,#remaining_distance,
-    y = force_perc,
-    color = decline_rate_label
-  )
-) +
-  theme_cowplot(12) +
-  geom_line(alpha = 0.6) +
-  geom_vline(aes(xintercept = peak_location + push_off_distance)) +
-  facet_grid(peak_location_label~push_off_distance_label) +
-  xlab("Distance to take-off") +
-  ylab("Force percentage") +
-  labs(color = "Push-off distance") #+
-  #scale_x_reverse()
+vj_probe_data$change_ratio <- ifelse(
+  vj_probe_data$probing == "mass",
+  1 / vj_probe_data$change_ratio,
+  vj_probe_data$change_ratio
+)
 
 
+plot_data <- gather(vj_probe_data, key = "variable", value = "value", -(1:9)) %>%
+  filter(variable %in% c(
+    "height",
+    "current_time",
+    "mean_velocity",
+    "peak_velocity",
+    "take_off_velocity",
+    "mean_GRF_over_distance",
+    "mean_GRF_over_time",
+    "peak_GRF",
+    "peak_power",
+    "mean_power",
+    "peak_RFD",
+    "peak_RPD"
+  ))
+
+plot_data$reverse <- plot_data$probing %in% c("mass", "time_to_max_activation")
+
+ggplot(plot_data, aes(x = change_ratio, y = value, color = probing, linetype = reverse)) +
+  theme_minimal() +
+  geom_line() +
+  facet_wrap(~variable, scales = "free_y") +
+  xlab("Normalized parameter change") +
+  ylab(NULL) +
+  scale_color_manual(values = c(
+    "mass" = "#4D4D4D",
+    "max_force" = "#5DA5DA",
+    "max_velocity" =  "#FAA43A",
+    "push_off_distance" = "#60BD68",
+    "time_to_max_activation" = "#B276B2"))

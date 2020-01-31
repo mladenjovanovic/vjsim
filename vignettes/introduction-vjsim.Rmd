@@ -533,6 +533,14 @@ fgen_data <- vjsim::fgen_get_output(
 as_tibble(as.data.frame(fgen_data))
 ```
 
+# Shiny App
+
+To run the [Shiny App](https://athletess.shinyapps.io/shiny-simulator/) (this will take you to the *shinyapps.io*), and play with the above Force Generator characteristics, use the following code, or by click on the previous link. 
+
+```{r eval=FALSE}
+vjsim::run_simulator()
+```
+
 # Want to learn more?
 
 Please continue by reading "Simulation in `vjsim`" ([LINK](https://mladenjovanovic.github.io/vjsim/articles/simulation-vjsim.html)) vignette:

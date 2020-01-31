@@ -301,5 +301,8 @@ fgen_data <- vjsim::fgen_get_output(
 as_tibble(as.data.frame(fgen_data))
 
 ## ----eval=FALSE---------------------------------------------------------------
+#  vjsim::run_simulator()
+
+## ----eval=FALSE---------------------------------------------------------------
 #  vignette("simulation-vjsim")
 

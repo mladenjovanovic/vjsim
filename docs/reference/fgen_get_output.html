@@ -38,7 +38,7 @@
 <meta property="og:title" content="Get Instanteous Output Of The Force Generator — fgen_get_output" />
 <meta property="og:description" content="fgen_get_output returns acceleration and force data based on the current system state (current_time,
     current_distance, and current_velocity), system constraints (mass, weight, and push_off_distance),
-    and parameters of the Forge Generator (max_force, current_velocity, start_perc, threshold,
+    and parameters of the Forge Generator (max_force, current_velocity, decline_rate, peak_location,
     and time_to_max_activation)
 #" />
 <meta name="twitter:card" content="summary" />
@@ -138,7 +138,7 @@
     <div class="ref-description">
     <p><code>fgen_get_output</code> returns acceleration and force data based on the current system state (<code>current_time</code>,
     <code>current_distance</code>, and <code>current_velocity</code>), system constraints (<code>mass</code>, <code>weight</code>, and <code>push_off_distance</code>),
-    and parameters of the Forge Generator (<code>max_force</code>, <code>current_velocity</code>, <code>start_perc</code>, <code>threshold</code>,
+    and parameters of the Forge Generator (<code>max_force</code>, <code>current_velocity</code>, <code>decline_rate</code>, <code>peak_location</code>,
     and <code>time_to_max_activation</code>)
 #</p>
     </div>
@@ -153,8 +153,8 @@
   <span class='kw'>gravity_const</span> <span class='kw'>=</span> <span class='fl'>9.81</span>,
   <span class='kw'>max_force</span> <span class='kw'>=</span> <span class='fl'>3000</span>,
   <span class='kw'>max_velocity</span> <span class='kw'>=</span> <span class='fl'>4</span>,
-  <span class='kw'>start_perc</span> <span class='kw'>=</span> <span class='fl'>0.8</span>,
-  <span class='kw'>threshold</span> <span class='kw'>=</span> <span class='fl'>0.9</span>,
+  <span class='kw'>decline_rate</span> <span class='kw'>=</span> <span class='fl'>1.05</span>,
+  <span class='kw'>peak_location</span> <span class='kw'>=</span> -<span class='no'>push_off_distance</span> * <span class='fl'>0.15</span>,
   <span class='kw'>time_to_max_activation</span> <span class='kw'>=</span> <span class='fl'>0.3</span>
 )</pre>
 
@@ -198,12 +198,12 @@
       <td><p>Numeric vector. Default is 4m/s</p></td>
     </tr>
     <tr>
-      <th>start_perc</th>
-      <td><p>Numeric vector. Default is 0.8</p></td>
+      <th>decline_rate</th>
+      <td><p>Numeric vector. Default is 1.05</p></td>
     </tr>
     <tr>
-      <th>threshold</th>
-      <td><p>Numeric vector. Default is 0.9</p></td>
+      <th>peak_location</th>
+      <td><p>Numeric vector. Default is <code>-push_off_distance * 0.15</code></p></td>
     </tr>
     <tr>
       <th>time_to_max_activation</th>

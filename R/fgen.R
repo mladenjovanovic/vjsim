@@ -1,57 +1,67 @@
-
-
-
-
-#' Get Force Generator Force Percentage (unadjusted using \code{push_off_perc})
+#' Get Force Generator Force Percentage
 #'
 #' Due to the Force Generator Force-Length characteristic, maximal force is unable to be expressed across whole Push-off Distance.
-#'    \code{fgen_get_force_percentage_} is a function that represents the force percentage at \code{push_off_perc}
-#' @param push_off_perc Numeric vector. Indicates percentage of the Push-off Distance. Values needs to be positive
-#' @param start_perc Numeric vector. Indicates starting percentage. Allowed range from 0.5 to 1. Default is 0.8
-#' @param threshold Numeric vector. Indicates threshold where the line starts to break. Use values from 0.5 to 1.
-#'      Default is 0.9
-#' @return Numeric vector with values from 0 to 1, indicating Force Percentage at particular \code{push_off_perc}
+#'    \code{fgen_get_force_percentage} is a function that represents the force percentage at \code{current_distance}
+#' @param current_distance Numeric vector
+#' @param push_off_distance Numeric vector. Default is 0.4
+#' @param decline_rate Numeric vector. Indicates how quickly does the force percentage drops before \code{peak_location}. Default is 1.05
+#' @param peak_location Numeric vector. Indicates location of the peak force (100%). It is represented with the distance from the take-off position.
+#'     Default is \code{-push_off_distance * 0.15}
+#' @return Numeric vector with values from 0 to 1, indicating Force Percentage at particular \code{current_distance}
 #' @export
 #' @examples
-#' x <- seq(0, 1.1, length.out = 1000)
+#' x <- seq(0, 0.5, length.out = 1000)
 #'
-#' y1 <- fgen_get_force_percentage_(
-#'   push_off_perc = x,
-#'   start_perc = 0.6,
-#'   threshold = 0.90
+#' y1 <- fgen_get_force_percentage(
+#'   current_distance = x,
+#'   push_off_distance = 0.4,
+#'   decline_rate = 1.1,
+#'   peak_location = -0.1
 #' )
 #'
 #' plot(x, y1, "l")
 #'
-#' y2 <- fgen_get_force_percentage_(
-#'   push_off_perc = x,
-#'   start_perc = 0.8,
-#'   threshold = 0.95
+#' y2 <- fgen_get_force_percentage(
+#'   current_distance = x,
+#'   push_off_distance = 0.4,
+#'   decline_rate = 1.5,
+#'   peak_location = -0.2
 #' )
 #'
 #' lines(x, y2, col = "red")
-fgen_get_force_percentage_ <- function(push_off_perc,
-                                      start_perc = 0.8,
-                                      threshold = 0.9) {
-  if (any(push_off_perc < 0)) {
-    stop("Push-off distance percentage (push_off_perc) cannot be below zero.", call. = FALSE)
+#'
+#' y3 <- fgen_get_force_percentage(
+#'   current_distance = x,
+#'   push_off_distance = 0.5,
+#'   decline_rate = 1.5,
+#'   peak_location = -0.2
+#' )
+#'
+#' lines(x, y3, col = "blue")
+fgen_get_force_percentage <- function(current_distance = 0,
+                                      push_off_distance = 0.4,
+                                      decline_rate = 1.05,
+                                      peak_location = -push_off_distance * 0.15) {
+  if (any(current_distance < 0)) {
+    stop("Current distance cannot be below zero.", call. = FALSE)
   }
 
-  #if (any(start_perc < 0.5 | start_perc > 1)) {
-  #  stop("Start percentage (start_perc) needs to be within 0.5 - 1.")
-  #}
+  if (any(push_off_distance < 0.3 | push_off_distance > 0.7)) {
+    stop("Push off distance needs to be within 0.3 - 0.7m.")
+  }
 
-  if (any(threshold > 1 | threshold < 0.5)) {
-    stop("Threshold needs to be within 0.5 - 1.")
+  if (any(peak_location > 0 | peak_location < -push_off_distance)) {
+    stop("Peak location needs to be lower than zero and larger than -Push off distance")
   }
 
 
-  y1 <- (1 - start_perc) * sin((pi * push_off_perc) / (2 * threshold)) + start_perc
-  alpha <- (-1) / (threshold - 1)^2
-  y2 <- alpha * (push_off_perc - threshold)^2 + 1
+  peak_location <- push_off_distance + peak_location
 
-  force_percentage <- ifelse(push_off_perc < threshold, y1, y2)
-  force_percentage <- ifelse(push_off_perc > 1, 0, force_percentage)
+  y1 <- sin((decline_rate * (peak_location - current_distance) + 1) * pi / 2)
+  y2 <- sin(((current_distance - peak_location) / (push_off_distance - peak_location)) * pi / 2 + pi / 2)
+
+  force_percentage <- ifelse(current_distance < peak_location, y1, y2)
+  force_percentage <- ifelse(current_distance > push_off_distance, 0, force_percentage)
 
   return(force_percentage)
 }
@@ -176,7 +186,7 @@ fgen_get_velocity <- function(external_force, max_force = 3000, max_velocity = 4
 #'
 #' \code{fgen_get_output} returns acceleration and force data based on the current system state (\code{current_time},
 #'     \code{current_distance}, and \code{current_velocity}), system constraints (\code{mass}, \code{weight}, and \code{push_off_distance}),
-#'     and parameters of the Forge Generator (\code{max_force}, \code{current_velocity}, \code{start_perc}, \code{threshold},
+#'     and parameters of the Forge Generator (\code{max_force}, \code{current_velocity}, \code{decline_rate}, \code{peak_location},
 #'     and \code{time_to_max_activation})
 #' #
 #' @param current_time Numeric vector. Default is 0
@@ -188,8 +198,8 @@ fgen_get_velocity <- function(external_force, max_force = 3000, max_velocity = 4
 #' @param gravity_const Numeric value. Default is 9.81
 #' @param max_force Numeric value. Default is 3000N
 #' @param max_velocity Numeric vector. Default is 4m/s
-#' @param start_perc Numeric vector. Default is 0.8
-#' @param threshold Numeric vector. Default is 0.9
+#' @param decline_rate Numeric vector. Default is 1.05
+#' @param peak_location Numeric vector. Default is \code{-push_off_distance * 0.15}
 #' @param time_to_max_activation Numeric vector. Default is 0.3s
 #' @return List with five elements: kinematics, system_constraints, fgen_parameters, fgen_output, and kinetics
 #' @export
@@ -224,18 +234,19 @@ fgen_get_output <- function( # The parameters forwarded by `vj_simulate` functio
                             max_force = 3000,
                             max_velocity = 4,
 
-                            start_perc = 0.8,
-                            threshold = 0.9,
+                            decline_rate = 1.05,
+                            peak_location = -push_off_distance * 0.15,
 
                             time_to_max_activation = 0.3) {
 
   # Get percent of maximal force based on the current position (distance)
   push_off_perc <- current_distance / push_off_distance
 
-  force_percentage <- fgen_get_force_percentage_(
-    push_off_perc = push_off_perc,
-    start_perc = start_perc,
-    threshold = threshold
+  force_percentage <- fgen_get_force_percentage(
+    current_distance = current_distance,
+    push_off_distance = push_off_distance,
+    decline_rate = decline_rate,
+    peak_location = peak_location
   )
 
   # Maximal force that can be generate at particular position
@@ -246,10 +257,11 @@ fgen_get_output <- function( # The parameters forwarded by `vj_simulate` functio
 
   # To calculate activation we need initial force percentage (t=0, d=0)
   # NOT the current force percentage
-  force_percentage_init <- fgen_get_force_percentage_(
-    push_off_perc = 0,
-    start_perc = start_perc,
-    threshold = threshold
+  force_percentage_init <- fgen_get_force_percentage(
+    current_distance = 0,
+    push_off_distance = push_off_distance,
+    decline_rate = decline_rate,
+    peak_location = peak_location
   )
   potential_force_init <- max_force * force_percentage_init
 
@@ -316,8 +328,8 @@ fgen_get_output <- function( # The parameters forwarded by `vj_simulate` functio
       max_force = max_force,
       max_velocity = max_velocity,
 
-      start_perc = start_perc,
-      threshold = threshold,
+      decline_rate = decline_rate,
+      peak_location = peak_location,
 
       time_to_max_activation = time_to_max_activation,
       initial_activation = initial_activation
@@ -327,6 +339,7 @@ fgen_get_output <- function( # The parameters forwarded by `vj_simulate` functio
     # These are optional
     fgen_output = list(
       push_off_perc = push_off_perc,
+      distance_to_take_off = current_distance - push_off_distance,
       force_percentage = force_percentage,
       potential_force = potential_force,
       activation = activation,

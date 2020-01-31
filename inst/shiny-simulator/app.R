@@ -31,13 +31,13 @@ ui <- navbarPage(
       sliderInput("athlete1_max_velocity", "Athlete 1", value = 4, min = 3, max = 8, ticks = FALSE, step = 0.1),
       sliderInput("athlete2_max_velocity", "Athlete 2", value = 4, min = 3, max = 8, ticks = FALSE, step = 0.1),
       hr(),
-      h4("Force Length Characteristic (Start Perc)"),
-      sliderInput("athlete1_start_perc", "Athlete 1", value = 60, min = 50, max = 100, ticks = FALSE, step = 1),
-      sliderInput("athlete2_start_perc", "Athlete 2", value = 60, min = 50, max = 100, ticks = FALSE, step = 1),
+      h4("Force Length Characteristic (Decline Rate)"),
+      sliderInput("athlete1_decline_rate", "Athlete 1", value = 1, min = 0, max = 1.5, ticks = FALSE, step = 0.01),
+      sliderInput("athlete2_decline_rate", "Athlete 2", value = 1, min = 0, max = 1.5, ticks = FALSE, step = 0.01),
       hr(),
-      h4("Force Length Characteristic (Threshold)"),
-      sliderInput("athlete1_threshold", "Athlete 1", value = 90, min = 80, max = 99, ticks = FALSE, step = 1),
-      sliderInput("athlete2_threshold", "Athlete 2", value = 90, min = 80, max = 99, ticks = FALSE, step = 1),
+      h4("Force Length Characteristic (Peak Location)"),
+      sliderInput("athlete1_peak_location", "Athlete 1", value = -0.05, max = -0.01, min = -0.2, ticks = FALSE, step = 0.01),
+      sliderInput("athlete2_peak_location", "Athlete 2", value = -0.05, max = -0.01, min = -0.2, ticks = FALSE, step = 0.01),
       hr(),
       h4("Time to Max Activation"),
       sliderInput("athlete1_time_to_max_activation", "Athlete 1", value = 0.2, min = 0.1, max = 0.5, ticks = FALSE, step = 0.01),
@@ -51,6 +51,7 @@ ui <- navbarPage(
         "Force Generator",
         br(),
         h4("Force-Length Characteristic"),
+        checkboxInput("use_distance_to_take_off", "Use distance to take off?", value = FALSE),
         plotlyOutput("force_length_characteristic"),
         br(),
         h4("Force-Time Characteristic"),
@@ -108,23 +109,23 @@ server <- function(input, output) {
         return(input$athlete2_max_velocity)
     }, ignoreNULL = FALSE)
 
-    # Start perc
-    athlete1_start_perc <- eventReactive(input$calculate, {
-        return(input$athlete1_start_perc)
+    # Decline Rate
+    athlete1_decline_rate <- eventReactive(input$calculate, {
+        return(input$athlete1_decline_rate)
     }, ignoreNULL = FALSE)
 
-    athlete2_start_perc  <- eventReactive(input$calculate, {
-        return(input$athlete2_start_percy)
+    athlete2_decline_rate  <- eventReactive(input$calculate, {
+        return(input$athlete2_decline_rate)
     }, ignoreNULL = FALSE)
 
 
-    # Threshold
-    athlete1_threshold <- eventReactive(input$calculate, {
-        return(input$athlete1_threshold)
+    # Peak Location
+    athlete1_peak_location <- eventReactive(input$calculate, {
+        return(input$athlete1_peak_location)
     }, ignoreNULL = FALSE)
 
-    athlete2_start_perc  <- eventReactive(input$calculate, {
-        return(input$athlete2_threshold)
+    athlete2_peak_location  <- eventReactive(input$calculate, {
+        return(input$athlete2_peak_location)
     }, ignoreNULL = FALSE)
 
     # Time to max activation
@@ -144,58 +145,80 @@ server <- function(input, output) {
 
     # ---------
     output$force_length_characteristic <- renderPlotly({
-        push_off_perc = seq(0, 1.05, length.out = 100)
+        current_distance <- seq(0, 0.6, length.out = 1000)
 
         athlete1_DF <- data.frame(
-            push_off_perc = push_off_perc,
-            distance = push_off_perc * input$athlete1_push_off_distance,
-            force_perc = vjsim::fgen_get_force_percentage_(
-                push_off_perc = push_off_perc,
-                start_perc = input$athlete1_start_perc / 100,
-                threshold = input$athlete1_threshold / 100
+            current_distance = current_distance,
+            distance_perc = current_distance / input$athlete1_push_off_distance,
+            distance_to_take_off = current_distance - input$athlete1_push_off_distance,
+            force_perc = vjsim::fgen_get_force_percentage(
+                current_distance = current_distance,
+                push_off_distance = input$athlete1_push_off_distance,
+                decline_rate = input$athlete1_decline_rate,
+                peak_location = input$athlete1_peak_location
                 )
         )
         athlete1_DF$force <- athlete1_DF$force_perc * input$athlete1_max_force
 
         athlete2_DF <- data.frame(
-            push_off_perc = push_off_perc,
-            distance = push_off_perc * input$athlete2_push_off_distance,
-            force_perc = vjsim::fgen_get_force_percentage_(
-                push_off_perc = push_off_perc,
-                start_perc = input$athlete2_start_perc / 100,
-                threshold = input$athlete2_threshold / 100
-            )
+          current_distance = current_distance,
+          distance_perc = current_distance / input$athlete2_push_off_distance,
+          distance_to_take_off = current_distance - input$athlete2_push_off_distance,
+          force_perc = vjsim::fgen_get_force_percentage(
+            current_distance = current_distance,
+            push_off_distance = input$athlete2_push_off_distance,
+            decline_rate = input$athlete2_decline_rate,
+            peak_location = input$athlete2_peak_location
+          )
         )
         athlete2_DF$force <- athlete2_DF$force_perc * input$athlete2_max_force
 
+
+
+      if (input$use_distance_to_take_off == TRUE) {
+        x_label <-  "Distance to take-off (m)"
+
+        athlete1_DF$x <- athlete1_DF$distance_to_take_off
+
+        athlete2_DF$x <- athlete2_DF$distance_to_take_off
+      } else {
+        x_label <-  "Distance (m)"
+
+        athlete1_DF$x <- athlete1_DF$current_distance
+
+        athlete2_DF$x <- athlete2_DF$current_distance
+      }
+
       gg <- plot_ly() %>%
-            add_lines(data = athlete1_DF, x = ~distance, y = ~force,
+            add_lines(data = athlete1_DF, x = ~x, y = ~force,
                       name = "Athlete 1", line = list(color = '#5DA5DA'),
                       hoverinfo = "text",
                       text = ~paste("Athlete 1\n",
-                                    "Push-off =", round(push_off_perc * 100, 0), "%\n",
-                                    "Distance =", round(distance, 2), "m\n",
+                                    "Distance =", round(current_distance, 2), "m\n",
+                                    "Distance to take-off =", round(distance_to_take_off, 2), "m\n",
+                                    "Distance =", round(distance_perc * 100, 0), "%\n",
                                     "Force =", round(force_perc * 100, 0), "%\n",
                                     "Force =", round(force, 0), "N\n")) %>%
-            add_lines(data = athlete2_DF, x = ~distance, y = ~force,
+            add_lines(data = athlete2_DF, x = ~x, y = ~force,
                       name = "Athlete 2", line = list(color = '#FAA43A'),
                       hoverinfo = "text",
                       text = ~paste("Athlete 2\n",
-                                    "Push-off =", round(push_off_perc * 100, 0), "%\n",
-                                    "Distance =", round(distance, 2), "m\n",
+                                    "Distance =", round(current_distance, 2), "m\n",
+                                    "Distance to take-off =", round(distance_to_take_off, 2), "m\n",
+                                    "Distance =", round(distance_perc * 100, 0), "%\n",
                                     "Force =", round(force_perc * 100, 0), "%\n",
                                     "Force =", round(force, 0), "N\n")) %>%
             layout(showlegend = FALSE,
                    yaxis = list(side = 'left', title = "Potential Force (N)",
                                 showgrid = TRUE, zeroline = TRUE),
-                   xaxis = list(side = 'left', title = "Distance (m)",
+                   xaxis = list(side = 'left', title = x_label,
                                 showgrid = TRUE, zeroline = TRUE))
 
         return(gg)
     })
     # -------------
     output$force_time_characteristic <- renderPlotly({
-        current_time = seq(0, 0.5, length.out = 100)
+        current_time = seq(0, 0.5, length.out = 10000)
 
         athlete1_DF <- data.frame(
             current_time = current_time,
@@ -243,7 +266,7 @@ server <- function(input, output) {
 
     # -------------
     output$force_velocity_characteristic <- renderPlotly({
-        external_force = seq(0, input$athlete1_max_force, length.out = 100)
+        external_force = seq(0, input$athlete1_max_force, length.out = 1000)
 
         athlete1_DF <- data.frame(
             external_force = external_force,
@@ -254,7 +277,7 @@ server <- function(input, output) {
             )
         )
 
-        external_force = seq(0, input$athlete2_max_force, length.out = 100)
+        external_force = seq(0, input$athlete2_max_force, length.out = 1000)
 
         athlete2_DF <- data.frame(
             external_force = external_force,

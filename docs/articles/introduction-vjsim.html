@@ -92,7 +92,7 @@
 </h1>
                         <h4 class="author">Mladen Jovanović</h4>
             
-            <h4 class="date">2020-01-30</h4>
+            <h4 class="date">2020-01-31</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/mladenjovanovic/vjsim/blob/master/vignettes/introduction-vjsim.Rmd"><code>vignettes/introduction-vjsim.Rmd</code></a></small>
       <div class="hidden name"><code>introduction-vjsim.Rmd</code></div>
@@ -146,8 +146,8 @@ Force Generator characteristics
 <h2 class="hasAnchor">
 <a href="#force-length-characteristic" class="anchor"></a>Force-Length Characteristic</h2>
 <p>The main characteristic of the Force Generator is the ability to produce force. Thus the main parameter of the Force Generator is the <strong>max force</strong> (<span class="math inline">\(F_{max}\)</span>), or the maximal force that Force Generator is capable of producing.</p>
-<p>Unfortunately, Force Generator cannot express 100% of the maximal force across the whole push-off distance. Assuming <em>isometric</em> conditions (i.e. we move the Force Generator at a particular position alongside push-off distance and hold it <em>firmly</em> there), at a particular point in the push-off distance, Force Generator can express certain <strong>force percentage</strong> of the max force. The shape of this relationship (i.e. force percentage ~ percent of push-off distance) represents the Force-Length characteristic of the Force Generator.</p>
-<p>The following code and Figure contains few examples how this relationship is modeled in <code>vjsim</code> using the <code><a href="https://rdrr.io/pkg/vjsim/man/fgen_get_force_percentage_.html">vjsim::fgen_get_force_percentage_</a></code><a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> function. Rather than using raw distance (in meters), <code><a href="https://rdrr.io/pkg/vjsim/man/fgen_get_force_percentage_.html">vjsim::fgen_get_force_percentage_</a></code> uses perceon of the push-off distance (<code>push_off_percent</code>). Force-Length characteristic implemented in the <code>vjsim</code> depends on two parameters: <strong>starting percentage</strong> (<code>start_perc</code>) and <strong>threshold</strong> (<code>threshold</code>). The starting percentage indicated the force percentage at the start of the vertical jump (<span class="math inline">\(d=0m\)</span>, <span class="math inline">\(t=0s\)</span>), while the threshold indicates the percent of push-off distance where force percentage is equal to 100%. The typical values for the starting percentage are between 0.6 and 0.8, and for the threshold between 0.8 and 0.9.</p>
+<p>Unfortunately, Force Generator cannot express 100% of the maximal force across the whole push-off distance. Assuming <em>isometric</em> conditions (i.e. we move the Force Generator at a particular position alongside push-off distance and hold it <em>firmly</em> there), at a particular point in the push-off distance, Force Generator can express certain <strong>force percentage</strong> of the max force. The shape of this relationship (i.e. force percentage ~ distance) represents the Force-Length characteristic of the Force Generator.</p>
+<p>The following code and Figure contains few examples how this relationship is modeled in <code>vjsim</code> using the <code><a href="../reference/fgen_get_force_percentage.html">vjsim::fgen_get_force_percentage</a></code><a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> function. Force-Length characteristic implemented in the <code>vjsim</code> depends on two parameters: <strong>decline rate</strong> (<code>decline_rate</code>) and <strong>peak location</strong> (<code>peak_location</code>). Decline rate indicate the rate at which the force percentage drops before peak location. Peak location is a point in the push-off distance calculated using the take-off point as a reference. For example, if push-off distance is 0.4m, the default peak location is -0.15 x push-off distance, or in this case -0.06m from the take-off (or at 0.36m from the start of the movement). Peak location is represented using take-off point as a frame of reference rather than the start of the movement (i.e. d=0), because we want to be able to able to simulate effects of taking a deeper jumping position on the jump performance. And besides, take-off position represents biomechanically sound reference point since it represents standing position.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># Install vjsim if you haven't already by running the following commands</span></span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="co"># install.packages("devtools")</span></span>
 <span id="cb1-3"><a href="#cb1-3"></a><span class="co"># devtools::install_github("mladenjovanovic/vjsim")</span></span>
@@ -159,40 +159,64 @@ Force Generator characteristics
 <span id="cb1-9"><a href="#cb1-9"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(tidyverse)</span>
 <span id="cb1-10"><a href="#cb1-10"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(cowplot)</span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>parameters &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/expand.grid.html">expand.grid</a></span>(</span>
-<span id="cb2-2"><a href="#cb2-2"></a>  <span class="dt">push_off_perc =</span> <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="dv">0</span>, <span class="fl">1.05</span>, <span class="dt">length.out =</span> <span class="dv">1000</span>),</span>
-<span id="cb2-3"><a href="#cb2-3"></a>  <span class="dt">start_perc =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.6</span>, <span class="fl">0.8</span>),</span>
-<span id="cb2-4"><a href="#cb2-4"></a>  <span class="dt">threshold =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.8</span>, <span class="fl">0.9</span>)</span>
-<span id="cb2-5"><a href="#cb2-5"></a>)</span>
-<span id="cb2-6"><a href="#cb2-6"></a></span>
-<span id="cb2-7"><a href="#cb2-7"></a>force_length &lt;-<span class="st"> </span>parameters <span class="op">%&gt;%</span></span>
-<span id="cb2-8"><a href="#cb2-8"></a><span class="st">  </span><span class="kw">mutate</span>(</span>
-<span id="cb2-9"><a href="#cb2-9"></a>    <span class="dt">force_perc =</span> vjsim<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/fgen_get_force_percentage_.html">fgen_get_force_percentage_</a></span>(</span>
-<span id="cb2-10"><a href="#cb2-10"></a>      <span class="dt">push_off_perc =</span> push_off_perc,</span>
-<span id="cb2-11"><a href="#cb2-11"></a>      <span class="dt">start_perc =</span> start_perc,</span>
-<span id="cb2-12"><a href="#cb2-12"></a>      <span class="dt">threshold =</span> threshold</span>
-<span id="cb2-13"><a href="#cb2-13"></a>    ),</span>
-<span id="cb2-14"><a href="#cb2-14"></a>    <span class="dt">threshold_label =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(threshold),</span>
-<span id="cb2-15"><a href="#cb2-15"></a>    <span class="dt">start_perc_label =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(<span class="st">"Start perc ="</span>, start_perc))</span>
-<span id="cb2-16"><a href="#cb2-16"></a>  )</span>
-<span id="cb2-17"><a href="#cb2-17"></a></span>
-<span id="cb2-18"><a href="#cb2-18"></a><span class="kw">ggplot</span>(</span>
-<span id="cb2-19"><a href="#cb2-19"></a>  force_length,</span>
-<span id="cb2-20"><a href="#cb2-20"></a>  <span class="kw">aes</span>(</span>
-<span id="cb2-21"><a href="#cb2-21"></a>    <span class="dt">x =</span> push_off_perc,</span>
-<span id="cb2-22"><a href="#cb2-22"></a>    <span class="dt">y =</span> force_perc,</span>
-<span id="cb2-23"><a href="#cb2-23"></a>    <span class="dt">group =</span> threshold_label,</span>
-<span id="cb2-24"><a href="#cb2-24"></a>    <span class="dt">color =</span> threshold_label</span>
-<span id="cb2-25"><a href="#cb2-25"></a>  )</span>
-<span id="cb2-26"><a href="#cb2-26"></a>) <span class="op">+</span></span>
-<span id="cb2-27"><a href="#cb2-27"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="dv">12</span>) <span class="op">+</span></span>
-<span id="cb2-28"><a href="#cb2-28"></a><span class="st">  </span><span class="kw">geom_line</span>() <span class="op">+</span></span>
-<span id="cb2-29"><a href="#cb2-29"></a><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>start_perc_label) <span class="op">+</span></span>
-<span id="cb2-30"><a href="#cb2-30"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">"% Push-off distance"</span>) <span class="op">+</span></span>
-<span id="cb2-31"><a href="#cb2-31"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">"Force percentage"</span>) <span class="op">+</span></span>
-<span id="cb2-32"><a href="#cb2-32"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">color =</span> <span class="st">"Threshold"</span>)</span></code></pre></div>
+<span id="cb2-2"><a href="#cb2-2"></a>  <span class="dt">current_distance =</span> <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="dv">0</span>, <span class="fl">0.55</span>, <span class="dt">length.out =</span> <span class="dv">1000</span>),</span>
+<span id="cb2-3"><a href="#cb2-3"></a>  <span class="dt">push_off_distance =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.3</span>, <span class="fl">0.4</span>, <span class="fl">0.5</span>),</span>
+<span id="cb2-4"><a href="#cb2-4"></a>  <span class="dt">decline_rate =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.8</span>, <span class="fl">1.5</span>, <span class="dv">2</span>),</span>
+<span id="cb2-5"><a href="#cb2-5"></a>  <span class="dt">peak_location =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="op">-</span><span class="fl">0.05</span>, <span class="fl">-0.1</span>, <span class="fl">-0.15</span>)</span>
+<span id="cb2-6"><a href="#cb2-6"></a>)</span>
+<span id="cb2-7"><a href="#cb2-7"></a></span>
+<span id="cb2-8"><a href="#cb2-8"></a>force_length &lt;-<span class="st"> </span>parameters <span class="op">%&gt;%</span></span>
+<span id="cb2-9"><a href="#cb2-9"></a><span class="st">  </span><span class="kw">mutate</span>(</span>
+<span id="cb2-10"><a href="#cb2-10"></a>    <span class="dt">force_perc =</span> vjsim<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/fgen_get_force_percentage.html">fgen_get_force_percentage</a></span>(</span>
+<span id="cb2-11"><a href="#cb2-11"></a>      <span class="dt">current_distance =</span>  current_distance,</span>
+<span id="cb2-12"><a href="#cb2-12"></a>      <span class="dt">push_off_distance =</span> push_off_distance,</span>
+<span id="cb2-13"><a href="#cb2-13"></a>      <span class="dt">decline_rate =</span> decline_rate,</span>
+<span id="cb2-14"><a href="#cb2-14"></a>      <span class="dt">peak_location =</span> peak_location</span>
+<span id="cb2-15"><a href="#cb2-15"></a>    ),</span>
+<span id="cb2-16"><a href="#cb2-16"></a>    <span class="dt">decline_rate_label =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(<span class="st">"Decline rate = "</span>, decline_rate)),</span>
+<span id="cb2-17"><a href="#cb2-17"></a>    <span class="dt">peak_location_label =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(<span class="st">"Peak location = "</span>, peak_location)),</span>
+<span id="cb2-18"><a href="#cb2-18"></a>    <span class="dt">distance_to_take_off =</span> current_distance <span class="op">-</span><span class="st"> </span>push_off_distance</span>
+<span id="cb2-19"><a href="#cb2-19"></a>  )</span>
+<span id="cb2-20"><a href="#cb2-20"></a></span>
+<span id="cb2-21"><a href="#cb2-21"></a><span class="kw">ggplot</span>(</span>
+<span id="cb2-22"><a href="#cb2-22"></a>  force_length,</span>
+<span id="cb2-23"><a href="#cb2-23"></a>  <span class="kw">aes</span>(</span>
+<span id="cb2-24"><a href="#cb2-24"></a>    <span class="dt">x =</span> current_distance,</span>
+<span id="cb2-25"><a href="#cb2-25"></a>    <span class="dt">y =</span> force_perc,</span>
+<span id="cb2-26"><a href="#cb2-26"></a>    <span class="dt">group =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(push_off_distance),</span>
+<span id="cb2-27"><a href="#cb2-27"></a>    <span class="dt">color =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(push_off_distance)</span>
+<span id="cb2-28"><a href="#cb2-28"></a>  )</span>
+<span id="cb2-29"><a href="#cb2-29"></a>) <span class="op">+</span></span>
+<span id="cb2-30"><a href="#cb2-30"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="dv">8</span>) <span class="op">+</span></span>
+<span id="cb2-31"><a href="#cb2-31"></a><span class="st">  </span><span class="kw">geom_line</span>() <span class="op">+</span></span>
+<span id="cb2-32"><a href="#cb2-32"></a><span class="st">  </span><span class="kw">facet_grid</span>(decline_rate_label<span class="op">~</span>peak_location_label) <span class="op">+</span></span>
+<span id="cb2-33"><a href="#cb2-33"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Distance (m)"</span>) <span class="op">+</span></span>
+<span id="cb2-34"><a href="#cb2-34"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">"Force percentage"</span>) <span class="op">+</span></span>
+<span id="cb2-35"><a href="#cb2-35"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">color =</span> <span class="st">"Push-off distance"</span>)</span></code></pre></div>
 <div class="figure" style="text-align: center">
 <img src="introduction-vjsim_files/figure-html/force-length-characteristic-1.png" alt="Force-Length characteristic" width="90%"><p class="caption">
 Force-Length characteristic
+</p>
+</div>
+<p>The above figure uses start of the push-off as a frame of reference (i.e. d=0). Better visual for comparing different force-length characteristics would be to use take-off as a frame of reference:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">ggplot</span>(</span>
+<span id="cb3-2"><a href="#cb3-2"></a>  force_length,</span>
+<span id="cb3-3"><a href="#cb3-3"></a>  <span class="kw">aes</span>(</span>
+<span id="cb3-4"><a href="#cb3-4"></a>    <span class="dt">x =</span> distance_to_take_off,</span>
+<span id="cb3-5"><a href="#cb3-5"></a>    <span class="dt">y =</span> force_perc,</span>
+<span id="cb3-6"><a href="#cb3-6"></a>    <span class="dt">group =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(push_off_distance),</span>
+<span id="cb3-7"><a href="#cb3-7"></a>    <span class="dt">color =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(push_off_distance)</span>
+<span id="cb3-8"><a href="#cb3-8"></a>  )</span>
+<span id="cb3-9"><a href="#cb3-9"></a>) <span class="op">+</span></span>
+<span id="cb3-10"><a href="#cb3-10"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="dv">8</span>) <span class="op">+</span></span>
+<span id="cb3-11"><a href="#cb3-11"></a><span class="st">  </span><span class="kw">geom_line</span>(<span class="dt">alpha =</span> <span class="fl">0.6</span>) <span class="op">+</span></span>
+<span id="cb3-12"><a href="#cb3-12"></a><span class="st">  </span><span class="kw">facet_grid</span>(decline_rate_label<span class="op">~</span>peak_location_label) <span class="op">+</span></span>
+<span id="cb3-13"><a href="#cb3-13"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Distance to take-off (m)"</span>) <span class="op">+</span></span>
+<span id="cb3-14"><a href="#cb3-14"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">"Force percentage"</span>) <span class="op">+</span></span>
+<span id="cb3-15"><a href="#cb3-15"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">color =</span> <span class="st">"Push-off distance"</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="introduction-vjsim_files/figure-html/force-length-characteristic-take-off-1.png" alt="Force-Length characteristic using take-off point as frame of reference" width="90%"><p class="caption">
+Force-Length characteristic using take-off point as frame of reference
 </p>
 </div>
 </div>
@@ -202,38 +226,38 @@ Force-Length characteristic
 <p>Besides being able to achieve only force percentage at a given percent of the push-off distance, Force Generator cannot be activated instantaneously. It takes time (<span class="math inline">\(t\)</span>) to reach <em>full activation level</em>. Let’s assume here that “no activation” equals to 0%, while “full activation” equals 100% of the activation level. The shape of this relationship (i.e. activation level ~ time) represents the Force-Time characteristic of the Force Generator.</p>
 <p>In <code>vjsim</code>, this characteristic is represented with the <em>sigmoid</em> curve using the <code><a href="../reference/fgen_get_activation.html">vjsim::fgen_get_activation</a></code> function. Parameter of this curve (and function), and thus Force-Time characteristic, is the <strong>time to max activation</strong> (<code>time_to_max_activation</code>). Time to max activation represents time it takes to reach full activation (100%) from zero activation.</p>
 <p>But at the beginning of the vertical jump push-off (<span class="math inline">\(d=0m\)</span> and <span class="math inline">\(t=0s\)</span>) there is some activation needed due to the weight of the load that needs to be supported. Reaching full activation from some <em>initial activation</em> takes less time than reaching full activation from zero activation for the same time to the max activation parameter. This represents an assumption in the <code>vjsim</code> and <code><a href="../reference/fgen_get_activation.html">vjsim::fgen_get_activation</a></code> function. The code and Figure below demonstrate this relationship.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>parameters &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/expand.grid.html">expand.grid</a></span>(</span>
-<span id="cb3-2"><a href="#cb3-2"></a>  <span class="dt">current_time =</span> <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="dv">0</span>, <span class="fl">0.6</span>, <span class="dt">length.out =</span> <span class="dv">1000</span>),</span>
-<span id="cb3-3"><a href="#cb3-3"></a>  <span class="dt">initial_activation =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">0</span>, <span class="fl">0.2</span>, <span class="fl">0.5</span>),</span>
-<span id="cb3-4"><a href="#cb3-4"></a>  <span class="dt">time_to_max_activation =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.3</span>, <span class="fl">0.5</span>)</span>
-<span id="cb3-5"><a href="#cb3-5"></a>)</span>
-<span id="cb3-6"><a href="#cb3-6"></a></span>
-<span id="cb3-7"><a href="#cb3-7"></a>force_time &lt;-<span class="st"> </span>parameters <span class="op">%&gt;%</span></span>
-<span id="cb3-8"><a href="#cb3-8"></a><span class="st">  </span><span class="kw">mutate</span>(</span>
-<span id="cb3-9"><a href="#cb3-9"></a>    <span class="dt">activation =</span> vjsim<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/fgen_get_activation.html">fgen_get_activation</a></span>(</span>
-<span id="cb3-10"><a href="#cb3-10"></a>      <span class="dt">current_time =</span> current_time,</span>
-<span id="cb3-11"><a href="#cb3-11"></a>      <span class="dt">initial_activation =</span> initial_activation,</span>
-<span id="cb3-12"><a href="#cb3-12"></a>      <span class="dt">time_to_max_activation =</span> time_to_max_activation</span>
-<span id="cb3-13"><a href="#cb3-13"></a>    ),</span>
-<span id="cb3-14"><a href="#cb3-14"></a>    <span class="dt">initial_activation_label =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(initial_activation),</span>
-<span id="cb3-15"><a href="#cb3-15"></a>    <span class="dt">time_to_max_activation_label =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(<span class="st">"Time to max activation ="</span>, time_to_max_activation)),</span>
-<span id="cb3-16"><a href="#cb3-16"></a>  )</span>
-<span id="cb3-17"><a href="#cb3-17"></a></span>
-<span id="cb3-18"><a href="#cb3-18"></a><span class="kw">ggplot</span>(</span>
-<span id="cb3-19"><a href="#cb3-19"></a>  force_time,</span>
-<span id="cb3-20"><a href="#cb3-20"></a>  <span class="kw">aes</span>(</span>
-<span id="cb3-21"><a href="#cb3-21"></a>    <span class="dt">x =</span> current_time,</span>
-<span id="cb3-22"><a href="#cb3-22"></a>    <span class="dt">y =</span> activation,</span>
-<span id="cb3-23"><a href="#cb3-23"></a>    <span class="dt">group =</span> initial_activation_label,</span>
-<span id="cb3-24"><a href="#cb3-24"></a>    <span class="dt">color =</span> initial_activation_label</span>
-<span id="cb3-25"><a href="#cb3-25"></a>  )</span>
-<span id="cb3-26"><a href="#cb3-26"></a>) <span class="op">+</span></span>
-<span id="cb3-27"><a href="#cb3-27"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="dv">12</span>) <span class="op">+</span></span>
-<span id="cb3-28"><a href="#cb3-28"></a><span class="st">  </span><span class="kw">geom_line</span>() <span class="op">+</span></span>
-<span id="cb3-29"><a href="#cb3-29"></a><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>time_to_max_activation_label) <span class="op">+</span></span>
-<span id="cb3-30"><a href="#cb3-30"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Time (s)"</span>) <span class="op">+</span></span>
-<span id="cb3-31"><a href="#cb3-31"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">"Activation"</span>) <span class="op">+</span></span>
-<span id="cb3-32"><a href="#cb3-32"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">color =</span> <span class="st">"Initial activation"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>parameters &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/expand.grid.html">expand.grid</a></span>(</span>
+<span id="cb4-2"><a href="#cb4-2"></a>  <span class="dt">current_time =</span> <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="dv">0</span>, <span class="fl">0.6</span>, <span class="dt">length.out =</span> <span class="dv">1000</span>),</span>
+<span id="cb4-3"><a href="#cb4-3"></a>  <span class="dt">initial_activation =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">0</span>, <span class="fl">0.2</span>, <span class="fl">0.5</span>),</span>
+<span id="cb4-4"><a href="#cb4-4"></a>  <span class="dt">time_to_max_activation =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.3</span>, <span class="fl">0.5</span>)</span>
+<span id="cb4-5"><a href="#cb4-5"></a>)</span>
+<span id="cb4-6"><a href="#cb4-6"></a></span>
+<span id="cb4-7"><a href="#cb4-7"></a>force_time &lt;-<span class="st"> </span>parameters <span class="op">%&gt;%</span></span>
+<span id="cb4-8"><a href="#cb4-8"></a><span class="st">  </span><span class="kw">mutate</span>(</span>
+<span id="cb4-9"><a href="#cb4-9"></a>    <span class="dt">activation =</span> vjsim<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/fgen_get_activation.html">fgen_get_activation</a></span>(</span>
+<span id="cb4-10"><a href="#cb4-10"></a>      <span class="dt">current_time =</span> current_time,</span>
+<span id="cb4-11"><a href="#cb4-11"></a>      <span class="dt">initial_activation =</span> initial_activation,</span>
+<span id="cb4-12"><a href="#cb4-12"></a>      <span class="dt">time_to_max_activation =</span> time_to_max_activation</span>
+<span id="cb4-13"><a href="#cb4-13"></a>    ),</span>
+<span id="cb4-14"><a href="#cb4-14"></a>    <span class="dt">initial_activation_label =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(initial_activation),</span>
+<span id="cb4-15"><a href="#cb4-15"></a>    <span class="dt">time_to_max_activation_label =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(<span class="st">"Time to max activation ="</span>, time_to_max_activation)),</span>
+<span id="cb4-16"><a href="#cb4-16"></a>  )</span>
+<span id="cb4-17"><a href="#cb4-17"></a></span>
+<span id="cb4-18"><a href="#cb4-18"></a><span class="kw">ggplot</span>(</span>
+<span id="cb4-19"><a href="#cb4-19"></a>  force_time,</span>
+<span id="cb4-20"><a href="#cb4-20"></a>  <span class="kw">aes</span>(</span>
+<span id="cb4-21"><a href="#cb4-21"></a>    <span class="dt">x =</span> current_time,</span>
+<span id="cb4-22"><a href="#cb4-22"></a>    <span class="dt">y =</span> activation,</span>
+<span id="cb4-23"><a href="#cb4-23"></a>    <span class="dt">group =</span> initial_activation_label,</span>
+<span id="cb4-24"><a href="#cb4-24"></a>    <span class="dt">color =</span> initial_activation_label</span>
+<span id="cb4-25"><a href="#cb4-25"></a>  )</span>
+<span id="cb4-26"><a href="#cb4-26"></a>) <span class="op">+</span></span>
+<span id="cb4-27"><a href="#cb4-27"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="dv">12</span>) <span class="op">+</span></span>
+<span id="cb4-28"><a href="#cb4-28"></a><span class="st">  </span><span class="kw">geom_line</span>() <span class="op">+</span></span>
+<span id="cb4-29"><a href="#cb4-29"></a><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>time_to_max_activation_label) <span class="op">+</span></span>
+<span id="cb4-30"><a href="#cb4-30"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Time (s)"</span>) <span class="op">+</span></span>
+<span id="cb4-31"><a href="#cb4-31"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">"Activation"</span>) <span class="op">+</span></span>
+<span id="cb4-32"><a href="#cb4-32"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">color =</span> <span class="st">"Initial activation"</span>)</span></code></pre></div>
 <div class="figure" style="text-align: center">
 <img src="introduction-vjsim_files/figure-html/force-time-characteristic-1.png" alt="Force-Time characteristic" width="90%"><p class="caption">
 Force-Time characteristic
@@ -245,68 +269,68 @@ Force-Time characteristic
 Activation_{initial} = \frac{w}{F_{potential}}
 \]</span></p>
 <p>The following code and Figure demonstrates this calculus and the effects of the assumptions.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>parameters &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/expand.grid.html">expand.grid</a></span>(</span>
-<span id="cb4-2"><a href="#cb4-2"></a>  <span class="dt">current_time =</span> <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="dt">length.out =</span> <span class="dv">1000</span>),</span>
-<span id="cb4-3"><a href="#cb4-3"></a>  <span class="dt">max_force =</span> <span class="dv">3000</span>,</span>
-<span id="cb4-4"><a href="#cb4-4"></a>  <span class="dt">weight =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">75</span> <span class="op">*</span><span class="st"> </span><span class="fl">9.81</span>, <span class="dv">85</span> <span class="op">*</span><span class="st"> </span><span class="fl">9.81</span>),</span>
-<span id="cb4-5"><a href="#cb4-5"></a>  <span class="dt">force_percentage =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.6</span>, <span class="fl">0.8</span>),</span>
-<span id="cb4-6"><a href="#cb4-6"></a>  <span class="dt">time_to_max_activation =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.3</span>, <span class="fl">0.5</span>)</span>
-<span id="cb4-7"><a href="#cb4-7"></a>)</span>
-<span id="cb4-8"><a href="#cb4-8"></a></span>
-<span id="cb4-9"><a href="#cb4-9"></a>force_time &lt;-<span class="st"> </span>parameters <span class="op">%&gt;%</span></span>
-<span id="cb4-10"><a href="#cb4-10"></a><span class="st">  </span><span class="kw">mutate</span>(</span>
-<span id="cb4-11"><a href="#cb4-11"></a>    <span class="dt">potential_force =</span> max_force <span class="op">*</span><span class="st"> </span>force_percentage,</span>
-<span id="cb4-12"><a href="#cb4-12"></a>    <span class="dt">initial_activation =</span> weight <span class="op">/</span><span class="st"> </span>potential_force,</span>
-<span id="cb4-13"><a href="#cb4-13"></a></span>
-<span id="cb4-14"><a href="#cb4-14"></a>    <span class="dt">activation =</span> vjsim<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/fgen_get_activation.html">fgen_get_activation</a></span>(</span>
-<span id="cb4-15"><a href="#cb4-15"></a>      <span class="dt">current_time =</span> current_time,</span>
-<span id="cb4-16"><a href="#cb4-16"></a>      <span class="dt">initial_activation =</span> initial_activation,</span>
-<span id="cb4-17"><a href="#cb4-17"></a>      <span class="dt">time_to_max_activation =</span> time_to_max_activation</span>
-<span id="cb4-18"><a href="#cb4-18"></a>    ),</span>
-<span id="cb4-19"><a href="#cb4-19"></a></span>
-<span id="cb4-20"><a href="#cb4-20"></a>    <span class="dt">generated_force =</span> activation <span class="op">*</span><span class="st"> </span>potential_force,</span>
-<span id="cb4-21"><a href="#cb4-21"></a></span>
-<span id="cb4-22"><a href="#cb4-22"></a>    <span class="dt">weight_label =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(weight),</span>
-<span id="cb4-23"><a href="#cb4-23"></a>    <span class="dt">time_to_max_activation_label =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(<span class="st">"Time to max activation ="</span>, time_to_max_activation)),</span>
-<span id="cb4-24"><a href="#cb4-24"></a>    <span class="dt">force_percentage_label =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(force_percentage)</span>
-<span id="cb4-25"><a href="#cb4-25"></a>  )</span>
-<span id="cb4-26"><a href="#cb4-26"></a></span>
-<span id="cb4-27"><a href="#cb4-27"></a><span class="kw">ggplot</span>(</span>
-<span id="cb4-28"><a href="#cb4-28"></a>  force_time,</span>
-<span id="cb4-29"><a href="#cb4-29"></a>  <span class="kw">aes</span>(</span>
-<span id="cb4-30"><a href="#cb4-30"></a>    <span class="dt">x =</span> current_time,</span>
-<span id="cb4-31"><a href="#cb4-31"></a>    <span class="dt">y =</span> activation,</span>
-<span id="cb4-32"><a href="#cb4-32"></a>    <span class="dt">color =</span> weight_label,</span>
-<span id="cb4-33"><a href="#cb4-33"></a>    <span class="dt">linetype =</span> force_percentage_label</span>
-<span id="cb4-34"><a href="#cb4-34"></a>  )</span>
-<span id="cb4-35"><a href="#cb4-35"></a>) <span class="op">+</span></span>
-<span id="cb4-36"><a href="#cb4-36"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="dv">12</span>) <span class="op">+</span></span>
-<span id="cb4-37"><a href="#cb4-37"></a><span class="st">  </span><span class="kw">geom_line</span>() <span class="op">+</span></span>
-<span id="cb4-38"><a href="#cb4-38"></a><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>time_to_max_activation_label) <span class="op">+</span></span>
-<span id="cb4-39"><a href="#cb4-39"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Time (s)"</span>) <span class="op">+</span></span>
-<span id="cb4-40"><a href="#cb4-40"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">"Activation"</span>) <span class="op">+</span></span>
-<span id="cb4-41"><a href="#cb4-41"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">color =</span> <span class="st">"Weight (N)"</span>, <span class="dt">linetype =</span> <span class="st">"Force Percentage"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>parameters &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/expand.grid.html">expand.grid</a></span>(</span>
+<span id="cb5-2"><a href="#cb5-2"></a>  <span class="dt">current_time =</span> <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="dv">0</span>, <span class="fl">0.5</span>, <span class="dt">length.out =</span> <span class="dv">1000</span>),</span>
+<span id="cb5-3"><a href="#cb5-3"></a>  <span class="dt">max_force =</span> <span class="dv">3000</span>,</span>
+<span id="cb5-4"><a href="#cb5-4"></a>  <span class="dt">weight =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">75</span> <span class="op">*</span><span class="st"> </span><span class="fl">9.81</span>, <span class="dv">85</span> <span class="op">*</span><span class="st"> </span><span class="fl">9.81</span>),</span>
+<span id="cb5-5"><a href="#cb5-5"></a>  <span class="dt">force_percentage =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.6</span>, <span class="fl">0.8</span>),</span>
+<span id="cb5-6"><a href="#cb5-6"></a>  <span class="dt">time_to_max_activation =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.3</span>, <span class="fl">0.5</span>)</span>
+<span id="cb5-7"><a href="#cb5-7"></a>)</span>
+<span id="cb5-8"><a href="#cb5-8"></a></span>
+<span id="cb5-9"><a href="#cb5-9"></a>force_time &lt;-<span class="st"> </span>parameters <span class="op">%&gt;%</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a><span class="st">  </span><span class="kw">mutate</span>(</span>
+<span id="cb5-11"><a href="#cb5-11"></a>    <span class="dt">potential_force =</span> max_force <span class="op">*</span><span class="st"> </span>force_percentage,</span>
+<span id="cb5-12"><a href="#cb5-12"></a>    <span class="dt">initial_activation =</span> weight <span class="op">/</span><span class="st"> </span>potential_force,</span>
+<span id="cb5-13"><a href="#cb5-13"></a></span>
+<span id="cb5-14"><a href="#cb5-14"></a>    <span class="dt">activation =</span> vjsim<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/fgen_get_activation.html">fgen_get_activation</a></span>(</span>
+<span id="cb5-15"><a href="#cb5-15"></a>      <span class="dt">current_time =</span> current_time,</span>
+<span id="cb5-16"><a href="#cb5-16"></a>      <span class="dt">initial_activation =</span> initial_activation,</span>
+<span id="cb5-17"><a href="#cb5-17"></a>      <span class="dt">time_to_max_activation =</span> time_to_max_activation</span>
+<span id="cb5-18"><a href="#cb5-18"></a>    ),</span>
+<span id="cb5-19"><a href="#cb5-19"></a></span>
+<span id="cb5-20"><a href="#cb5-20"></a>    <span class="dt">generated_force =</span> activation <span class="op">*</span><span class="st"> </span>potential_force,</span>
+<span id="cb5-21"><a href="#cb5-21"></a></span>
+<span id="cb5-22"><a href="#cb5-22"></a>    <span class="dt">weight_label =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(weight),</span>
+<span id="cb5-23"><a href="#cb5-23"></a>    <span class="dt">time_to_max_activation_label =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(<span class="st">"Time to max activation ="</span>, time_to_max_activation)),</span>
+<span id="cb5-24"><a href="#cb5-24"></a>    <span class="dt">force_percentage_label =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(force_percentage)</span>
+<span id="cb5-25"><a href="#cb5-25"></a>  )</span>
+<span id="cb5-26"><a href="#cb5-26"></a></span>
+<span id="cb5-27"><a href="#cb5-27"></a><span class="kw">ggplot</span>(</span>
+<span id="cb5-28"><a href="#cb5-28"></a>  force_time,</span>
+<span id="cb5-29"><a href="#cb5-29"></a>  <span class="kw">aes</span>(</span>
+<span id="cb5-30"><a href="#cb5-30"></a>    <span class="dt">x =</span> current_time,</span>
+<span id="cb5-31"><a href="#cb5-31"></a>    <span class="dt">y =</span> activation,</span>
+<span id="cb5-32"><a href="#cb5-32"></a>    <span class="dt">color =</span> weight_label,</span>
+<span id="cb5-33"><a href="#cb5-33"></a>    <span class="dt">linetype =</span> force_percentage_label</span>
+<span id="cb5-34"><a href="#cb5-34"></a>  )</span>
+<span id="cb5-35"><a href="#cb5-35"></a>) <span class="op">+</span></span>
+<span id="cb5-36"><a href="#cb5-36"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="dv">12</span>) <span class="op">+</span></span>
+<span id="cb5-37"><a href="#cb5-37"></a><span class="st">  </span><span class="kw">geom_line</span>() <span class="op">+</span></span>
+<span id="cb5-38"><a href="#cb5-38"></a><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>time_to_max_activation_label) <span class="op">+</span></span>
+<span id="cb5-39"><a href="#cb5-39"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Time (s)"</span>) <span class="op">+</span></span>
+<span id="cb5-40"><a href="#cb5-40"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">"Activation"</span>) <span class="op">+</span></span>
+<span id="cb5-41"><a href="#cb5-41"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">color =</span> <span class="st">"Weight (N)"</span>, <span class="dt">linetype =</span> <span class="st">"Force Percentage"</span>)</span></code></pre></div>
 <div class="figure" style="text-align: center">
 <img src="introduction-vjsim_files/figure-html/initial-activation-1.png" alt="Calculating initial activation" width="90%"><p class="caption">
 Calculating initial activation
 </p>
 </div>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a></span>
-<span id="cb5-2"><a href="#cb5-2"></a><span class="kw">ggplot</span>(</span>
-<span id="cb5-3"><a href="#cb5-3"></a>  force_time,</span>
-<span id="cb5-4"><a href="#cb5-4"></a>  <span class="kw">aes</span>(</span>
-<span id="cb5-5"><a href="#cb5-5"></a>    <span class="dt">x =</span> current_time,</span>
-<span id="cb5-6"><a href="#cb5-6"></a>    <span class="dt">y =</span> generated_force,</span>
-<span id="cb5-7"><a href="#cb5-7"></a>    <span class="dt">color =</span> weight_label,</span>
-<span id="cb5-8"><a href="#cb5-8"></a>    <span class="dt">linetype =</span> force_percentage_label</span>
-<span id="cb5-9"><a href="#cb5-9"></a>  )</span>
-<span id="cb5-10"><a href="#cb5-10"></a>) <span class="op">+</span></span>
-<span id="cb5-11"><a href="#cb5-11"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="dv">12</span>) <span class="op">+</span></span>
-<span id="cb5-12"><a href="#cb5-12"></a><span class="st">  </span><span class="kw">geom_line</span>() <span class="op">+</span></span>
-<span id="cb5-13"><a href="#cb5-13"></a><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>time_to_max_activation_label) <span class="op">+</span></span>
-<span id="cb5-14"><a href="#cb5-14"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Time (s)"</span>) <span class="op">+</span></span>
-<span id="cb5-15"><a href="#cb5-15"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">"Generated Force (N)"</span>) <span class="op">+</span></span>
-<span id="cb5-16"><a href="#cb5-16"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">color =</span> <span class="st">"Weight (N)"</span>, <span class="dt">linetype =</span> <span class="st">"Force Percentage"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a></span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="kw">ggplot</span>(</span>
+<span id="cb6-3"><a href="#cb6-3"></a>  force_time,</span>
+<span id="cb6-4"><a href="#cb6-4"></a>  <span class="kw">aes</span>(</span>
+<span id="cb6-5"><a href="#cb6-5"></a>    <span class="dt">x =</span> current_time,</span>
+<span id="cb6-6"><a href="#cb6-6"></a>    <span class="dt">y =</span> generated_force,</span>
+<span id="cb6-7"><a href="#cb6-7"></a>    <span class="dt">color =</span> weight_label,</span>
+<span id="cb6-8"><a href="#cb6-8"></a>    <span class="dt">linetype =</span> force_percentage_label</span>
+<span id="cb6-9"><a href="#cb6-9"></a>  )</span>
+<span id="cb6-10"><a href="#cb6-10"></a>) <span class="op">+</span></span>
+<span id="cb6-11"><a href="#cb6-11"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="dv">12</span>) <span class="op">+</span></span>
+<span id="cb6-12"><a href="#cb6-12"></a><span class="st">  </span><span class="kw">geom_line</span>() <span class="op">+</span></span>
+<span id="cb6-13"><a href="#cb6-13"></a><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>time_to_max_activation_label) <span class="op">+</span></span>
+<span id="cb6-14"><a href="#cb6-14"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Time (s)"</span>) <span class="op">+</span></span>
+<span id="cb6-15"><a href="#cb6-15"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">"Generated Force (N)"</span>) <span class="op">+</span></span>
+<span id="cb6-16"><a href="#cb6-16"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">color =</span> <span class="st">"Weight (N)"</span>, <span class="dt">linetype =</span> <span class="st">"Force Percentage"</span>)</span></code></pre></div>
 <div class="figure" style="text-align: center">
 <img src="introduction-vjsim_files/figure-html/initial-activation-2.png" alt="Calculating initial activation" width="90%"><p class="caption">
 Calculating initial activation
@@ -341,47 +365,47 @@ v = 4 (m/s)
 <p><span class="math display">\[
 v_{max} = \frac{F_{max}}{k}
 \]</span></p>
-<p>Rather than using <span class="math inline">\(k\)</span> as a parameter (which is not very intuitive), we can use <strong>max velocity</strong> as a parameter of this Force Generator component. Max velocity and max force represent <em>intrinsic</em> characteristics of the Force Generator. Please note that the max velocity parameter represents maximal velocity Force Generator can achieve in the unconstrained environment (unlimited Push-off Distance and no external resistance; i.e. force).</p>
+<p>Rather than using <span class="math inline">\(k\)</span> as a parameter (which is not very intuitive), we can use <strong>max velocity</strong> as a parameter of this Force Generator component. Max velocity and max force represent <em>intrinsic</em> characteristics of the Force Generator. Please note that the max velocity parameter represents maximal velocity Force Generator can achieve in the unconstrained environment (unlimited Push-off distance and no external resistance; i.e. force).</p>
 <p>Using the <code><a href="../reference/fgen_get_viscous_force.html">vjsim::fgen_get_viscous_force</a></code> function, we can get viscous or opposing force inside the Force Generator.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>parameters &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/expand.grid.html">expand.grid</a></span>(</span>
-<span id="cb6-2"><a href="#cb6-2"></a>  <span class="dt">current_velocity =</span> <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="dv">0</span>, <span class="fl">4.5</span>, <span class="dt">length.out =</span> <span class="dv">1000</span>),</span>
-<span id="cb6-3"><a href="#cb6-3"></a>  <span class="dt">max_force =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">2000</span>, <span class="dv">2500</span>, <span class="dv">3000</span>),</span>
-<span id="cb6-4"><a href="#cb6-4"></a>  <span class="dt">max_velocity =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>)</span>
-<span id="cb6-5"><a href="#cb6-5"></a>)</span>
-<span id="cb6-6"><a href="#cb6-6"></a></span>
-<span id="cb6-7"><a href="#cb6-7"></a>force_velocity &lt;-<span class="st"> </span>parameters <span class="op">%&gt;%</span></span>
-<span id="cb6-8"><a href="#cb6-8"></a><span class="st">  </span><span class="kw">mutate</span>(</span>
-<span id="cb6-9"><a href="#cb6-9"></a>    <span class="dt">force =</span> vjsim<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/fgen_get_viscous_force.html">fgen_get_viscous_force</a></span>(</span>
-<span id="cb6-10"><a href="#cb6-10"></a>      <span class="dt">current_velocity =</span> current_velocity,</span>
-<span id="cb6-11"><a href="#cb6-11"></a>      <span class="dt">max_force =</span> max_force,</span>
-<span id="cb6-12"><a href="#cb6-12"></a>      <span class="dt">max_velocity =</span> max_velocity</span>
-<span id="cb6-13"><a href="#cb6-13"></a>    ),</span>
-<span id="cb6-14"><a href="#cb6-14"></a>    <span class="dt">max_velocity =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(max_velocity),</span>
-<span id="cb6-15"><a href="#cb6-15"></a>    <span class="dt">max_force_label =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(<span class="st">"Max Force = "</span>, max_force))</span>
-<span id="cb6-16"><a href="#cb6-16"></a>  )</span>
-<span id="cb6-17"><a href="#cb6-17"></a></span>
-<span id="cb6-18"><a href="#cb6-18"></a><span class="kw">ggplot</span>(</span>
-<span id="cb6-19"><a href="#cb6-19"></a>  force_velocity,</span>
-<span id="cb6-20"><a href="#cb6-20"></a>  <span class="kw">aes</span>(</span>
-<span id="cb6-21"><a href="#cb6-21"></a>    <span class="dt">x =</span> current_velocity,</span>
-<span id="cb6-22"><a href="#cb6-22"></a>    <span class="dt">y =</span> force,</span>
-<span id="cb6-23"><a href="#cb6-23"></a>    <span class="dt">group =</span> max_velocity,</span>
-<span id="cb6-24"><a href="#cb6-24"></a>    <span class="dt">color =</span> max_velocity</span>
-<span id="cb6-25"><a href="#cb6-25"></a>  )</span>
-<span id="cb6-26"><a href="#cb6-26"></a>) <span class="op">+</span></span>
-<span id="cb6-27"><a href="#cb6-27"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="dv">12</span>) <span class="op">+</span></span>
-<span id="cb6-28"><a href="#cb6-28"></a><span class="st">  </span><span class="kw">geom_hline</span>(<span class="kw">aes</span>(<span class="dt">yintercept =</span> max_force), <span class="dt">linetype =</span> <span class="st">"dashed"</span>) <span class="op">+</span></span>
-<span id="cb6-29"><a href="#cb6-29"></a><span class="st">  </span><span class="kw">geom_line</span>() <span class="op">+</span></span>
-<span id="cb6-30"><a href="#cb6-30"></a><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>max_force_label) <span class="op">+</span></span>
-<span id="cb6-31"><a href="#cb6-31"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Velocity (m/s)"</span>) <span class="op">+</span></span>
-<span id="cb6-32"><a href="#cb6-32"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">"Viscous Force (N)"</span>) <span class="op">+</span></span>
-<span id="cb6-33"><a href="#cb6-33"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">color =</span> <span class="st">"Max Velocity"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>parameters &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/expand.grid.html">expand.grid</a></span>(</span>
+<span id="cb7-2"><a href="#cb7-2"></a>  <span class="dt">current_velocity =</span> <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="dv">0</span>, <span class="fl">4.5</span>, <span class="dt">length.out =</span> <span class="dv">1000</span>),</span>
+<span id="cb7-3"><a href="#cb7-3"></a>  <span class="dt">max_force =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">2000</span>, <span class="dv">2500</span>, <span class="dv">3000</span>),</span>
+<span id="cb7-4"><a href="#cb7-4"></a>  <span class="dt">max_velocity =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>)</span>
+<span id="cb7-5"><a href="#cb7-5"></a>)</span>
+<span id="cb7-6"><a href="#cb7-6"></a></span>
+<span id="cb7-7"><a href="#cb7-7"></a>force_velocity &lt;-<span class="st"> </span>parameters <span class="op">%&gt;%</span></span>
+<span id="cb7-8"><a href="#cb7-8"></a><span class="st">  </span><span class="kw">mutate</span>(</span>
+<span id="cb7-9"><a href="#cb7-9"></a>    <span class="dt">force =</span> vjsim<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/fgen_get_viscous_force.html">fgen_get_viscous_force</a></span>(</span>
+<span id="cb7-10"><a href="#cb7-10"></a>      <span class="dt">current_velocity =</span> current_velocity,</span>
+<span id="cb7-11"><a href="#cb7-11"></a>      <span class="dt">max_force =</span> max_force,</span>
+<span id="cb7-12"><a href="#cb7-12"></a>      <span class="dt">max_velocity =</span> max_velocity</span>
+<span id="cb7-13"><a href="#cb7-13"></a>    ),</span>
+<span id="cb7-14"><a href="#cb7-14"></a>    <span class="dt">max_velocity =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(max_velocity),</span>
+<span id="cb7-15"><a href="#cb7-15"></a>    <span class="dt">max_force_label =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(<span class="st">"Max Force = "</span>, max_force))</span>
+<span id="cb7-16"><a href="#cb7-16"></a>  )</span>
+<span id="cb7-17"><a href="#cb7-17"></a></span>
+<span id="cb7-18"><a href="#cb7-18"></a><span class="kw">ggplot</span>(</span>
+<span id="cb7-19"><a href="#cb7-19"></a>  force_velocity,</span>
+<span id="cb7-20"><a href="#cb7-20"></a>  <span class="kw">aes</span>(</span>
+<span id="cb7-21"><a href="#cb7-21"></a>    <span class="dt">x =</span> current_velocity,</span>
+<span id="cb7-22"><a href="#cb7-22"></a>    <span class="dt">y =</span> force,</span>
+<span id="cb7-23"><a href="#cb7-23"></a>    <span class="dt">group =</span> max_velocity,</span>
+<span id="cb7-24"><a href="#cb7-24"></a>    <span class="dt">color =</span> max_velocity</span>
+<span id="cb7-25"><a href="#cb7-25"></a>  )</span>
+<span id="cb7-26"><a href="#cb7-26"></a>) <span class="op">+</span></span>
+<span id="cb7-27"><a href="#cb7-27"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="dv">12</span>) <span class="op">+</span></span>
+<span id="cb7-28"><a href="#cb7-28"></a><span class="st">  </span><span class="kw">geom_hline</span>(<span class="kw">aes</span>(<span class="dt">yintercept =</span> max_force), <span class="dt">linetype =</span> <span class="st">"dashed"</span>) <span class="op">+</span></span>
+<span id="cb7-29"><a href="#cb7-29"></a><span class="st">  </span><span class="kw">geom_line</span>() <span class="op">+</span></span>
+<span id="cb7-30"><a href="#cb7-30"></a><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>max_force_label) <span class="op">+</span></span>
+<span id="cb7-31"><a href="#cb7-31"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Velocity (m/s)"</span>) <span class="op">+</span></span>
+<span id="cb7-32"><a href="#cb7-32"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">"Viscous Force (N)"</span>) <span class="op">+</span></span>
+<span id="cb7-33"><a href="#cb7-33"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">color =</span> <span class="st">"Max Velocity"</span>)</span></code></pre></div>
 <div class="figure" style="text-align: center">
 <img src="introduction-vjsim_files/figure-html/force-velocity-characteristic-1.png" alt="Force-Velocity characteristic" width="90%"><p class="caption">
 Force-Velocity characteristic
 </p>
 </div>
-<p>The above Figure represents intrinsic viscous force generated at particular velocities. Assuming unconstrained conditions, we are interested in estimating maximal velocity that can be achieved when the Force Generator faces some external resistance. Since we are assuming unconstrained conditions, the mass of the resistance is not important (due unlimited Push-off Distance to accelerate), but only the facing external resisting force. The Force Generator faces two opposing forces then: external resistance force and viscous force (which is internal or intrinsic part of the Force Generator itself). <strong>Peak velocity</strong> is achieved when the sum of forces is equal to zero. I keep saying the sum of force, because <span class="math inline">\(F_{viscous}\)</span> and <span class="math inline">\(F_{external}\)</span> are in the opposite direction to <span class="math inline">\(F_{max}\)</span>; thus, they have a negative sign.</p>
+<p>The above Figure represents intrinsic viscous force generated at particular velocities. Assuming unconstrained conditions, we are interested in estimating maximal velocity that can be achieved when the Force Generator faces some external resistance. Since we are assuming unconstrained conditions, the mass of the resistance is not important (due unlimited Push-off distance to accelerate), but only the facing external resisting force. The Force Generator faces two opposing forces then: external resistance force and viscous force (which is internal or intrinsic part of the Force Generator itself). <strong>Peak velocity</strong> is achieved when the sum of forces is equal to zero. I keep saying the sum of force, because <span class="math inline">\(F_{viscous}\)</span> and <span class="math inline">\(F_{external}\)</span> are in the opposite direction to <span class="math inline">\(F_{max}\)</span>; thus, they have a negative sign.</p>
 <p>Please note the difference between peak velocity, which is the maximal velocity that can be reached in unconstrained conditions at a particular level of the external resistance force, a maximal velocity, which is “maximal” maximal velocity that can be reached in unconstrained conditions when there iz zero external resistance force.</p>
 <p><span class="math display">\[
 F_{max} - F_{viscous} - F_{external} = 0
@@ -401,47 +425,85 @@ v_{peak} = \frac{F_{max} - F_{external}}{k}
 v_{peak} = \frac{F_{max} - F_{external}}{\frac{F_{max}}{v_{max}}}
 \]</span></p>
 <p>Assuming few combinations of max force and a max velocity of the Force Generator, depending on the level of facing external resistance (N), we can calculate peak velocity (<span class="math inline">\(v\)</span>) that can hypothetically be reached in the unconstrained conditions. You can use the above equation, or the <code><a href="../reference/fgen_get_velocity.html">vjsim::fgen_get_velocity</a></code> function.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>parameters &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/expand.grid.html">expand.grid</a></span>(</span>
-<span id="cb7-2"><a href="#cb7-2"></a>  <span class="dt">external_force =</span> <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="dv">0</span>, <span class="dv">3000</span>, <span class="dt">length.out =</span> <span class="dv">1000</span>),</span>
-<span id="cb7-3"><a href="#cb7-3"></a>  <span class="dt">max_force =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">2000</span>, <span class="dv">3000</span>),</span>
-<span id="cb7-4"><a href="#cb7-4"></a>  <span class="dt">max_velocity =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">3</span>, <span class="dv">4</span>)</span>
-<span id="cb7-5"><a href="#cb7-5"></a>)</span>
-<span id="cb7-6"><a href="#cb7-6"></a></span>
-<span id="cb7-7"><a href="#cb7-7"></a>velocity_reached &lt;-<span class="st"> </span>parameters <span class="op">%&gt;%</span></span>
-<span id="cb7-8"><a href="#cb7-8"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span>(</span>
-<span id="cb7-9"><a href="#cb7-9"></a>    external_force <span class="op">&lt;</span><span class="st"> </span>max_force</span>
-<span id="cb7-10"><a href="#cb7-10"></a>  ) <span class="op">%&gt;%</span></span>
-<span id="cb7-11"><a href="#cb7-11"></a><span class="st">  </span><span class="kw">mutate</span>(</span>
-<span id="cb7-12"><a href="#cb7-12"></a>    <span class="dt">velocity_reached =</span> vjsim<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/fgen_get_velocity.html">fgen_get_velocity</a></span>(</span>
-<span id="cb7-13"><a href="#cb7-13"></a>      <span class="dt">external_force =</span> external_force,</span>
-<span id="cb7-14"><a href="#cb7-14"></a>      <span class="dt">max_force =</span> max_force,</span>
-<span id="cb7-15"><a href="#cb7-15"></a>      <span class="dt">max_velocity =</span> max_velocity</span>
-<span id="cb7-16"><a href="#cb7-16"></a>    ),</span>
-<span id="cb7-17"><a href="#cb7-17"></a>    <span class="dt">max_velocity =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(max_velocity),</span>
-<span id="cb7-18"><a href="#cb7-18"></a>    <span class="dt">max_force_label =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(max_force),</span>
-<span id="cb7-19"><a href="#cb7-19"></a>    <span class="dt">id =</span> <span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(max_force, max_velocity)</span>
-<span id="cb7-20"><a href="#cb7-20"></a>  ) <span class="op">%&gt;%</span></span>
-<span id="cb7-21"><a href="#cb7-21"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span>(id <span class="op">%in%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"2000 4"</span>, <span class="st">"3000 3"</span>))</span>
-<span id="cb7-22"><a href="#cb7-22"></a></span>
-<span id="cb7-23"><a href="#cb7-23"></a><span class="kw">ggplot</span>(</span>
-<span id="cb7-24"><a href="#cb7-24"></a>  velocity_reached,</span>
-<span id="cb7-25"><a href="#cb7-25"></a>  <span class="kw">aes</span>(</span>
-<span id="cb7-26"><a href="#cb7-26"></a>    <span class="dt">x =</span> external_force,</span>
-<span id="cb7-27"><a href="#cb7-27"></a>    <span class="dt">y =</span> velocity_reached,</span>
-<span id="cb7-28"><a href="#cb7-28"></a>    <span class="dt">color =</span> max_velocity,</span>
-<span id="cb7-29"><a href="#cb7-29"></a>    <span class="dt">linetype =</span> max_force_label</span>
-<span id="cb7-30"><a href="#cb7-30"></a>  )</span>
-<span id="cb7-31"><a href="#cb7-31"></a>) <span class="op">+</span></span>
-<span id="cb7-32"><a href="#cb7-32"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="dv">12</span>) <span class="op">+</span></span>
-<span id="cb7-33"><a href="#cb7-33"></a><span class="st">  </span><span class="kw">geom_line</span>() <span class="op">+</span></span>
-<span id="cb7-34"><a href="#cb7-34"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">"Velocity reached (m/s)"</span>) <span class="op">+</span></span>
-<span id="cb7-35"><a href="#cb7-35"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">"External Force (N)"</span>) <span class="op">+</span></span>
-<span id="cb7-36"><a href="#cb7-36"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">color =</span> <span class="st">"Max Velocity"</span>, <span class="dt">linetype =</span> <span class="st">"Max Force"</span>)</span></code></pre></div>
-<p><img src="introduction-vjsim_files/figure-html/unnamed-chunk-2-1.png" width="90%" style="display: block; margin: auto;"></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>parameters &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/expand.grid.html">expand.grid</a></span>(</span>
+<span id="cb8-2"><a href="#cb8-2"></a>  <span class="dt">external_force =</span> <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="dv">0</span>, <span class="dv">3000</span>, <span class="dt">length.out =</span> <span class="dv">1000</span>),</span>
+<span id="cb8-3"><a href="#cb8-3"></a>  <span class="dt">max_force =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">2000</span>, <span class="dv">3000</span>),</span>
+<span id="cb8-4"><a href="#cb8-4"></a>  <span class="dt">max_velocity =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">3</span>, <span class="dv">4</span>)</span>
+<span id="cb8-5"><a href="#cb8-5"></a>)</span>
+<span id="cb8-6"><a href="#cb8-6"></a></span>
+<span id="cb8-7"><a href="#cb8-7"></a>velocity_reached &lt;-<span class="st"> </span>parameters <span class="op">%&gt;%</span></span>
+<span id="cb8-8"><a href="#cb8-8"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span>(</span>
+<span id="cb8-9"><a href="#cb8-9"></a>    external_force <span class="op">&lt;</span><span class="st"> </span>max_force</span>
+<span id="cb8-10"><a href="#cb8-10"></a>  ) <span class="op">%&gt;%</span></span>
+<span id="cb8-11"><a href="#cb8-11"></a><span class="st">  </span><span class="kw">mutate</span>(</span>
+<span id="cb8-12"><a href="#cb8-12"></a>    <span class="dt">velocity_reached =</span> vjsim<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/fgen_get_velocity.html">fgen_get_velocity</a></span>(</span>
+<span id="cb8-13"><a href="#cb8-13"></a>      <span class="dt">external_force =</span> external_force,</span>
+<span id="cb8-14"><a href="#cb8-14"></a>      <span class="dt">max_force =</span> max_force,</span>
+<span id="cb8-15"><a href="#cb8-15"></a>      <span class="dt">max_velocity =</span> max_velocity</span>
+<span id="cb8-16"><a href="#cb8-16"></a>    ),</span>
+<span id="cb8-17"><a href="#cb8-17"></a>    <span class="dt">max_velocity =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(max_velocity),</span>
+<span id="cb8-18"><a href="#cb8-18"></a>    <span class="dt">max_force_label =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(max_force),</span>
+<span id="cb8-19"><a href="#cb8-19"></a>    <span class="dt">id =</span> <span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(max_force, max_velocity)</span>
+<span id="cb8-20"><a href="#cb8-20"></a>  ) <span class="op">%&gt;%</span></span>
+<span id="cb8-21"><a href="#cb8-21"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span>(id <span class="op">%in%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"2000 4"</span>, <span class="st">"3000 3"</span>))</span>
+<span id="cb8-22"><a href="#cb8-22"></a></span>
+<span id="cb8-23"><a href="#cb8-23"></a><span class="kw">ggplot</span>(</span>
+<span id="cb8-24"><a href="#cb8-24"></a>  velocity_reached,</span>
+<span id="cb8-25"><a href="#cb8-25"></a>  <span class="kw">aes</span>(</span>
+<span id="cb8-26"><a href="#cb8-26"></a>    <span class="dt">x =</span> external_force,</span>
+<span id="cb8-27"><a href="#cb8-27"></a>    <span class="dt">y =</span> velocity_reached,</span>
+<span id="cb8-28"><a href="#cb8-28"></a>    <span class="dt">color =</span> max_velocity,</span>
+<span id="cb8-29"><a href="#cb8-29"></a>    <span class="dt">linetype =</span> max_force_label</span>
+<span id="cb8-30"><a href="#cb8-30"></a>  )</span>
+<span id="cb8-31"><a href="#cb8-31"></a>) <span class="op">+</span></span>
+<span id="cb8-32"><a href="#cb8-32"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="dv">12</span>) <span class="op">+</span></span>
+<span id="cb8-33"><a href="#cb8-33"></a><span class="st">  </span><span class="kw">geom_line</span>() <span class="op">+</span></span>
+<span id="cb8-34"><a href="#cb8-34"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">"Velocity reached (m/s)"</span>) <span class="op">+</span></span>
+<span id="cb8-35"><a href="#cb8-35"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">"External Force (N)"</span>) <span class="op">+</span></span>
+<span id="cb8-36"><a href="#cb8-36"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">color =</span> <span class="st">"Max Velocity"</span>, <span class="dt">linetype =</span> <span class="st">"Max Force"</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="introduction-vjsim_files/figure-html/unnamed-chunk-2-1.png" alt="Relationship between external force and velocity that can be reached" width="90%"><p class="caption">
+Relationship between external force and velocity that can be reached
+</p>
+</div>
 <p>The above represent unconstrained Force Generator <strong>Force-Velocity profile</strong>. It is the intrinsic (or latent) quality (characteristic or trait) of the Force Generator that can be <em>manifested</em> when Force Generator faces external force under unconstrained conditions.</p>
-<p>Unfortunately, the Force Generator functions in the <em>constrained</em> environment, facing particular inertia (bodyweight and external load) and limited distance over which that inertia can be accelerated (i.e. push-off distance). Plus, there are Force-Length and Force-Time characteristics that will affect performance in the constrained environment.</p>
+<div id="power-of-the-force-generator" class="section level3">
+<h3 class="hasAnchor">
+<a href="#power-of-the-force-generator" class="anchor"></a>Power of the Force Generator</h3>
+<p>From the Force-Velocity profile of the Force Generator we can calculate generated Power (in uncostrained conditions). Power output is calculated by multiplying the velocity reached and external force:</p>
+<p><span class="math display">\[P = F_{external} \times v_{peak}\]</span></p>
+<p>The following figure depicts power output of the Forge Generator at different external forces once the <span class="math inline">\(v_{peak}\)</span> is reached:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>velocity_reached &lt;-<span class="st"> </span>velocity_reached <span class="op">%&gt;%</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a><span class="st">  </span><span class="kw">mutate</span>(</span>
+<span id="cb9-3"><a href="#cb9-3"></a>    <span class="dt">power =</span> external_force <span class="op">*</span><span class="st"> </span>velocity_reached</span>
+<span id="cb9-4"><a href="#cb9-4"></a>  )</span>
+<span id="cb9-5"><a href="#cb9-5"></a></span>
+<span id="cb9-6"><a href="#cb9-6"></a><span class="kw">ggplot</span>(</span>
+<span id="cb9-7"><a href="#cb9-7"></a>  velocity_reached,</span>
+<span id="cb9-8"><a href="#cb9-8"></a>  <span class="kw">aes</span>(</span>
+<span id="cb9-9"><a href="#cb9-9"></a>    <span class="dt">x =</span> external_force,</span>
+<span id="cb9-10"><a href="#cb9-10"></a>    <span class="dt">y =</span> power,</span>
+<span id="cb9-11"><a href="#cb9-11"></a>    <span class="dt">color =</span> max_velocity,</span>
+<span id="cb9-12"><a href="#cb9-12"></a>    <span class="dt">linetype =</span> max_force_label</span>
+<span id="cb9-13"><a href="#cb9-13"></a>  )</span>
+<span id="cb9-14"><a href="#cb9-14"></a>) <span class="op">+</span></span>
+<span id="cb9-15"><a href="#cb9-15"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="dv">12</span>) <span class="op">+</span></span>
+<span id="cb9-16"><a href="#cb9-16"></a><span class="st">  </span><span class="kw">geom_line</span>() <span class="op">+</span></span>
+<span id="cb9-17"><a href="#cb9-17"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">"Power (W)"</span>) <span class="op">+</span></span>
+<span id="cb9-18"><a href="#cb9-18"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">"External Force (N)"</span>) <span class="op">+</span></span>
+<span id="cb9-19"><a href="#cb9-19"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">color =</span> <span class="st">"Max Velocity"</span>, <span class="dt">linetype =</span> <span class="st">"Max Force"</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center">
+<img src="introduction-vjsim_files/figure-html/unnamed-chunk-3-1.png" alt="Relationship between external force and power" width="90%"><p class="caption">
+Relationship between external force and power
+</p>
+</div>
+<p>As can be seen from the figure above, there is an <strong>max power</strong> at particular external load. Assuming linear Force-Velocity relationship, this max power is achieved at halfway to both max force and max velocity. It is thus equal to:</p>
+<p><span class="math display">\[P_{max} = \frac{F_{max} \times v_{max}}{4}\]</span></p>
+<p>Since max power combines both max force and max velocity, it can be thought of as some <em>ultimate</em> characteristic of the Force Generator. This is important <em>construct</em> that will be utilized with the optimization models. We can take <em>realist</em> perspective regarding max power, claiming that it represents <em>ontological</em> or real construct, or take more <em>constructivist</em> perspective claiming that max power represents just a neat way of combining max force and max velocity characteristics. I am personally leaning more towards constructivism. As will be explained later, optimization models approach max power from realist perspective. But more on that in the <code>optimization-vjsim</code> vignette.</p>
+<p>As stated multiple times, max force, max velocity, and max power are characteristics of the Force Generator in the unconstrained conditions (thus represent <em>latent</em> characteristic). Unfortunately, the Force Generator functions in the <em>constrained</em> environment, facing particular inertia (bodyweight and external load) and limited distance over which that inertia can be accelerated (i.e. push-off distance). Plus, there are Force-Length and Force-Time characteristics that will affect performance in the constrained environment.</p>
 <p>How will these affect the constrained, or <em>manifested</em>, Force Generator force-velocity profile? This is what (among a few other things) we are interested in figuring out by using the <code>vjsim</code> simulations. This is discussed in <code>simulation-vjsim</code> vignette.</p>
 <p>Let’s quickly review the parameters of the Force Generator and the simulation in general before finishing this vignette.</p>
+</div>
 </div>
 <div id="list-of-force-generator-parameters" class="section level2">
 <h2 class="hasAnchor">
@@ -449,14 +511,15 @@ v_{peak} = \frac{F_{max} - F_{external}}{\frac{F_{max}}{v_{max}}}
 <p>Parameters of the system are the following:</p>
 <ul>
 <li><p><strong>Mass</strong> (inertia) and <strong>weight</strong> (<span class="math inline">\(mass \times 9.81\)</span>) represent load that the Force Generator needs to accelerate. These involve <strong>bodyweight</strong> and additional <strong>external load</strong>, such as extra weight (e.g. BW + 60kg).</p></li>
-<li><p><strong>Push-off Distance</strong>, or the limited distance over which the Force Generator can accelerate the mass object.</p></li>
+<li><p><strong>Push-off distance</strong>, or the limited distance over which the Force Generator can accelerate the mass object.</p></li>
 </ul>
 <p>Parameters of the Force Generator involve the following:</p>
 <ul>
 <li><p><strong>Max force</strong>, which is the ultimate force that Force Generator can manifest in isometric conditions with 100% Force-Length relationship.</p></li>
-<li><p><strong>Max velocity</strong>, which is the final velocity that Force Generator can manifest in <em>unconstrained</em> conditions (unlimited Push-off Distance and zero external resistance).</p></li>
+<li><p><strong>Max velocity</strong>, which is the final velocity that Force Generator can manifest in <em>unconstrained</em> conditions (unlimited Push-off distance and zero external resistance).</p></li>
+<li><p>Max force and max velocity can be combined into <strong>max power</strong>. Realist position assumes this is real construct of the Force Generator and one that is ultimate characteristic. Constructivist position see it as neat summary of the Force-Velocity profile</p></li>
 <li><p>Max force and max velocity represent <em>unconstrained</em> Force Generator Force-Velocity profile.</p></li>
-<li><p><em>Force-Length</em> characteristic has two parameters: <strong>start perc</strong> and <strong>threshold</strong>.</p></li>
+<li><p><em>Force-Length</em> characteristic has two parameters: <strong>decline rate</strong> and <strong>peak location</strong>.</p></li>
 <li><p><em>Force-Time</em> characteristic has one parameter: <strong>time to max activation</strong>. <strong>Initial activation</strong> parameter is (or should be) automatically calculated to represents the activation needed to support the weight of the moving object (i.e. <span class="math inline">\((bodyweight + external \; load) \times 9.81\)</span>). This is required since the vertical jumps start from a dead start. Initial activation will not be considered a parameter that can vary in the simulations.</p></li>
 </ul>
 <p>The schematic diagram on the Figure below depicts all the essential concepts covered so far that are important for further analysis and simulation.</p>
@@ -470,7 +533,7 @@ Schematic diagrom of the components, parameters, and resulting forces in vjsim
 <li>
 <strong>Max force</strong> of the Force Generator represent major parameter, together with <strong>Max Velocity</strong>
 </li>
-<li>Based on the <em>current position</em> (<span class="math inline">\(d\)</span>; where <span class="math inline">\(d=0m\)</span> is the position of the push-off start) on the Push-off Distance, based on the Force-Length characteristic, particular <strong>force percentage</strong> limits the <strong>potential force</strong> than can be expressed</li>
+<li>Based on the <em>current position</em> (<span class="math inline">\(d\)</span>; where <span class="math inline">\(d=0m\)</span> is the position of the push-off start) on the Push-off distance, based on the Force-Length characteristic, particular <strong>force percentage</strong> limits the <strong>potential force</strong> than can be expressed</li>
 <li>Based on the <em>current time</em> (<span class="math inline">\(t\)</span>; where <span class="math inline">\(t=0s\)</span> is the moment of the push-off start), particular <em>level of activation</em> is reached due to the Force-Time characteristic</li>
 <li>
 <strong>Generated force</strong> is the product of the level of activation and potential force</li>
@@ -482,67 +545,68 @@ Schematic diagrom of the components, parameters, and resulting forces in vjsim
 </li>
 </ol>
 <p>This whole process is integrated in the <code><a href="../reference/fgen_get_output.html">vjsim::fgen_get_output</a></code> function. This function calculates all the forces and acceleration based on the <code>current_time</code>, <code>current_distance</code>, <code>current_velocity</code>, as well as the other system constraints and parameters of the Forge Generator.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>state &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/expand.grid.html">expand.grid</a></span>(</span>
-<span id="cb8-2"><a href="#cb8-2"></a>  <span class="dt">current_time =</span> <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="dv">0</span>, <span class="fl">0.25</span>, <span class="dt">length.out =</span> <span class="dv">1000</span>),</span>
-<span id="cb8-3"><a href="#cb8-3"></a>  <span class="dt">current_distance =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.1</span>, <span class="fl">0.15</span>, <span class="fl">0.2</span>, <span class="fl">0.25</span>, <span class="fl">0.3</span>),</span>
-<span id="cb8-4"><a href="#cb8-4"></a>  <span class="dt">current_velocity =</span> <span class="dv">0</span></span>
-<span id="cb8-5"><a href="#cb8-5"></a>)</span>
-<span id="cb8-6"><a href="#cb8-6"></a></span>
-<span id="cb8-7"><a href="#cb8-7"></a>fgen_data &lt;-<span class="st"> </span>vjsim<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/fgen_get_output.html">fgen_get_output</a></span>(</span>
-<span id="cb8-8"><a href="#cb8-8"></a>  <span class="dt">current_time =</span> state<span class="op">$</span>current_time,</span>
-<span id="cb8-9"><a href="#cb8-9"></a>  <span class="dt">current_distance =</span> state<span class="op">$</span>current_distance,</span>
-<span id="cb8-10"><a href="#cb8-10"></a>  <span class="dt">current_velocity =</span> state<span class="op">$</span>current_velocity,</span>
-<span id="cb8-11"><a href="#cb8-11"></a></span>
-<span id="cb8-12"><a href="#cb8-12"></a>  <span class="dt">mass =</span> <span class="dv">75</span>,</span>
-<span id="cb8-13"><a href="#cb8-13"></a>  <span class="dt">push_off_distance =</span> <span class="fl">0.4</span>,</span>
-<span id="cb8-14"><a href="#cb8-14"></a></span>
-<span id="cb8-15"><a href="#cb8-15"></a>  <span class="dt">max_force =</span> <span class="dv">3000</span>,</span>
-<span id="cb8-16"><a href="#cb8-16"></a>  <span class="dt">max_velocity =</span> <span class="dv">4</span>,</span>
-<span id="cb8-17"><a href="#cb8-17"></a></span>
-<span id="cb8-18"><a href="#cb8-18"></a>  <span class="dt">start_perc =</span> <span class="fl">0.8</span>,</span>
-<span id="cb8-19"><a href="#cb8-19"></a>  <span class="dt">threshold =</span> <span class="fl">0.9</span>,</span>
-<span id="cb8-20"><a href="#cb8-20"></a></span>
-<span id="cb8-21"><a href="#cb8-21"></a>  <span class="dt">time_to_max_activation =</span> <span class="fl">0.3</span></span>
-<span id="cb8-22"><a href="#cb8-22"></a>)</span>
-<span id="cb8-23"><a href="#cb8-23"></a></span>
-<span id="cb8-24"><a href="#cb8-24"></a><span class="kw">as_tibble</span>(<span class="kw"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span>(fgen_data))</span>
-<span id="cb8-25"><a href="#cb8-25"></a><span class="co">#&gt; # A tibble: 5,000 x 22</span></span>
-<span id="cb8-26"><a href="#cb8-26"></a><span class="co">#&gt;    kinematics.curr… kinematics.curr… kinematics.curr… system_constrai…</span></span>
-<span id="cb8-27"><a href="#cb8-27"></a><span class="co">#&gt;               &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;</span></span>
-<span id="cb8-28"><a href="#cb8-28"></a><span class="co">#&gt;  1         0                     0.1                0               75</span></span>
-<span id="cb8-29"><a href="#cb8-29"></a><span class="co">#&gt;  2         0.000250              0.1                0               75</span></span>
-<span id="cb8-30"><a href="#cb8-30"></a><span class="co">#&gt;  3         0.000501              0.1                0               75</span></span>
-<span id="cb8-31"><a href="#cb8-31"></a><span class="co">#&gt;  4         0.000751              0.1                0               75</span></span>
-<span id="cb8-32"><a href="#cb8-32"></a><span class="co">#&gt;  5         0.00100               0.1                0               75</span></span>
-<span id="cb8-33"><a href="#cb8-33"></a><span class="co">#&gt;  6         0.00125               0.1                0               75</span></span>
-<span id="cb8-34"><a href="#cb8-34"></a><span class="co">#&gt;  7         0.00150               0.1                0               75</span></span>
-<span id="cb8-35"><a href="#cb8-35"></a><span class="co">#&gt;  8         0.00175               0.1                0               75</span></span>
-<span id="cb8-36"><a href="#cb8-36"></a><span class="co">#&gt;  9         0.00200               0.1                0               75</span></span>
-<span id="cb8-37"><a href="#cb8-37"></a><span class="co">#&gt; 10         0.00225               0.1                0               75</span></span>
-<span id="cb8-38"><a href="#cb8-38"></a><span class="co">#&gt; # … with 4,990 more rows, and 18 more variables:</span></span>
-<span id="cb8-39"><a href="#cb8-39"></a><span class="co">#&gt; #   system_constraints.weight &lt;dbl&gt;,</span></span>
-<span id="cb8-40"><a href="#cb8-40"></a><span class="co">#&gt; #   system_constraints.push_off_distance &lt;dbl&gt;,</span></span>
-<span id="cb8-41"><a href="#cb8-41"></a><span class="co">#&gt; #   system_constraints.gravity_const &lt;dbl&gt;, fgen_parameters.max_force &lt;dbl&gt;,</span></span>
-<span id="cb8-42"><a href="#cb8-42"></a><span class="co">#&gt; #   fgen_parameters.max_velocity &lt;dbl&gt;, fgen_parameters.start_perc &lt;dbl&gt;,</span></span>
-<span id="cb8-43"><a href="#cb8-43"></a><span class="co">#&gt; #   fgen_parameters.threshold &lt;dbl&gt;,</span></span>
-<span id="cb8-44"><a href="#cb8-44"></a><span class="co">#&gt; #   fgen_parameters.time_to_max_activation &lt;dbl&gt;,</span></span>
-<span id="cb8-45"><a href="#cb8-45"></a><span class="co">#&gt; #   fgen_parameters.initial_activation &lt;dbl&gt;, fgen_output.push_off_perc &lt;dbl&gt;,</span></span>
-<span id="cb8-46"><a href="#cb8-46"></a><span class="co">#&gt; #   fgen_output.force_percentage &lt;dbl&gt;, fgen_output.potential_force &lt;dbl&gt;,</span></span>
-<span id="cb8-47"><a href="#cb8-47"></a><span class="co">#&gt; #   fgen_output.activation &lt;dbl&gt;, fgen_output.generated_force &lt;dbl&gt;,</span></span>
-<span id="cb8-48"><a href="#cb8-48"></a><span class="co">#&gt; #   fgen_output.viscous_force &lt;dbl&gt;, kinetics.ground_reaction_force &lt;dbl&gt;,</span></span>
-<span id="cb8-49"><a href="#cb8-49"></a><span class="co">#&gt; #   kinetics.propulsive_force &lt;dbl&gt;, kinetics.acceleration &lt;dbl&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>state &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/expand.grid.html">expand.grid</a></span>(</span>
+<span id="cb10-2"><a href="#cb10-2"></a>  <span class="dt">current_time =</span> <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="dv">0</span>, <span class="fl">0.25</span>, <span class="dt">length.out =</span> <span class="dv">1000</span>),</span>
+<span id="cb10-3"><a href="#cb10-3"></a>  <span class="dt">current_distance =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.1</span>, <span class="fl">0.15</span>, <span class="fl">0.2</span>, <span class="fl">0.25</span>, <span class="fl">0.3</span>),</span>
+<span id="cb10-4"><a href="#cb10-4"></a>  <span class="dt">current_velocity =</span> <span class="dv">0</span></span>
+<span id="cb10-5"><a href="#cb10-5"></a>)</span>
+<span id="cb10-6"><a href="#cb10-6"></a></span>
+<span id="cb10-7"><a href="#cb10-7"></a>fgen_data &lt;-<span class="st"> </span>vjsim<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/fgen_get_output.html">fgen_get_output</a></span>(</span>
+<span id="cb10-8"><a href="#cb10-8"></a>  <span class="dt">current_time =</span> state<span class="op">$</span>current_time,</span>
+<span id="cb10-9"><a href="#cb10-9"></a>  <span class="dt">current_distance =</span> state<span class="op">$</span>current_distance,</span>
+<span id="cb10-10"><a href="#cb10-10"></a>  <span class="dt">current_velocity =</span> state<span class="op">$</span>current_velocity,</span>
+<span id="cb10-11"><a href="#cb10-11"></a></span>
+<span id="cb10-12"><a href="#cb10-12"></a>  <span class="dt">mass =</span> <span class="dv">75</span>,</span>
+<span id="cb10-13"><a href="#cb10-13"></a>  <span class="dt">push_off_distance =</span> <span class="fl">0.4</span>,</span>
+<span id="cb10-14"><a href="#cb10-14"></a></span>
+<span id="cb10-15"><a href="#cb10-15"></a>  <span class="dt">max_force =</span> <span class="dv">3000</span>,</span>
+<span id="cb10-16"><a href="#cb10-16"></a>  <span class="dt">max_velocity =</span> <span class="dv">4</span>,</span>
+<span id="cb10-17"><a href="#cb10-17"></a></span>
+<span id="cb10-18"><a href="#cb10-18"></a>  <span class="dt">decline_rate =</span> <span class="fl">1.5</span>,</span>
+<span id="cb10-19"><a href="#cb10-19"></a>  <span class="dt">peak_location =</span> <span class="fl">-0.1</span>,</span>
+<span id="cb10-20"><a href="#cb10-20"></a></span>
+<span id="cb10-21"><a href="#cb10-21"></a>  <span class="dt">time_to_max_activation =</span> <span class="fl">0.3</span></span>
+<span id="cb10-22"><a href="#cb10-22"></a>)</span>
+<span id="cb10-23"><a href="#cb10-23"></a></span>
+<span id="cb10-24"><a href="#cb10-24"></a><span class="kw">as_tibble</span>(<span class="kw"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span>(fgen_data))</span>
+<span id="cb10-25"><a href="#cb10-25"></a><span class="co">#&gt; # A tibble: 5,000 x 23</span></span>
+<span id="cb10-26"><a href="#cb10-26"></a><span class="co">#&gt;    kinematics.curr… kinematics.curr… kinematics.curr… system_constrai…</span></span>
+<span id="cb10-27"><a href="#cb10-27"></a><span class="co">#&gt;               &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;</span></span>
+<span id="cb10-28"><a href="#cb10-28"></a><span class="co">#&gt;  1         0                     0.1                0               75</span></span>
+<span id="cb10-29"><a href="#cb10-29"></a><span class="co">#&gt;  2         0.000250              0.1                0               75</span></span>
+<span id="cb10-30"><a href="#cb10-30"></a><span class="co">#&gt;  3         0.000501              0.1                0               75</span></span>
+<span id="cb10-31"><a href="#cb10-31"></a><span class="co">#&gt;  4         0.000751              0.1                0               75</span></span>
+<span id="cb10-32"><a href="#cb10-32"></a><span class="co">#&gt;  5         0.00100               0.1                0               75</span></span>
+<span id="cb10-33"><a href="#cb10-33"></a><span class="co">#&gt;  6         0.00125               0.1                0               75</span></span>
+<span id="cb10-34"><a href="#cb10-34"></a><span class="co">#&gt;  7         0.00150               0.1                0               75</span></span>
+<span id="cb10-35"><a href="#cb10-35"></a><span class="co">#&gt;  8         0.00175               0.1                0               75</span></span>
+<span id="cb10-36"><a href="#cb10-36"></a><span class="co">#&gt;  9         0.00200               0.1                0               75</span></span>
+<span id="cb10-37"><a href="#cb10-37"></a><span class="co">#&gt; 10         0.00225               0.1                0               75</span></span>
+<span id="cb10-38"><a href="#cb10-38"></a><span class="co">#&gt; # … with 4,990 more rows, and 19 more variables:</span></span>
+<span id="cb10-39"><a href="#cb10-39"></a><span class="co">#&gt; #   system_constraints.weight &lt;dbl&gt;,</span></span>
+<span id="cb10-40"><a href="#cb10-40"></a><span class="co">#&gt; #   system_constraints.push_off_distance &lt;dbl&gt;,</span></span>
+<span id="cb10-41"><a href="#cb10-41"></a><span class="co">#&gt; #   system_constraints.gravity_const &lt;dbl&gt;, fgen_parameters.max_force &lt;dbl&gt;,</span></span>
+<span id="cb10-42"><a href="#cb10-42"></a><span class="co">#&gt; #   fgen_parameters.max_velocity &lt;dbl&gt;, fgen_parameters.decline_rate &lt;dbl&gt;,</span></span>
+<span id="cb10-43"><a href="#cb10-43"></a><span class="co">#&gt; #   fgen_parameters.peak_location &lt;dbl&gt;,</span></span>
+<span id="cb10-44"><a href="#cb10-44"></a><span class="co">#&gt; #   fgen_parameters.time_to_max_activation &lt;dbl&gt;,</span></span>
+<span id="cb10-45"><a href="#cb10-45"></a><span class="co">#&gt; #   fgen_parameters.initial_activation &lt;dbl&gt;, fgen_output.push_off_perc &lt;dbl&gt;,</span></span>
+<span id="cb10-46"><a href="#cb10-46"></a><span class="co">#&gt; #   fgen_output.distance_to_take_off &lt;dbl&gt;, fgen_output.force_percentage &lt;dbl&gt;,</span></span>
+<span id="cb10-47"><a href="#cb10-47"></a><span class="co">#&gt; #   fgen_output.potential_force &lt;dbl&gt;, fgen_output.activation &lt;dbl&gt;,</span></span>
+<span id="cb10-48"><a href="#cb10-48"></a><span class="co">#&gt; #   fgen_output.generated_force &lt;dbl&gt;, fgen_output.viscous_force &lt;dbl&gt;,</span></span>
+<span id="cb10-49"><a href="#cb10-49"></a><span class="co">#&gt; #   kinetics.ground_reaction_force &lt;dbl&gt;, kinetics.propulsive_force &lt;dbl&gt;,</span></span>
+<span id="cb10-50"><a href="#cb10-50"></a><span class="co">#&gt; #   kinetics.acceleration &lt;dbl&gt;</span></span></code></pre></div>
 </div>
 </div>
 <div id="want-to-learn-more" class="section level1">
 <h1 class="hasAnchor">
 <a href="#want-to-learn-more" class="anchor"></a>Want to learn more?</h1>
 <p>Please continue by reading “Simulation in <code>vjsim</code>” (<a href="https://mladenjovanovic.github.io/vjsim/articles/simulation-vjsim.html">LINK</a>) vignette:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw"><a href="https://rdrr.io/r/utils/vignette.html">vignette</a></span>(<span class="st">"simulation-vjsim"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw"><a href="https://rdrr.io/r/utils/vignette.html">vignette</a></span>(<span class="st">"simulation-vjsim"</span>)</span></code></pre></div>
 </div>
 <div class="footnotes">
 <hr>
 <ol>
-<li id="fn1"><p>You can either use <code><a href="https://rdrr.io/pkg/vjsim/man/fgen_get_force_percentage_.html">vjsim::fgen_get_force_percentage_</a></code> or simply <code>fgen_get_force_percentage_</code>. I am using prefix <code>vjsim::</code> to indicate functions from the <code>vjsim</code> package<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn1"><p>You can either use <code><a href="../reference/fgen_get_force_percentage.html">vjsim::fgen_get_force_percentage</a></code> or simply <code>fgen_get_force_percentage</code>. I am using prefix <code>vjsim::</code> to indicate functions from the <code>vjsim</code> package<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
   </div>

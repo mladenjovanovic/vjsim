@@ -1,88 +1,66 @@
-get_adjusted_threshold <- function(push_off_distance, push_off_distance_0, threshold_0) {
-  1 + (((threshold_0 - 1) * push_off_distance_0) / push_off_distance)
+ggplot(
+  filter(force_length, push_off_distance == 0.4, decline_rate == 1.5, peak_location == -0.1),
+  aes(
+    x = current_distance,
+    y = force_perc
+  )
+) +
+  theme_cowplot(18) +
+  geom_line(color = "blue", size = 2) +
+  #facet_grid(decline_rate_label~peak_location_label) +
+  xlab("Distance (m)") +
+  ylab("Force percentage") +
+  labs(color = "Push-off distance") +
+  theme(legend.position =  "none")
+
+# ---------------------------
+
+fgen_get_fp <- function(current_distance,
+                        push_off_distance = 0.4,
+                        decline_rate = 1.05,
+                        peak_location = -push_off_distance * 0.2) {
+
+  peak_location <- push_off_distance + peak_location
+
+  y1 <- sin((decline_rate * (peak_location - current_distance) + 1) * pi/2)
+  y2 <- sin(((current_distance - peak_location) / (push_off_distance - peak_location)) * pi/2 + pi/2)
+
+  force_percentage <- ifelse(current_distance < peak_location, y1, y2)
+  force_percentage <- ifelse(current_distance > push_off_distance, 0, force_percentage)
+
 }
-
-get_adjusted_start_perc <- function(push_off_distance, push_off_distance_0, start_perc_0, threshold_0) {
-  threshold_adj <- get_adjusted_threshold(push_off_distance, push_off_distance_0, threshold_0)
-
-  ((push_off_distance * start_perc_0 * threshold_adj) + (push_off_distance_0 * threshold_0) - (push_off_distance * threshold_adj))/
- (push_off_distance_0 * threshold_0) * (1.5 + -0.5 * start_perc_0)
-}
-
-
 
 parameters <- expand.grid(
-  push_off_perc = seq(0, 1, length.out = 100),
-  start_perc = c(0.6, 0.8),
-  threshold = c(0.8, 0.9),
-  push_off_distance = c(0.3, 0.4, 0.5),
-  adjusted = c(FALSE, TRUE)
+  current_distance = seq(0, 0.5, length.out = 1000),
+  decline_rate = c(1, 1.05, 0.8, 2),
+  peak_location = c(-0.05, -0.1),
+  push_off_distance = c(0.4, 0.45)
 )
-
-# Make adjustments
-parameters <- parameters %>%
-  mutate(
-    current_distance = push_off_perc * push_off_distance,
-    threshold_label = factor(paste("Threshold = ", threshold)),
-    start_perc_label = factor(paste("Start perc =", start_perc)),
-    push_off_distance_label = factor(paste("Push-off =", push_off_distance)),
-    adjusted_label = factor(paste("Adjusted =", adjusted)),
-    remaining_distance = push_off_distance - current_distance,
-
-    # Adjustments
-    start_perc = ifelse(
-      adjusted,
-      get_adjusted_start_perc(push_off_distance, 0.4, start_perc, threshold),
-      start_perc
-    ),
-
-    threshold = ifelse(
-      adjusted,
-      get_adjusted_threshold(push_off_distance, 0.4, threshold),
-      threshold
-    ),
-    )
-
 
 force_length <- parameters %>%
   mutate(
-    force_perc = vjsim::fgen_get_force_percentage(
-      push_off_perc = current_distance / push_off_distance,
-      start_perc = start_perc,
-      threshold = threshold
-    )
-  )
+    force_perc = fgen_get_fp(current_distance, push_off_distance, decline_rate, peak_location),
+    remaining_distance = push_off_distance - current_distance,
+    peak_location_label = factor(paste("peak_location = ", peak_location)),
+    decline_rate_label = factor(paste("decline_rate =", decline_rate)),
+    push_off_distance_label = factor(paste("Push-off =", push_off_distance))
+         )
 
-# Unadjusted
 ggplot(
-  filter(force_length, adjusted == FALSE),
+  force_length,
   aes(
-    x = remaining_distance,
+    x = current_distance,#remaining_distance,
     y = force_perc,
-    color = push_off_distance_label
+    color = decline_rate_label
   )
 ) +
   theme_cowplot(12) +
   geom_line(alpha = 0.6) +
-  facet_grid(threshold_label~start_perc_label) +
+  geom_vline(aes(xintercept = peak_location + push_off_distance)) +
+  facet_grid(peak_location_label~push_off_distance_label) +
   xlab("Distance to take-off") +
   ylab("Force percentage") +
-  labs(color = "Push-off distance") +
-  scale_x_reverse()
+  labs(color = "Push-off distance") #+
+  #scale_x_reverse()
 
-# Adjusted
-ggplot(
-  filter(force_length, adjusted == TRUE),
-  aes(
-    x = remaining_distance,
-    y = force_perc,
-    color = push_off_distance_label
-  )
-) +
-  theme_cowplot(12) +
-  geom_line(alpha = 0.6) +
-  facet_grid(threshold_label~start_perc_label) +
-  xlab("Distance to take-off") +
-  ylab("Force percentage") +
-  labs(color = "Push-off distance") +
-  scale_x_reverse()
+

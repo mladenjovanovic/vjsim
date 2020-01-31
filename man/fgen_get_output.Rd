@@ -14,8 +14,8 @@ fgen_get_output(
   gravity_const = 9.81,
   max_force = 3000,
   max_velocity = 4,
-  start_perc = 0.8,
-  threshold = 0.9,
+  decline_rate = 1.05,
+  peak_location = -push_off_distance * 0.15,
   time_to_max_activation = 0.3
 )
 }
@@ -38,9 +38,9 @@ fgen_get_output(
 
 \item{max_velocity}{Numeric vector. Default is 4m/s}
 
-\item{start_perc}{Numeric vector. Default is 0.8}
+\item{decline_rate}{Numeric vector. Default is 1.05}
 
-\item{threshold}{Numeric vector. Default is 0.9}
+\item{peak_location}{Numeric vector. Default is \code{-push_off_distance * 0.15}}
 
 \item{time_to_max_activation}{Numeric vector. Default is 0.3s}
 }
@@ -50,7 +50,7 @@ List with five elements: kinematics, system_constraints, fgen_parameters, fgen_o
 \description{
 \code{fgen_get_output} returns acceleration and force data based on the current system state (\code{current_time},
     \code{current_distance}, and \code{current_velocity}), system constraints (\code{mass}, \code{weight}, and \code{push_off_distance}),
-    and parameters of the Forge Generator (\code{max_force}, \code{current_velocity}, \code{start_perc}, \code{threshold},
+    and parameters of the Forge Generator (\code{max_force}, \code{current_velocity}, \code{decline_rate}, \code{peak_location},
     and \code{time_to_max_activation})
 #
 }

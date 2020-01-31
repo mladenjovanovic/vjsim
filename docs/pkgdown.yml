@@ -4,6 +4,7 @@ pkgdown_sha: ~
 articles:
   exploring-vjsim: exploring-vjsim.html
   introduction-vjsim: introduction-vjsim.html
+  optimization-vjsim: optimization-vjsim.html
   profiling-vjsim: profiling-vjsim.html
   simulation-vjsim: simulation-vjsim.html
 

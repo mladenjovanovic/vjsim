@@ -55,12 +55,21 @@ vignette("simulation-vjsim")
 Once you understand how the
 [Simulation](https://mladenjovanovic.github.io/vjsim/articles/simulation-vjsim.html)
 works, we can start playing with profiling. Force-Velocity (FV),
-Load-Velocity (LV), and other profiles are discussed, as well as the
-idea of “optimal” FV profile. Access it by clicking the above link or
-running the following code:
+Load-Velocity (LV), and other profiles are discussed. Access it by
+clicking the above link or running the following code:
 
 ``` r
 vignette("profiling-vjsim")
+```
+
+### [Optimization](https://mladenjovanovic.github.io/vjsim/articles/optimization-vjsim.html)
+
+In this vignette I will introduce few optimization models, influenced by
+the work of Pierre Samozino and Jean-Benoit Morin. Access it by clicking
+the above link or running the following code:
+
+``` r
+vignette("optimization-vjsim")
 ```
 
 ### [Exploring](https://mladenjovanovic.github.io/vjsim/articles/exploring-vjsim.html)

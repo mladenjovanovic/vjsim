@@ -32,37 +32,57 @@ library(cowplot)
 
 ## ----force-length-characteristic, fig.cap="Force-Length characteristic"-------
 parameters <- expand.grid(
-  push_off_perc = seq(0, 1.05, length.out = 1000),
-  start_perc = c(0.6, 0.8),
-  threshold = c(0.8, 0.9)
+  current_distance = seq(0, 0.55, length.out = 1000),
+  push_off_distance = c(0.3, 0.4, 0.5),
+  decline_rate = c(0.8, 1.5, 2),
+  peak_location = c(-0.05, -0.1, -0.15)
 )
 
 force_length <- parameters %>%
   mutate(
-    force_perc = vjsim::fgen_get_force_percentage_(
-      push_off_perc = push_off_perc,
-      start_perc = start_perc,
-      threshold = threshold
+    force_perc = vjsim::fgen_get_force_percentage(
+      current_distance =  current_distance,
+      push_off_distance = push_off_distance,
+      decline_rate = decline_rate,
+      peak_location = peak_location
     ),
-    threshold_label = factor(threshold),
-    start_perc_label = factor(paste("Start perc =", start_perc))
+    decline_rate_label = factor(paste("Decline rate = ", decline_rate)),
+    peak_location_label = factor(paste("Peak location = ", peak_location)),
+    distance_to_take_off = current_distance - push_off_distance
   )
 
 ggplot(
   force_length,
   aes(
-    x = push_off_perc,
+    x = current_distance,
     y = force_perc,
-    group = threshold_label,
-    color = threshold_label
+    group = factor(push_off_distance),
+    color = factor(push_off_distance)
   )
 ) +
-  theme_cowplot(12) +
+  theme_cowplot(8) +
   geom_line() +
-  facet_wrap(~start_perc_label) +
-  xlab("% Push-off distance") +
+  facet_grid(decline_rate_label~peak_location_label) +
+  xlab("Distance (m)") +
   ylab("Force percentage") +
-  labs(color = "Threshold")
+  labs(color = "Push-off distance")
+
+## ----force-length-characteristic-take-off, fig.cap="Force-Length characteristic using take-off point as frame of reference"----
+ggplot(
+  force_length,
+  aes(
+    x = distance_to_take_off,
+    y = force_perc,
+    group = factor(push_off_distance),
+    color = factor(push_off_distance)
+  )
+) +
+  theme_cowplot(8) +
+  geom_line(alpha = 0.6) +
+  facet_grid(decline_rate_label~peak_location_label) +
+  xlab("Distance to take-off (m)") +
+  ylab("Force percentage") +
+  labs(color = "Push-off distance")
 
 ## ----force-time-characteristic, fig.cap="Force-Time characteristic"-----------
 parameters <- expand.grid(
@@ -192,7 +212,7 @@ ggplot(
   ylab("Viscous Force (N)") +
   labs(color = "Max Velocity")
 
-## -----------------------------------------------------------------------------
+## ----fig.cap="Relationship between external force and velocity that can be reached"----
 parameters <- expand.grid(
   external_force = seq(0, 3000, length.out = 1000),
   max_force = c(2000, 3000),
@@ -230,6 +250,27 @@ ggplot(
   xlab("External Force (N)") +
   labs(color = "Max Velocity", linetype = "Max Force")
 
+## ----fig.cap="Relationship between external force and power"------------------
+velocity_reached <- velocity_reached %>%
+  mutate(
+    power = external_force * velocity_reached
+  )
+
+ggplot(
+  velocity_reached,
+  aes(
+    x = external_force,
+    y = power,
+    color = max_velocity,
+    linetype = max_force_label
+  )
+) +
+  theme_cowplot(12) +
+  geom_line() +
+  ylab("Power (W)") +
+  xlab("External Force (N)") +
+  labs(color = "Max Velocity", linetype = "Max Force")
+
 ## ---- echo=FALSE, schematic-diagram, fig.cap="Schematic diagrom of the components, parameters, and resulting forces in vjsim"----
 knitr::include_graphics(path = "schematic-diagram.png")
 
@@ -251,8 +292,8 @@ fgen_data <- vjsim::fgen_get_output(
   max_force = 3000,
   max_velocity = 4,
 
-  start_perc = 0.8,
-  threshold = 0.9,
+  decline_rate = 1.5,
+  peak_location = -0.1,
 
   time_to_max_activation = 0.3
 )

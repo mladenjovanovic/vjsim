@@ -69,6 +69,8 @@ vj_simulate <- function( # system constrains
 
   current_acceleration <- 0
 
+  current_RFD <- NA
+
   # Used to calculate RFD
   previous_GRF <- 0
 
@@ -262,6 +264,9 @@ vj_simulate <- function( # system constrains
       }
     }
 
+    # Add RFD to trace
+    fgen_output$kinetics$RFD <- current_RFD
+
     # --------------------------------------------
     # Save trace
     if (save_trace) {
@@ -364,10 +369,14 @@ vj_simulate <- function( # system constrains
   )
 
   names(trace_data) <- NULL
+
+  # Add RFD to trace data
+  trace_data = do.call(rbind, trace_data)
+
   return(
     list(
       summary = summary_data,
-      trace = do.call(rbind, trace_data)
+      trace = trace_data
     )
   )
 }

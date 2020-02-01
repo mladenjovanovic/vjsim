@@ -308,9 +308,9 @@ fgen_get_output <- function( # The parameters forwarded by `vj_simulate` functio
     # Kinematics data - current time, distance, velocity
     # These are optional to be returned in custom function
     kinematics = list(
-      current_time = current_time,
-      current_distance = current_distance,
-      current_velocity = current_velocity
+      time = current_time,
+      distance = current_distance,
+      velocity = current_velocity
     ),
 
     # System constraints

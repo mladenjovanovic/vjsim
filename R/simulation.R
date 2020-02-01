@@ -24,19 +24,19 @@
 #' round(t(vertical_jump$summary), 3)
 #'
 #' plot(
-#'   x = vertical_jump$trace$current_distance,
-#'   y = vertical_jump$trace$current_velocity,
+#'   x = vertical_jump$trace$distance,
+#'   y = vertical_jump$trace$velocity,
 #'   type = "l"
 #' )
 #'
 #' plot(
-#'   x = vertical_jump$trace$current_time,
+#'   x = vertical_jump$trace$time,
 #'   y = vertical_jump$trace$ground_reaction_force,
 #'   type = "l"
 #' )
 #'
 #' plot(
-#'   x = vertical_jump$trace$current_distance,
+#'   x = vertical_jump$trace$distance,
 #'   y = vertical_jump$trace$ground_reaction_force,
 #'   type = "l"
 #' )

@@ -303,6 +303,9 @@ fgen_get_output <- function( # The parameters forwarded by `vj_simulate` functio
   # Get acceleration
   acceleration <- propulsive_force / mass
 
+  # Get Power
+  power <- ground_reaction_force * current_velocity
+
   # Save the force and acceleration to the object
   results <- list(
     # Kinematics data - current time, distance, velocity
@@ -352,7 +355,8 @@ fgen_get_output <- function( # The parameters forwarded by `vj_simulate` functio
     kinetics = list(
       ground_reaction_force = ground_reaction_force,
       propulsive_force = propulsive_force,
-      acceleration = acceleration
+      acceleration = acceleration,
+      power = power
     )
   )
   return(results)

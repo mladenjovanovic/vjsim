@@ -298,10 +298,10 @@ vj_simulate <- function( # system constrains
     push_off_distance = push_off_distance,
     gravity_const = gravity_const,
 
-    current_distance = current_distance,
-    current_time = current_time,
-    current_ground_reaction_force = ground_reaction_force,
-    current_propulsive_force = propulsive_force,
+    take_off_distance = current_distance,
+    take_off_time = current_time,
+    take_off_ground_reaction_force = ground_reaction_force,
+    take_off_propulsive_force = propulsive_force,
 
     take_off_velocity = current_velocity,
 

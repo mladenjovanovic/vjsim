@@ -181,7 +181,7 @@ probe_fgen <- function(current_time = 0,
 #' plot_data <- gather(vj_probe_data, key = "variable", value = "value", -(1:9)) %>%
 #'   filter(variable %in% c(
 #'     "height",
-#'     "current_time",
+#'     "take_off_time",
 #'     "mean_velocity",
 #'     "peak_velocity",
 #'     "take_off_velocity",

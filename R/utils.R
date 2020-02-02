@@ -123,8 +123,8 @@ get_mean_force_over_time <- function(mass,
 #' @return Numeric vector
 #' @export
 #' @examples
-#' get_impuse(75, 2)
-get_impuse <- function(mass,
+#' get_impulse(75, 2)
+get_impulse <- function(mass,
                        take_off_velocity) {
   mass * take_off_velocity
 }

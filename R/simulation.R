@@ -333,7 +333,7 @@ vj_simulate <- function( # system constrains
       push_off_distance = current_distance
     ),
 
-    impulse = get_impuse(
+    impulse = get_impulse(
       mass = mass,
       take_off_velocity = current_velocity
     ),

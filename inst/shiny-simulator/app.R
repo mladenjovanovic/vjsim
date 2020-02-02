@@ -2,6 +2,7 @@ library(shiny)
 library(plotly)
 library(tidyverse)
 library(vjsim)
+library(DT)
 
 # ----------------------------------------------
 # Constants

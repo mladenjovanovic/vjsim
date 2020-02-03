@@ -89,10 +89,10 @@ get_probing_data <- function(args_list,
 #' @param current_distance Numeric value. Initial system state whose change is probed
 #' @param current_velocity Numeric value. Initial system state whose change is probed
 #' @param change_ratio Numeric vector indicating probing change ratios
-#' @param aggregate How should \code{link{fgen_get_output}} output be aggregated?
+#' @param aggregate How should \code{\link{fgen_get_output}} output be aggregated?
 #'     Default is "raw". Other options involve "ratio" and "diff" which use initial
 #'     output values
-#' @param ... Extra argument forwarded to \code{link{fgen_get_output}}
+#' @param ... Extra argument forwarded to \code{\link{fgen_get_output}}
 #' @return Probing data frame
 #' @export
 #' @examples
@@ -146,10 +146,10 @@ probe_fgen <- function(current_time = 0,
 #' @param max_velocity Numeric value. Initial parameter value to be changed using \code{change_ratio}
 #' @param time_to_max_activation Numeric value. Initial parameter value to be changed using \code{change_ratio}
 #' @param change_ratio Numeric vector indicating probing change ratios
-#' @param aggregate How should \code{link{vj_simulate}} output be aggregated?
+#' @param aggregate How should \code{\link{vj_simulate}} output be aggregated?
 #'     Default is "raw". Other options involve "ratio" and "diff" which use initial
 #'     output values
-#' @param ... Extra argument forwarded to \code{link{vj_simulate}}
+#' @param ... Extra argument forwarded to \code{\link{vj_simulate}}
 #' @return Probing data frame
 
 #' @export

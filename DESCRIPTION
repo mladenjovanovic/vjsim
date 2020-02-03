@@ -24,5 +24,6 @@ Suggests:
     cowplot,
     shiny,
     plotly,
-    DT
+    DT,
+    directlabels
 VignetteBuilder: knitr

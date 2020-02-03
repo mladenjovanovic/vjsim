@@ -46,11 +46,18 @@ summary_variables <- c(
   "impulse"
 )
 
+parameter_variables <- c(
+  "mass",
+  "push_off_distance",
+  "max_force",
+  "max_velocity",
+  "time_to_max_activation"
+)
+
 vj_probing_change <- seq(0.9, 1.1, length.out = 7)
-vj_probing_aggregate <- "raw"
 
 # Function to extract one column from the probing data
-get_sensitivity <- function(probing_data, variable, invert = FALSE) {
+get_metric_sensitivity <- function(probing_data, variable, invert = FALSE) {
   df <- data.frame(
     change_ratio = probing_data$change_ratio,
     probing = probing_data$probing,
@@ -60,6 +67,22 @@ get_sensitivity <- function(probing_data, variable, invert = FALSE) {
   if (invert) {
     df$change_ratio <- 1 / df$change_ratio
   }
+
+  return(df)
+}
+
+# Function to extract one parameter
+get_parameter_sensitivity <- function(probing_data, parameter, invert = FALSE) {
+  probing_data <- probing_data[probing_data$probing == parameter, ]
+
+  if (invert) {
+    probing_data$change_ratio <- 1 / df$change_ratio
+  }
+
+  df <- gather(probing_data, key = "variable", value = "value", -(1:13)) %>%
+    filter(
+      variable %in% summary_variables
+    )
 
   return(df)
 }
@@ -177,6 +200,25 @@ ui <- navbarPage(
             6,
             h4("Athlete 2"),
             plotlyOutput("athlete2_jump_probing")
+          )
+        ),
+        br(),
+        selectInput(
+          inputId = "parameter_variable",
+          label = "Probing Force Generator parameter",
+          choices = parameter_variables,
+          selected = "push_off_distance"
+        ),
+        fixedRow(
+          column(
+            6,
+            h4("Athlete 1"),
+            plotlyOutput("athlete1_parameter_probing")
+          ),
+          column(
+            6,
+            h4("Athlete 2"),
+            plotlyOutput("athlete2_parameter_probing")
           )
         )
       )
@@ -344,14 +386,14 @@ server <- function(input, output) {
   # Jump probe reactive element
   athlete1_jump_probe <- eventReactive(input$calculate,
     {
-      jump_probe <- probe_vj(
+      jump_probe_raw <- probe_vj(
         mass = athlete1_BW(),
         push_off_distance = athlete1_push_off_distance(),
         max_force = athlete1_max_force(),
         max_velocity = athlete1_max_velocity(),
         time_to_max_activation = athlete1_time_to_max_activation(),
         change_ratio = vj_probing_change,
-        aggregate = vj_probing_aggregate,
+        aggregate = "raw",
 
         # Extra params
         weight = athlete1_BW() * gravity_const,
@@ -360,21 +402,39 @@ server <- function(input, output) {
         decline_rate = athlete1_decline_rate(),
         peak_location = athlete1_peak_location()
       )
-      return(jump_probe)
+
+      jump_probe_ratio <- probe_vj(
+        mass = athlete1_BW(),
+        push_off_distance = athlete1_push_off_distance(),
+        max_force = athlete1_max_force(),
+        max_velocity = athlete1_max_velocity(),
+        time_to_max_activation = athlete1_time_to_max_activation(),
+        change_ratio = vj_probing_change,
+        aggregate = "ratio",
+
+        # Extra params
+        weight = athlete1_BW() * gravity_const,
+        gravity_const = gravity_const,
+        time_step = time_step,
+        decline_rate = athlete1_decline_rate(),
+        peak_location = athlete1_peak_location()
+      )
+
+      return(list(raw = jump_probe_raw, ratio = jump_probe_ratio))
     },
     ignoreNULL = FALSE
   )
 
   athlete2_jump_probe <- eventReactive(input$calculate,
     {
-      jump_probe <- probe_vj(
+      jump_probe_raw <- probe_vj(
         mass = athlete2_BW(),
         push_off_distance = athlete2_push_off_distance(),
         max_force = athlete2_max_force(),
         max_velocity = athlete2_max_velocity(),
         time_to_max_activation = athlete2_time_to_max_activation(),
         change_ratio = vj_probing_change,
-        aggregate = vj_probing_aggregate,
+        aggregate = "raw",
 
         # Extra params
         weight = athlete2_BW() * gravity_const,
@@ -383,7 +443,25 @@ server <- function(input, output) {
         decline_rate = athlete2_decline_rate(),
         peak_location = athlete2_peak_location()
       )
-      return(jump_probe)
+
+      jump_probe_ratio <- probe_vj(
+        mass = athlete2_BW(),
+        push_off_distance = athlete2_push_off_distance(),
+        max_force = athlete2_max_force(),
+        max_velocity = athlete2_max_velocity(),
+        time_to_max_activation = athlete2_time_to_max_activation(),
+        change_ratio = vj_probing_change,
+        aggregate = "ratio",
+
+        # Extra params
+        weight = athlete2_BW() * gravity_const,
+        gravity_const = gravity_const,
+        time_step = time_step,
+        decline_rate = athlete2_decline_rate(),
+        peak_location = athlete2_peak_location()
+      )
+
+      return(list(raw = jump_probe_raw, ratio = jump_probe_ratio))
     },
     ignoreNULL = FALSE
   )
@@ -740,12 +818,12 @@ server <- function(input, output) {
   output$athlete1_jump_probing <- renderPlotly({
     withProgress(message = "Jump probing", value = 0, {
       incProgress(0.5, detail = "Athlete 1")
-      athlete1_probing <- athlete1_jump_probe()
+      athlete1_probing <- athlete1_jump_probe()$raw
       incProgress(1, detail = "Athlete 1")
     })
 
     # Convert
-    plot_data <- get_sensitivity(athlete1_probing, input$probing_variable)
+    plot_data <- get_metric_sensitivity(athlete1_probing, input$probing_variable)
 
     gg <- plot_ly() %>%
       add_lines(
@@ -786,13 +864,13 @@ server <- function(input, output) {
   output$athlete2_jump_probing <- renderPlotly({
     withProgress(message = "Jump probing", value = 0, {
       incProgress(0.5, detail = "Athlete 2")
-      athlete2_probing <- athlete2_jump_probe()
+      athlete2_probing <- athlete2_jump_probe()$raw
       incProgress(1, detail = "Athlete 2")
     })
 
 
     # Convert
-    plot_data <- get_sensitivity(athlete2_probing, input$probing_variable)
+    plot_data <- get_metric_sensitivity(athlete2_probing, input$probing_variable)
 
     gg <- plot_ly() %>%
       add_lines(
@@ -828,6 +906,81 @@ server <- function(input, output) {
 
     return(gg)
   })
+
+  # -----------
+  # Parameter probing
+  output$athlete1_parameter_probing <- renderPlotly({
+    withProgress(message = "Jump probing", value = 0, {
+      incProgress(0.5, detail = "Athlete 1")
+      athlete1_probing <- athlete1_jump_probe()$ratio
+      incProgress(1, detail = "Athlete 1")
+    })
+
+    # Convert
+    plot_data <- get_parameter_sensitivity(athlete1_probing, input$parameter_variable)
+
+    gg <- plot_ly() %>%
+      add_lines(
+        data = plot_data, x = ~change_ratio, y = ~value,
+        name = ~variable, color = ~variable,
+        hoverinfo = "text",
+        text = ~ paste(
+          variable, "\n",
+          input$parameter_variable, " change =", round(change_ratio, 2), "\n",
+          variable, "change =", round(value, 2), "\n"
+        )
+      ) %>%
+      layout(
+        showlegend = TRUE,
+        yaxis = list(
+          side = "left", title = "Normalized metric change",
+          showgrid = TRUE, zeroline = TRUE
+        ),
+        xaxis = list(
+          side = "left", title = paste("Normalized", input$parameter_variable, "change"),
+          showgrid = TRUE, zeroline = FALSE
+        )
+      )
+
+    return(gg)
+  })
+
+  output$athlete2_parameter_probing <- renderPlotly({
+    withProgress(message = "Jump probing", value = 0, {
+      incProgress(0.5, detail = "Athlete 1")
+      athlete2_probing <- athlete2_jump_probe()$ratio
+      incProgress(1, detail = "Athlete 2")
+    })
+
+    # Convert
+    plot_data <- get_parameter_sensitivity(athlete2_probing, input$parameter_variable)
+
+    gg <- plot_ly() %>%
+      add_lines(
+        data = plot_data, x = ~change_ratio, y = ~value,
+        name = ~variable, color = ~variable,
+        hoverinfo = "text",
+        text = ~ paste(
+          variable, "\n",
+          input$parameter_variable, " change =", round(change_ratio, 2), "\n",
+          variable, "change =", round(value, 2), "\n"
+        )
+      ) %>%
+      layout(
+        showlegend = TRUE,
+        yaxis = list(
+          side = "left", title = "Normalized metric change",
+          showgrid = TRUE, zeroline = TRUE
+        ),
+        xaxis = list(
+          side = "left", title = paste("Normalized", input$parameter_variable, "change"),
+          showgrid = TRUE, zeroline = FALSE
+        )
+      )
+
+    return(gg)
+  })
+
 }
 
 # Run the application

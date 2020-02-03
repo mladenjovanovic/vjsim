@@ -28,11 +28,11 @@ probe_vj(
 
 \item{change_ratio}{Numeric vector indicating probing change ratios}
 
-\item{aggregate}{How should \code{link{vj_simulate}} output be aggregated?
+\item{aggregate}{How should \code{\link{vj_simulate}} output be aggregated?
 Default is "raw". Other options involve "ratio" and "diff" which use initial
 output values}
 
-\item{...}{Extra argument forwarded to \code{link{vj_simulate}}}
+\item{...}{Extra argument forwarded to \code{\link{vj_simulate}}}
 }
 \value{
 Probing data frame

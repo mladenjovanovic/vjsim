@@ -9,7 +9,7 @@ vj_simulate(
   weight = mass * gravity_const,
   push_off_distance = 0.4,
   gravity_const = 9.81,
-  time_step = 0.01,
+  time_step = 0.001,
   save_trace = TRUE,
   fgen_func = fgen_get_output,
   iter = FALSE,
@@ -26,7 +26,7 @@ vj_simulate(
 
 \item{gravity_const}{Numeric value. Default is 9.81}
 
-\item{time_step}{Numeric value. Time step used in simulation. Default is 0.01}
+\item{time_step}{Numeric value. Time step used in simulation. Default is 0.001}
 
 \item{save_trace}{Logical. Default is TRUE}
 

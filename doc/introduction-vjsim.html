@@ -12,7 +12,7 @@
 
 <meta name="author" content="Mladen Jovanović" />
 
-<meta name="date" content="2020-01-31" />
+<meta name="date" content="2020-02-03" />
 
 <title>Introduction to vjsim</title>
 
@@ -315,7 +315,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Introduction to <code>vjsim</code></h1>
 <h4 class="author">Mladen Jovanović</h4>
-<h4 class="date">2020-01-31</h4>
+<h4 class="date">2020-02-03</h4>
 
 
 
@@ -787,20 +787,20 @@ Schematic diagrom of the components, parameters, and resulting forces in vjsim
 <span id="cb10-22"><a href="#cb10-22"></a>)</span>
 <span id="cb10-23"><a href="#cb10-23"></a></span>
 <span id="cb10-24"><a href="#cb10-24"></a><span class="kw">as_tibble</span>(<span class="kw">as.data.frame</span>(fgen_data))</span>
-<span id="cb10-25"><a href="#cb10-25"></a><span class="co">#&gt; # A tibble: 5,000 x 23</span></span>
-<span id="cb10-26"><a href="#cb10-26"></a><span class="co">#&gt;    kinematics.curr… kinematics.curr… kinematics.curr… system_constrai…</span></span>
-<span id="cb10-27"><a href="#cb10-27"></a><span class="co">#&gt;               &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;</span></span>
-<span id="cb10-28"><a href="#cb10-28"></a><span class="co">#&gt;  1         0                     0.1                0               75</span></span>
-<span id="cb10-29"><a href="#cb10-29"></a><span class="co">#&gt;  2         0.000250              0.1                0               75</span></span>
-<span id="cb10-30"><a href="#cb10-30"></a><span class="co">#&gt;  3         0.000501              0.1                0               75</span></span>
-<span id="cb10-31"><a href="#cb10-31"></a><span class="co">#&gt;  4         0.000751              0.1                0               75</span></span>
-<span id="cb10-32"><a href="#cb10-32"></a><span class="co">#&gt;  5         0.00100               0.1                0               75</span></span>
-<span id="cb10-33"><a href="#cb10-33"></a><span class="co">#&gt;  6         0.00125               0.1                0               75</span></span>
-<span id="cb10-34"><a href="#cb10-34"></a><span class="co">#&gt;  7         0.00150               0.1                0               75</span></span>
-<span id="cb10-35"><a href="#cb10-35"></a><span class="co">#&gt;  8         0.00175               0.1                0               75</span></span>
-<span id="cb10-36"><a href="#cb10-36"></a><span class="co">#&gt;  9         0.00200               0.1                0               75</span></span>
-<span id="cb10-37"><a href="#cb10-37"></a><span class="co">#&gt; 10         0.00225               0.1                0               75</span></span>
-<span id="cb10-38"><a href="#cb10-38"></a><span class="co">#&gt; # … with 4,990 more rows, and 19 more variables:</span></span>
+<span id="cb10-25"><a href="#cb10-25"></a><span class="co">#&gt; # A tibble: 5,000 x 24</span></span>
+<span id="cb10-26"><a href="#cb10-26"></a><span class="co">#&gt;    kinematics.time kinematics.dist… kinematics.velo… system_constrai…</span></span>
+<span id="cb10-27"><a href="#cb10-27"></a><span class="co">#&gt;              &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;</span></span>
+<span id="cb10-28"><a href="#cb10-28"></a><span class="co">#&gt;  1        0                     0.1                0               75</span></span>
+<span id="cb10-29"><a href="#cb10-29"></a><span class="co">#&gt;  2        0.000250              0.1                0               75</span></span>
+<span id="cb10-30"><a href="#cb10-30"></a><span class="co">#&gt;  3        0.000501              0.1                0               75</span></span>
+<span id="cb10-31"><a href="#cb10-31"></a><span class="co">#&gt;  4        0.000751              0.1                0               75</span></span>
+<span id="cb10-32"><a href="#cb10-32"></a><span class="co">#&gt;  5        0.00100               0.1                0               75</span></span>
+<span id="cb10-33"><a href="#cb10-33"></a><span class="co">#&gt;  6        0.00125               0.1                0               75</span></span>
+<span id="cb10-34"><a href="#cb10-34"></a><span class="co">#&gt;  7        0.00150               0.1                0               75</span></span>
+<span id="cb10-35"><a href="#cb10-35"></a><span class="co">#&gt;  8        0.00175               0.1                0               75</span></span>
+<span id="cb10-36"><a href="#cb10-36"></a><span class="co">#&gt;  9        0.00200               0.1                0               75</span></span>
+<span id="cb10-37"><a href="#cb10-37"></a><span class="co">#&gt; 10        0.00225               0.1                0               75</span></span>
+<span id="cb10-38"><a href="#cb10-38"></a><span class="co">#&gt; # … with 4,990 more rows, and 20 more variables:</span></span>
 <span id="cb10-39"><a href="#cb10-39"></a><span class="co">#&gt; #   system_constraints.weight &lt;dbl&gt;,</span></span>
 <span id="cb10-40"><a href="#cb10-40"></a><span class="co">#&gt; #   system_constraints.push_off_distance &lt;dbl&gt;,</span></span>
 <span id="cb10-41"><a href="#cb10-41"></a><span class="co">#&gt; #   system_constraints.gravity_const &lt;dbl&gt;, fgen_parameters.max_force &lt;dbl&gt;,</span></span>
@@ -812,7 +812,7 @@ Schematic diagrom of the components, parameters, and resulting forces in vjsim
 <span id="cb10-47"><a href="#cb10-47"></a><span class="co">#&gt; #   fgen_output.potential_force &lt;dbl&gt;, fgen_output.activation &lt;dbl&gt;,</span></span>
 <span id="cb10-48"><a href="#cb10-48"></a><span class="co">#&gt; #   fgen_output.generated_force &lt;dbl&gt;, fgen_output.viscous_force &lt;dbl&gt;,</span></span>
 <span id="cb10-49"><a href="#cb10-49"></a><span class="co">#&gt; #   kinetics.ground_reaction_force &lt;dbl&gt;, kinetics.propulsive_force &lt;dbl&gt;,</span></span>
-<span id="cb10-50"><a href="#cb10-50"></a><span class="co">#&gt; #   kinetics.acceleration &lt;dbl&gt;</span></span></code></pre></div>
+<span id="cb10-50"><a href="#cb10-50"></a><span class="co">#&gt; #   kinetics.acceleration &lt;dbl&gt;, kinetics.power &lt;dbl&gt;</span></span></code></pre></div>
 </div>
 </div>
 <div id="shiny-app" class="section level1">

@@ -6,7 +6,7 @@
 #' @param weight Numeric value. Deafult is \code{mass} * \code{gravity_const}
 #' @param push_off_distance Numeric value. Default is 0.4m
 #' @param gravity_const Numeric value. Default is 9.81
-#' @param time_step Numeric value. Time step used in simulation. Default is 0.01
+#' @param time_step Numeric value. Time step used in simulation. Default is 0.001
 #' @param save_trace Logical. Default is TRUE
 #' @param fgen_func Function used to represent Force Generator. Defauls it \code{link{fgen_get_output}}.
 #' @param iter Logical. Default is FALSE
@@ -47,7 +47,7 @@ vj_simulate <- function( # system constrains
                         gravity_const = 9.81,
 
                         # simulation parameters
-                        time_step = 0.01,
+                        time_step = 0.001,
                         save_trace = TRUE,
 
                         # Force generator function

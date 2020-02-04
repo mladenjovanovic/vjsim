@@ -51,10 +51,49 @@ parameter_variables <- c(
   "push_off_distance",
   "max_force",
   "max_velocity",
-  "time_to_max_activation"
+  "time_to_max_activation",
+  "take_off_time",
+  "take_off_velocity",
+  "height",
+  "mean_GRF_over_distance",
+  "mean_GRF_over_time",
+  "peak_GRF",
+  "mean_velocity",
+  "peak_velocity",
+  "mean_power",
+  "peak_power",
+  "peak_RFD",
+  "peak_RPD",
+  "work_done",
+  "impulse"
+)
+
+profiling_variables <- c(
+  "external_load",
+  "mass",
+  "weight",
+  "take_off_time",
+  "take_off_velocity",
+  "height",
+  "mean_GRF_over_distance",
+  "mean_GRF_over_time",
+  "peak_GRF",
+  "mean_velocity",
+  "peak_velocity",
+  "mean_power",
+  "peak_power",
+  "peak_RFD",
+  "peak_RPD",
+  "work_done",
+  "impulse"
 )
 
 vj_probing_change <- seq(0.9, 1.1, length.out = 7)
+
+# For profiling
+external_load_options <- seq(-60, 150, 10)
+external_load_options_selected <- seq(-40, 80, 20)
+
 
 # Function to extract one column from the probing data
 get_metric_sensitivity <- function(probing_data, variable, invert = FALSE) {
@@ -149,7 +188,7 @@ ui <- navbarPage(
         br(),
         fixedRow(
           column(
-            4,
+            6,
             selectInput(
               inputId = "jump_kinetics_x_var",
               label = "X axis",
@@ -158,7 +197,7 @@ ui <- navbarPage(
             )
           ),
           column(
-            4,
+            6,
             selectInput(
               inputId = "jump_kinetics_y_var",
               label = "Y axis",
@@ -221,6 +260,45 @@ ui <- navbarPage(
             plotlyOutput("athlete2_parameter_probing")
           )
         )
+      ),
+      tabPanel(
+        "Profiling",
+        br(),
+        selectInput(inputId = "selected_external_load",
+                    label = "External load",
+                    choices = external_load_options,
+                    multiple = TRUE,
+                    selected = external_load_options_selected),
+        br(),
+        fixedRow(
+          column(
+            6,
+            selectInput(
+              inputId = "jump_profile_x_var",
+              label = "X axis",
+              choices = profiling_variables,
+              selected = "mass"
+            )
+          ),
+          column(
+            6,
+            selectInput(
+              inputId = "jump_profile_y_var",
+              label = "Y axis",
+              choices = profiling_variables,
+              selected = "height"
+            )
+          )
+        ),
+        br(),
+        plotlyOutput("jump_profile"),
+        h4("Profile table"),
+        br(),
+        h5("Athlete 1"),
+        dataTableOutput("athlete1_jump_profile_table"),
+        br(),
+        h5("Athlete 2"),
+        dataTableOutput("athlete2_jump_profile_table")
       )
     )),
     # ----------------------------
@@ -382,7 +460,7 @@ server <- function(input, output) {
     },
     ignoreNULL = FALSE
   )
-
+  # -------
   # Jump probe reactive element
   athlete1_jump_probe <- eventReactive(input$calculate,
     {
@@ -466,6 +544,47 @@ server <- function(input, output) {
     ignoreNULL = FALSE
   )
 
+  # --------
+  # Profile reactive element
+  athlete1_get_jump_profile <- eventReactive(input$calculate,
+    {
+      jump_profile <- vj_profile(
+        external_load = as.numeric(input$selected_external_load),
+        mass = athlete1_BW(),
+        # weight = athlete1_BW() * gravity_const,
+        push_off_distance = athlete1_push_off_distance(),
+        gravity_const = gravity_const,
+        time_step = time_step,
+        max_force = athlete1_max_force(),
+        max_velocity = athlete1_max_velocity(),
+        decline_rate = athlete1_decline_rate(),
+        peak_location = athlete1_peak_location(),
+        time_to_max_activation = athlete1_time_to_max_activation()
+      )
+      return(jump_profile)
+    },
+    ignoreNULL = FALSE
+  )
+
+  athlete2_get_jump_profile <- eventReactive(input$calculate,
+    {
+      jump_profile <- vj_profile(
+        external_load = as.numeric(input$selected_external_load),
+        mass = athlete2_BW(),
+        # weight = athlete2_BW() * gravity_const,
+        push_off_distance = athlete2_push_off_distance(),
+        gravity_const = gravity_const,
+        time_step = time_step,
+        max_force = athlete2_max_force(),
+        max_velocity = athlete2_max_velocity(),
+        decline_rate = athlete2_decline_rate(),
+        peak_location = athlete2_peak_location(),
+        time_to_max_activation = athlete2_time_to_max_activation()
+      )
+      return(jump_profile)
+    },
+    ignoreNULL = FALSE
+  )
   # -----------------------------------------------------
   # Simulator
 
@@ -523,7 +642,7 @@ server <- function(input, output) {
         data = athlete1_DF, x = ~x, y = ~force,
         name = "Athlete 1", line = list(color = "#5DA5DA"),
         hoverinfo = "text",
-        text = ~ paste(
+        text = ~paste(
           "Athlete 1\n",
           "Distance =", round(current_distance, 2), "m\n",
           "Distance to take-off =", round(distance_to_take_off, 2), "m\n",
@@ -536,7 +655,7 @@ server <- function(input, output) {
         data = athlete2_DF, x = ~x, y = ~force,
         name = "Athlete 2", line = list(color = "#FAA43A"),
         hoverinfo = "text",
-        text = ~ paste(
+        text = ~paste(
           "Athlete 2\n",
           "Distance =", round(current_distance, 2), "m\n",
           "Distance to take-off =", round(distance_to_take_off, 2), "m\n",
@@ -780,12 +899,12 @@ server <- function(input, output) {
     })
 
     df <- rbind(
-      data.frame(round(athlete1_summary, 2)),
-      data.frame(round(athlete2_summary, 2))
+      data.frame(Athlete = "Athlete 1", round(athlete1_summary, 2)),
+      data.frame(Athlete = "Athlete 2", round(athlete2_summary, 2))
     )
-    rownames(df) <- c("Athlete 1", "Athlete 2")
-    df <- t(df)
-    df <- datatable(df)
+    # rownames(df) <- c("Athlete 1", "Athlete 2")
+    # df <- t(df)
+    df <- datatable(df, rownames = FALSE)
     return(df)
   })
 
@@ -807,7 +926,7 @@ server <- function(input, output) {
       athlete2_trace <- athlete2_jump_trace()$trace
     })
 
-    df <- datatable(athlete2_trace, rownames = FALSE, options = list(digits = 2)) %>%
+    df <- datatable(athlete2_trace, rownames = FALSE) %>%
       formatRound(columns = 1:ncol(athlete2_trace), digits = 3)
     return(df)
   })
@@ -947,7 +1066,7 @@ server <- function(input, output) {
 
   output$athlete2_parameter_probing <- renderPlotly({
     withProgress(message = "Jump probing", value = 0, {
-      incProgress(0.5, detail = "Athlete 1")
+      incProgress(0.5, detail = "Athlete 2")
       athlete2_probing <- athlete2_jump_probe()$ratio
       incProgress(1, detail = "Athlete 2")
     })
@@ -981,6 +1100,129 @@ server <- function(input, output) {
     return(gg)
   })
 
+  # ---------------------------------------------
+  # Profiling
+  output$jump_profile <- renderPlotly({
+    withProgress(message = "Jump profiling", value = 0, {
+      incProgress(0, detail = "Athlete 1")
+      athlete1_jump_profile_data <- athlete1_get_jump_profile()
+      incProgress(0.5, detail = "Athlete 2")
+      athlete2_jump_profile_data <- athlete2_get_jump_profile()
+      incProgress(1, detail = "Athlete 2")
+    })
+
+
+    # bind together
+    athlete1_plot_data <- data.frame(
+      x_var = athlete1_jump_profile_data[, input$jump_profile_x_var],
+      y_var = athlete1_jump_profile_data[, input$jump_profile_y_var],
+      athlete1_jump_profile_data
+    )
+
+    athlete2_plot_data <- data.frame(
+      x_var = athlete2_jump_profile_data[, input$jump_profile_x_var],
+      y_var = athlete2_jump_profile_data[, input$jump_profile_y_var],
+      athlete2_jump_profile_data
+    )
+
+    gg <- plot_ly() %>%
+      add_lines(
+        data = athlete1_plot_data, x = ~x_var, y = ~y_var,
+        name = "Athlete 1", line = list(color = "#5DA5DA")
+      ) %>%
+      add_markers(
+        data = athlete1_plot_data, x = ~x_var, y = ~y_var,
+        name = "Athlete 1", marker = list(color = "#5DA5DA"),
+        hoverinfo = "text",
+        text = ~paste(
+          "Athlete 1", "\n",
+          "external_load =", round(external_load, 2), "kg\n",
+          "mass =", round(mass, 2), "kg\n",
+          "weight =", round(weight, 2), "N\n",
+          "take_off_time =", round(take_off_time, 2), "s\n",
+          "take_off_velocity =", round(take_off_velocity, 2), "m/s\n",
+          "height =", round(height, 2), "m\n",
+          "mean_GRF_over_distance =", round(mean_GRF_over_distance, 0), "N\n",
+          "mean_GRF_over_time =", round(mean_GRF_over_time, 0), "N\n",
+          "peak_GRF =", round(peak_GRF, 0), "N\n",
+          "mean_velocity =", round(mean_velocity, 2), "m/s\n",
+          "peak_velocity =", round(peak_velocity, 2), "m/s\n",
+          "mean_power =", round(mean_power, 0), "W\n",
+          "peak_power =", round(peak_power, 0), "W\n",
+          "peak_RFD =", round(peak_RFD, 0), "N/s\n",
+          "peak_RPD =", round(peak_RPD, 0), "W/s\n",
+          "work_done =", round(work_done, 2), "J\n",
+          "impulse =", round(impulse, 2), "Ns\n"
+        )
+      ) %>%
+      add_lines(
+        data = athlete2_plot_data, x = ~x_var, y = ~y_var,
+        name = "Athlete 2", line = list(color = "#FAA43A")
+      ) %>%
+      add_markers(
+        data = athlete2_plot_data, x = ~x_var, y = ~y_var,
+        name = "Athlete 2", marker = list(color = "#FAA43A"),
+        hoverinfo = "text",
+        text = ~paste(
+          "Athlete 2", "\n",
+          "external_load =", round(external_load, 2), "kg\n",
+          "mass =", round(mass, 2), "kg\n",
+          "weight =", round(weight, 2), "N\n",
+          "take_off_time =", round(take_off_time, 2), "s\n",
+          "take_off_velocity =", round(take_off_velocity, 2), "m/s\n",
+          "height =", round(height, 2), "m\n",
+          "mean_GRF_over_distance =", round(mean_GRF_over_distance, 0), "N\n",
+          "mean_GRF_over_time =", round(mean_GRF_over_time, 0), "N\n",
+          "peak_GRF =", round(peak_GRF, 0), "N\n",
+          "mean_velocity =", round(mean_velocity, 2), "m/s\n",
+          "peak_velocity =", round(peak_velocity, 2), "m/s\n",
+          "mean_power =", round(mean_power, 0), "W\n",
+          "peak_power =", round(peak_power, 0), "W\n",
+          "peak_RFD =", round(peak_RFD, 0), "N/s\n",
+          "peak_RPD =", round(peak_RPD, 0), "W/s\n",
+          "work_done =", round(work_done, 2), "J\n",
+          "impulse =", round(impulse, 2), "Ns\n"
+        )
+      ) %>%
+      layout(
+        showlegend = FALSE,
+        yaxis = list(
+          side = "left", title = input$jump_profile_y_var,
+          showgrid = TRUE, zeroline = TRUE
+        ),
+        xaxis = list(
+          side = "left", title = input$jump_profile_x_var,
+          showgrid = TRUE, zeroline = TRUE
+        )
+      )
+
+    return(gg)
+  })
+
+
+  output$athlete1_jump_profile_table <- renderDataTable({
+    withProgress(message = "Jump profiling", value = 0, {
+      incProgress(0.5, detail = "Athlete 1")
+      athlete1_jump_profile_data <- athlete1_get_jump_profile()
+      incProgress(1, detail = "Athlete 1")
+    })
+
+    df <- datatable(athlete1_jump_profile_data, rownames = FALSE) %>%
+      formatRound(columns = 1:ncol(athlete1_jump_profile_data), digits = 2)
+    return(df)
+  })
+
+  output$athlete2_jump_profile_table <- renderDataTable({
+    withProgress(message = "Jump profiling", value = 0, {
+      incProgress(0.5, detail = "Athlete 2")
+      athlete2_jump_profile_data <- athlete2_get_jump_profile()
+      incProgress(1, detail = "Athlete 2")
+    })
+
+    df <- datatable(athlete2_jump_profile_data, rownames = FALSE) %>%
+      formatRound(columns = 1:ncol(athlete2_jump_profile_data), digits = 2)
+    return(df)
+  })
 }
 
 # Run the application

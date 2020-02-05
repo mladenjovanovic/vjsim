@@ -290,8 +290,75 @@ vj_simulate <- function( # system constrains
     previous_power <- current_power
   } # Main loop finished
 
+   # --------------------------
+   # Summary/Performance  metrics
+  take_off_velocity <- current_velocity
 
-  # Summary metrics
+  height <- get_height(
+    take_off_velocity = take_off_velocity,
+    gravity_const = gravity_const
+  )
+
+  mean_GRF_over_distance <- get_mean_force_over_distance(
+    mass = mass,
+    weight = weight,
+    take_off_velocity = current_velocity,
+    push_off_distance = current_distance
+  )
+
+  mean_GRF_over_time <- get_mean_force_over_time(
+    mass = mass,
+    weight = weight,
+    take_off_velocity = current_velocity,
+    time_taken = current_time
+  )
+
+  mean_velocity <- current_distance / current_time
+
+  work_done = get_work(
+    mass = mass,
+    weight = weight,
+    take_off_velocity = current_velocity,
+    push_off_distance = current_distance
+  )
+
+  impulse <- get_impulse(
+    mass = mass,
+    take_off_velocity = current_velocity
+  )
+
+  mean_power <- get_mean_power(
+    mass = mass,
+    weight = weight,
+    take_off_velocity = current_velocity,
+    push_off_distance = current_distance,
+    time_taken = current_time
+  )
+
+  mean_RFD <- summary_peak_GRF / summary_peak_GRF_time
+  mean_RPD <- summary_peak_power / summary_peak_power_time
+
+  peak_GRF <- summary_peak_GRF
+  peak_GRF_time <- summary_peak_GRF_time
+  peak_GRF_distance <- summary_peak_GRF_distance
+
+  peak_velocity <- summary_peak_velocity
+  peak_velocity_time <- summary_peak_velocity_time
+  peak_velocity_distance <- summary_peak_velocity_distance
+
+  peak_power <- summary_peak_power
+  peak_power_distance <- summary_peak_power_distance
+  peak_power_time <- summary_peak_power_time
+
+  peak_RFD <- summary_peak_RFD
+  peak_RFD_distance <- summary_peak_RFD_distance
+  peak_RFD_time <- summary_peak_RFD_time
+
+  peak_RPD <- summary_peak_RPD
+  peak_RPD_distance <- summary_peak_RPD_distance
+  peak_RPD_time <- summary_peak_RPD_time
+
+  # Save in the data frame
   summary_data <- data.frame(
     mass = mass,
     weight = weight,
@@ -303,71 +370,70 @@ vj_simulate <- function( # system constrains
     take_off_ground_reaction_force = ground_reaction_force,
     take_off_propulsive_force = propulsive_force,
 
-    take_off_velocity = current_velocity,
+    take_off_velocity = take_off_velocity,
 
-    height = get_height(
-      take_off_velocity = current_velocity,
-      gravity_const = gravity_const
-    ),
+    height = height,
 
-    mean_GRF_over_distance = get_mean_force_over_distance(
-      mass = mass,
-      weight = weight,
-      take_off_velocity = current_velocity,
-      push_off_distance = current_distance
-    ),
+    mean_GRF_over_distance = mean_GRF_over_distance,
 
-    mean_GRF_over_time = get_mean_force_over_time(
-      mass = mass,
-      weight = weight,
-      take_off_velocity = current_velocity,
-      time_taken = current_time
-    ),
+    mean_GRF_over_time = mean_GRF_over_time,
 
-    mean_velocity = current_distance / current_time,
+    mean_velocity = mean_velocity,
 
-    work_done = get_work(
-      mass = mass,
-      weight = weight,
-      take_off_velocity = current_velocity,
-      push_off_distance = current_distance
-    ),
+    work_done = work_done,
 
-    impulse = get_impulse(
-      mass = mass,
-      take_off_velocity = current_velocity
-    ),
+    impulse = impulse,
 
-    mean_power = get_mean_power(
-      mass = mass,
-      weight = weight,
-      take_off_velocity = current_velocity,
-      push_off_distance = current_distance,
-      time_taken = current_time
-    ),
+    mean_power =  mean_power,
 
-    mean_RFD = summary_peak_GRF / summary_peak_GRF_time,
-    mean_RPD = summary_peak_power / summary_peak_power_time,
+    mean_RFD = mean_RFD,
+    mean_RPD = mean_RPD,
 
-    peak_GRF = summary_peak_GRF,
-    peak_GRF_time = summary_peak_GRF_time,
-    peak_GRF_distance = summary_peak_GRF_distance,
+    peak_GRF = peak_GRF,
+    peak_GRF_time = peak_GRF_time,
+    peak_GRF_distance = peak_GRF_distance,
 
-    peak_velocity = summary_peak_velocity,
-    peak_velocity_time = summary_peak_velocity_time,
-    peak_velocity_distance = summary_peak_velocity_distance,
+    peak_velocity = peak_velocity,
+    peak_velocity_time = peak_velocity_time,
+    peak_velocity_distance = peak_velocity_distance,
 
-    peak_power = summary_peak_power,
-    peak_power_distance = summary_peak_power_distance,
-    peak_power_time = summary_peak_power_time,
+    peak_power = peak_power,
+    peak_power_distance = peak_power_distance,
+    peak_power_time = peak_power_time,
 
-    peak_RFD = summary_peak_RFD,
-    peak_RFD_distance = summary_peak_RFD_distance,
-    peak_RFD_time = summary_peak_RFD_time,
+    peak_RFD = peak_RFD,
+    peak_RFD_distance = peak_RFD_distance,
+    peak_RFD_time = peak_RFD_time,
 
-    peak_RPD = summary_peak_RPD,
-    peak_RPD_distance = summary_peak_RPD_distance,
-    peak_RPD_time = summary_peak_RPD_time
+    peak_RPD = peak_RPD,
+    peak_RPD_distance = peak_RPD_distance,
+    peak_RPD_time = peak_RPD_time,
+
+    # ---------------
+    # Control metrics
+
+    # Peak velocity to take-off velocity
+    diff_peak_to_take_off_velocity = peak_velocity - take_off_velocity,
+    ratio_peak_to_take_off_velocity = peak_velocity / take_off_velocity,
+
+    # Mean velocity to take-off velocity
+    diff_mean_to_take_off_velocity = mean_velocity - take_off_velocity,
+    ratio_mean_to_take_off_velocity = mean_velocity / take_off_velocity,
+
+    # Mean velocity to peak velocity
+    diff_mean_to_peak_velocity = mean_velocity - peak_velocity,
+    ratio_mean_to_peak_velocity = mean_velocity / peak_velocity,
+
+    # Mean power to peak power
+    diff_mean_to_peak_power = mean_power - peak_power,
+    ratio_mean_to_peak_power = mean_power / peak_power,
+
+    # Force over distance vs force over time
+    diff_mean_GRF_over_distance_to_time = mean_GRF_over_distance - mean_GRF_over_time,
+    ratio_mean_GRF_over_distance_to_time = mean_GRF_over_distance / mean_GRF_over_time,
+
+    # Used for Samozino model
+    mean_velocity_as_TOV_half = take_off_velocity / 2
   )
 
   names(trace_data) <- NULL

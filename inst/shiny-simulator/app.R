@@ -51,21 +51,7 @@ parameter_variables <- c(
   "push_off_distance",
   "max_force",
   "max_velocity",
-  "time_to_max_activation",
-  "take_off_time",
-  "take_off_velocity",
-  "height",
-  "mean_GRF_over_distance",
-  "mean_GRF_over_time",
-  "peak_GRF",
-  "mean_velocity",
-  "peak_velocity",
-  "mean_power",
-  "peak_power",
-  "peak_RFD",
-  "peak_RPD",
-  "work_done",
-  "impulse"
+  "time_to_max_activation"
 )
 
 profiling_variables <- c(
@@ -85,15 +71,53 @@ profiling_variables <- c(
   "peak_RFD",
   "peak_RPD",
   "work_done",
-  "impulse"
+  "impulse",
+  "ratio_peak_to_take_off_velocity",
+  "ratio_mean_to_take_off_velocity",
+  "ratio_mean_to_peak_velocity",
+  "ratio_mean_to_peak_power",
+  "ratio_mean_GRF_over_distance_to_time"
+)
+
+profile_summary_variables <- c(
+  "profile_mean_FV.F0",
+  "profile_mean_FV.V0",
+  "profile_mean_FV.Pmax",
+  "profile_mean_FV.Sfv",
+  "profile_mean_power.Pmax",
+  "profile_mean_power.Pmax_location",
+  "profile_mean_power.F0_perc",
+  "profile_peak_FV.F0",
+  "profile_peak_FV.V0",
+  "profile_peak_FV.Pmax",
+  "profile_peak_FV.Sfv",
+  "profile_peak_power.Pmax",
+  "profile_peak_power.Pmax_location",
+  "profile_peak_power.F0_perc",
+  "profile_load_take_off_velocity.V0",
+  "profile_load_take_off_velocity.L0",
+  "profile_load_take_off_velocity.Imax",
+  "profile_load_take_off_velocity.Slv",
+  "profile_load_impulse.Imax",
+  "profile_load_impulse.Imax_location",
+  "profile_load_impulse.L0_perc"
+)
+
+
+profile_type <- c(
+  "profile_mean_FV",
+  "profile_mean_power",
+  "profile_peak_FV",
+  "profile_peak_power",
+  "profile_load_take_off_velocity",
+  "profile_load_impulse"
 )
 
 vj_probing_change <- seq(0.9, 1.1, length.out = 7)
 
 # For profiling
-external_load_options <- seq(-60, 150, 10)
-external_load_options_selected <- seq(-40, 80, 20)
-
+external_load_options <- seq(-40, 120, 10)
+external_load_options_selected <- seq(0, 80, 20)
 
 # Function to extract one column from the probing data
 get_metric_sensitivity <- function(probing_data, variable, invert = FALSE) {
@@ -111,14 +135,14 @@ get_metric_sensitivity <- function(probing_data, variable, invert = FALSE) {
 }
 
 # Function to extract one parameter
-get_parameter_sensitivity <- function(probing_data, parameter, invert = FALSE) {
+get_parameter_sensitivity <- function(probing_data, parameter, invert = FALSE, summary_variables = summary_variables, key_columns = 13) {
   probing_data <- probing_data[probing_data$probing == parameter, ]
 
   if (invert) {
     probing_data$change_ratio <- 1 / df$change_ratio
   }
 
-  df <- gather(probing_data, key = "variable", value = "value", -(1:13)) %>%
+  df <- gather(probing_data, key = "variable", value = "value", -(1:key_columns)) %>%
     filter(
       variable %in% summary_variables
     )
@@ -262,13 +286,15 @@ ui <- navbarPage(
         )
       ),
       tabPanel(
-        "Profiling",
+        "Profile Analysis",
         br(),
-        selectInput(inputId = "selected_external_load",
-                    label = "External load",
-                    choices = external_load_options,
-                    multiple = TRUE,
-                    selected = external_load_options_selected),
+        selectInput(
+          inputId = "selected_external_load",
+          label = "External load",
+          choices = external_load_options,
+          multiple = TRUE,
+          selected = external_load_options_selected
+        ),
         br(),
         fixedRow(
           column(
@@ -277,7 +303,7 @@ ui <- navbarPage(
               inputId = "jump_profile_x_var",
               label = "X axis",
               choices = profiling_variables,
-              selected = "mass"
+              selected = "mean_GRF_over_distance"
             )
           ),
           column(
@@ -286,19 +312,83 @@ ui <- navbarPage(
               inputId = "jump_profile_y_var",
               label = "Y axis",
               choices = profiling_variables,
-              selected = "height"
+              selected = "mean_velocity"
             )
           )
         ),
         br(),
         plotlyOutput("jump_profile"),
-        h4("Profile table"),
+        br(),
+        h4("Profile summaries"),
+        fixedRow(
+          column(
+            6,
+            h5("Athlete 1"),
+            dataTableOutput("athlete1_jump_profile_summary")
+          ),
+          column(
+            6,
+            h5("Athlete 2"),
+            dataTableOutput("athlete2_jump_profile_summary")
+          )
+        ),
+        h4("Profile data"),
         br(),
         h5("Athlete 1"),
         dataTableOutput("athlete1_jump_profile_table"),
         br(),
         h5("Athlete 2"),
         dataTableOutput("athlete2_jump_profile_table")
+      ),
+
+      tabPanel(
+        "Profile Sensitivity",
+        br(),
+        selectInput(
+          inputId = "profile_variable",
+          label = "Probing profile variable",
+          choices = profile_summary_variables,
+          selected = "profile_mean_FV.Pmax"
+        ),
+        fixedRow(
+          column(
+            6,
+            h4("Athlete 1"),
+            plotlyOutput("athlete1_profile_probing")
+          ),
+          column(
+            6,
+            h4("Athlete 2"),
+            plotlyOutput("athlete2_profile_probing")
+          )
+        ),
+        br(),
+        fixedRow(
+          column(
+            6,
+            selectInput(
+              inputId = "profile_parameter_variable",
+              label = "Probing Force Generator parameter",
+              choices = parameter_variables,
+              selected = "push_off_distance"
+            ),
+            br(),
+            h4("Athlete 1"),
+            plotlyOutput("athlete1_profile_parameter_probing")
+          ),
+          column(
+            6,
+            selectInput(
+              inputId = "profile_type",
+              label = "Profile type",
+              choices = profile_type,
+              selected = "profile_mean_FV"
+            ),
+            br(),
+            h4("Athlete 2"),
+            plotlyOutput("athlete2_profile_parameter_probing")
+          )
+        )
       )
     )),
     # ----------------------------
@@ -585,6 +675,60 @@ server <- function(input, output) {
     },
     ignoreNULL = FALSE
   )
+
+  # --------
+  # Profile probing reactive elements
+  # Jump probe reactive element
+  athlete1_profile_probe <- eventReactive(input$calculate,
+    {
+      profile_probe_ratio <- probe_profile(
+        mass = athlete1_BW(),
+        external_load =  as.numeric(input$selected_external_load),
+        push_off_distance = athlete1_push_off_distance(),
+        max_force = athlete1_max_force(),
+        max_velocity = athlete1_max_velocity(),
+        time_to_max_activation = athlete1_time_to_max_activation(),
+        change_ratio = vj_probing_change,
+        aggregate = "ratio",
+
+        # Extra params
+        weight = athlete1_BW() * gravity_const,
+        gravity_const = gravity_const,
+        time_step = time_step,
+        decline_rate = athlete1_decline_rate(),
+        peak_location = athlete1_peak_location()
+      )
+
+      return(list(ratio = profile_probe_ratio))
+    },
+    ignoreNULL = FALSE
+  )
+
+athlete2_profile_probe <- eventReactive(input$calculate,
+  {
+    profile_probe_ratio <- probe_profile(
+      mass = athlete2_BW(),
+      external_load = as.numeric(input$selected_external_load),
+      push_off_distance = athlete2_push_off_distance(),
+      max_force = athlete2_max_force(),
+      max_velocity = athlete2_max_velocity(),
+      time_to_max_activation = athlete2_time_to_max_activation(),
+      change_ratio = vj_probing_change,
+      aggregate = "ratio",
+
+      # Extra params
+      weight = athlete2_BW() * gravity_const,
+      gravity_const = gravity_const,
+      time_step = time_step,
+      decline_rate = athlete2_decline_rate(),
+      peak_location = athlete2_peak_location()
+    )
+
+    return(list(ratio = profile_probe_ratio))
+  },
+  ignoreNULL = FALSE
+)
+
   # -----------------------------------------------------
   # Simulator
 
@@ -642,7 +786,7 @@ server <- function(input, output) {
         data = athlete1_DF, x = ~x, y = ~force,
         name = "Athlete 1", line = list(color = "#5DA5DA"),
         hoverinfo = "text",
-        text = ~paste(
+        text = ~ paste(
           "Athlete 1\n",
           "Distance =", round(current_distance, 2), "m\n",
           "Distance to take-off =", round(distance_to_take_off, 2), "m\n",
@@ -655,7 +799,7 @@ server <- function(input, output) {
         data = athlete2_DF, x = ~x, y = ~force,
         name = "Athlete 2", line = list(color = "#FAA43A"),
         hoverinfo = "text",
-        text = ~paste(
+        text = ~ paste(
           "Athlete 2\n",
           "Distance =", round(current_distance, 2), "m\n",
           "Distance to take-off =", round(distance_to_take_off, 2), "m\n",
@@ -1134,7 +1278,7 @@ server <- function(input, output) {
         data = athlete1_plot_data, x = ~x_var, y = ~y_var,
         name = "Athlete 1", marker = list(color = "#5DA5DA"),
         hoverinfo = "text",
-        text = ~paste(
+        text = ~ paste(
           "Athlete 1", "\n",
           "external_load =", round(external_load, 2), "kg\n",
           "mass =", round(mass, 2), "kg\n",
@@ -1163,7 +1307,7 @@ server <- function(input, output) {
         data = athlete2_plot_data, x = ~x_var, y = ~y_var,
         name = "Athlete 2", marker = list(color = "#FAA43A"),
         hoverinfo = "text",
-        text = ~paste(
+        text = ~ paste(
           "Athlete 2", "\n",
           "external_load =", round(external_load, 2), "kg\n",
           "mass =", round(mass, 2), "kg\n",
@@ -1223,6 +1367,216 @@ server <- function(input, output) {
       formatRound(columns = 1:ncol(athlete2_jump_profile_data), digits = 2)
     return(df)
   })
+
+  # -----
+  # Summary profile tables
+  output$athlete1_jump_profile_summary <- renderDataTable({
+    withProgress(message = "Jump profiling", value = 0, {
+      incProgress(0.5, detail = "Athlete 1")
+      athlete1_jump_profile_data <- athlete1_get_jump_profile()
+      incProgress(1, detail = "Athlete 1")
+    })
+
+    all_profiles <- get_all_profiles(athlete1_jump_profile_data)$data_frame
+
+    df <- datatable(all_profiles, rownames = FALSE) %>%
+      formatRound(columns = 3, digits = 2)
+    return(df)
+  })
+
+  output$athlete2_jump_profile_summary <- renderDataTable({
+    withProgress(message = "Jump profiling", value = 0, {
+      incProgress(0.5, detail = "Athlete 2")
+      athlete2_jump_profile_data <- athlete2_get_jump_profile()
+      incProgress(1, detail = "Athlete 2")
+    })
+
+    all_profiles <- get_all_profiles(athlete2_jump_profile_data)$data_frame
+
+    df <- datatable(all_profiles, rownames = FALSE) %>%
+      formatRound(columns = 3, digits = 2)
+    return(df)
+  })
+
+  # -----------------------------------
+  # Profile Probing
+  output$athlete1_profile_probing <- renderPlotly({
+    withProgress(message = "Profile probing", value = 0, {
+      incProgress(0.5, detail = "Athlete 1")
+      athlete1_probing <- athlete1_profile_probe()$ratio
+      incProgress(1, detail = "Athlete 1")
+    })
+
+    # Convert
+    plot_data <- get_metric_sensitivity(athlete1_probing, input$profile_variable)
+
+    gg <- plot_ly() %>%
+      add_lines(
+        data = plot_data, x = ~change_ratio, y = ~variable,
+        name = ~probing, color = ~probing,
+        line = list(
+          color = c(
+            "mass" = "#4D4D4D",
+            "max_force" = "#5DA5DA",
+            "max_velocity" =  "#FAA43A",
+            "push_off_distance" = "#60BD68",
+            "time_to_max_activation" = "#B276B2"
+          )
+        ),
+        hoverinfo = "text",
+        text = ~ paste(
+          probing, "\n",
+          "Normalized change =", round(change_ratio, 2), "\n",
+          "Normalized",input$profile_variable, "chage", "=", round(variable, 2), "\n"
+        )
+      ) %>%
+      layout(
+        showlegend = TRUE,
+        yaxis = list(
+          side = "left", title = paste("Normalized", input$profile_variable, "chage"),
+          showgrid = TRUE, zeroline = FALSE
+        ),
+        xaxis = list(
+          side = "left", title = "Normalized parameter change",
+          showgrid = TRUE, zeroline = FALSE
+        )
+      )
+
+    return(gg)
+  })
+
+  output$athlete2_profile_probing <- renderPlotly({
+    withProgress(message = "Profile probing", value = 0, {
+      incProgress(0.5, detail = "Athlete 2")
+      athlete2_probing <- athlete2_profile_probe()$ratio
+      incProgress(1, detail = "Athlete 2")
+    })
+
+    # Convert
+    plot_data <- get_metric_sensitivity(athlete2_probing, input$profile_variable)
+
+    gg <- plot_ly() %>%
+      add_lines(
+        data = plot_data, x = ~change_ratio, y = ~variable,
+        name = ~probing, color = ~probing,
+        line = list(
+          color = c(
+            "mass" = "#4D4D4D",
+            "max_force" = "#5DA5DA",
+            "max_velocity" =  "#FAA43A",
+            "push_off_distance" = "#60BD68",
+            "time_to_max_activation" = "#B276B2"
+          )
+        ),
+        hoverinfo = "text",
+        text = ~ paste(
+          probing, "\n",
+          "Normalized change =", round(change_ratio, 2), "\n",
+          "Normalized",input$profile_variable, "chage", "=", round(variable, 2), "\n"
+        )
+      ) %>%
+      layout(
+        showlegend = TRUE,
+        yaxis = list(
+          side = "left", title = paste("Normalized", input$profile_variable, "chage"),
+          showgrid = TRUE, zeroline = FALSE
+        ),
+        xaxis = list(
+          side = "left", title = "Normalized parameter change",
+          showgrid = TRUE, zeroline = FALSE
+        )
+      )
+
+    return(gg)
+  })
+
+  output$athlete1_profile_parameter_probing <- renderPlotly({
+    withProgress(message = "Profile probing", value = 0, {
+      incProgress(0.5, detail = "Athlete 1")
+      athlete1_probing <- athlete1_profile_probe()$ratio
+      incProgress(1, detail = "Athlete 1")
+    })
+    # Convert
+    plot_data <- get_parameter_sensitivity(
+      athlete1_probing,
+      input$profile_parameter_variable,
+      summary_variables = profile_summary_variables,
+      key_columns = 12
+      ) %>%
+      filter(grepl(input$profile_type, variable)) %>%
+      mutate(variable = str_remove(variable, paste(input$profile_type, ".", sep="")))
+
+
+    gg <- plot_ly() %>%
+      add_lines(
+        data = plot_data, x = ~change_ratio, y = ~value,
+        name = ~variable, color = ~variable,
+        hoverinfo = "text",
+        text = ~ paste(
+          variable, "\n",
+          input$profile_parameter_variable, " change =", round(change_ratio, 2), "\n",
+          variable, "change =", round(value, 2), "\n"
+        )
+      ) %>%
+      layout(
+        showlegend = TRUE,
+        yaxis = list(
+          side = "left", title = "Normalized metric change",
+          showgrid = TRUE, zeroline = TRUE
+        ),
+        xaxis = list(
+          side = "left", title = paste("Normalized", input$profile_parameter_variable, "change"),
+          showgrid = TRUE, zeroline = FALSE
+        )
+      )
+
+    return(gg)
+  })
+
+  output$athlete2_profile_parameter_probing <- renderPlotly({
+    withProgress(message = "Profile probing", value = 0, {
+      incProgress(0.5, detail = "Athlete 2")
+      athlete2_probing <- athlete2_profile_probe()$ratio
+      incProgress(1, detail = "Athlete 2")
+    })
+    # Convert
+    plot_data <- get_parameter_sensitivity(
+      athlete2_probing,
+      input$profile_parameter_variable,
+      summary_variables = profile_summary_variables,
+      key_columns = 12
+    ) %>%
+      filter(grepl(input$profile_type, variable)) %>%
+      mutate(variable = str_remove(variable, paste(input$profile_type, ".", sep="")))
+
+
+    gg <- plot_ly() %>%
+      add_lines(
+        data = plot_data, x = ~change_ratio, y = ~value,
+        name = ~variable, color = ~variable,
+        hoverinfo = "text",
+        text = ~ paste(
+          variable, "\n",
+          input$profile_parameter_variable, " change =", round(change_ratio, 2), "\n",
+          variable, "change =", round(value, 2), "\n"
+        )
+      ) %>%
+      layout(
+        showlegend = TRUE,
+        yaxis = list(
+          side = "left", title = "Normalized metric change",
+          showgrid = TRUE, zeroline = TRUE
+        ),
+        xaxis = list(
+          side = "left", title = paste("Normalized", input$profile_parameter_variable, "change"),
+          showgrid = TRUE, zeroline = FALSE
+        )
+      )
+
+    return(gg)
+  })
+
+
 }
 
 # Run the application

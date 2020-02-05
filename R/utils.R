@@ -26,6 +26,20 @@ get_max_power <- function(max_force, max_velocity) {
   (max_force * max_velocity) / 4
 }
 
+#' Get Force Velocity Profile Slop
+#'
+#' Function \code{get_slope} calculates force-velocity profile slope assuming linear relationship
+#'    between \code{max_force} and \code{max_velocity}
+#' @param max_force Numeric vector
+#' @param max_velocity Numeric vector.
+#' @return Numeric vector
+#' @export
+#' @examples
+#' get_slope(3000, 4)
+get_slope <- function(max_force, max_velocity) {
+  -max_force/max_velocity
+}
+
 #' Get Work Done
 #'
 #' Function \code{get_work} calculates the work needed for the vertical jump using

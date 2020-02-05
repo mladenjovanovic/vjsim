@@ -1180,7 +1180,11 @@ athlete2_profile_probe <- eventReactive(input$calculate,
     })
 
     # Convert
-    plot_data <- get_parameter_sensitivity(athlete1_probing, input$parameter_variable)
+    plot_data <- get_parameter_sensitivity(
+      athlete1_probing,
+      input$parameter_variable,
+      summary_variables = summary_variables,
+      key_columns = 13)
 
     gg <- plot_ly() %>%
       add_lines(
@@ -1216,7 +1220,11 @@ athlete2_profile_probe <- eventReactive(input$calculate,
     })
 
     # Convert
-    plot_data <- get_parameter_sensitivity(athlete2_probing, input$parameter_variable)
+    plot_data <- get_parameter_sensitivity(
+      athlete2_probing,
+      input$parameter_variable,
+      summary_variables = summary_variables,
+      key_columns = 13)
 
     gg <- plot_ly() %>%
       add_lines(

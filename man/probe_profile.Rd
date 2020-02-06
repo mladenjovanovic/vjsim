@@ -13,6 +13,7 @@ probe_profile(
   change_ratio = seq(0.9, 1.1, length.out = 3),
   aggregate = "raw",
   external_load = c(-40, -20, 0, 20, 40, 60, 80, 100),
+  profile_func = get_all_profiles,
   ...
 )
 }
@@ -35,6 +36,9 @@ output values}
 
 \item{external_load}{Numeric vector. Default is  \code{c(-40, -20, 0, 20, 40, 60, 80)}. Forwarded to \code{\link{vj_profile}}}
 
+\item{profile_func}{Profiling function. Default is \code{\link{get_all_profiles}}. Also use \code{\link{get_FV_profile}},
+\code{\link{get_power_profile}}, and \code{\link{get_all_samozino_profiles}}}
+
 \item{...}{Extra argument forwarded to \code{\link{vj_profile}}}
 }
 \value{
@@ -42,20 +46,23 @@ Probing data frame
 }
 \description{
 \code{probe_profile} simulates the vertical jump profiling using \code{\link{vj_profile}} over \code{external_load} loads,
-    but estimate which parameter brings biggest change in the profile summary metric returned by \code{\link{get_all_profiles}}.
+    but estimate which parameter brings biggest change in the profile summary metric returned by \code{profile_func}.
     This is done by keeping all parameters at initial value, while changing only one parameter. This is then repeated for
     all parameters. This way we can answer by changing what parameter for standardize change (\code{change_ratio})
     yield biggest change in profile summary metric (e.g. jump height)
 }
 \examples{
 require(tidyverse)
+
+# You call also use get get_all_samozino_profiles() function in the profile_func parameter
 profile_probe_data <- probe_profile(
 mass = 75,
 max_force = 3000,
 max_velocity = 3,
 time_to_max_activation = 0.3,
 time_step = 0.001,
-external_load = c(-40, -20, 0, 20, 40, 60, 80, 100)
+external_load = c(-40, -20, 0, 20, 40, 60, 80, 100),
+profile_func = get_all_profiles # Can also use get_all_samozino_profiles
 )
 
 plot_data <- gather(profile_probe_data, key = "variable", value = "value", -(1:8)) \%>\%
@@ -75,4 +82,16 @@ ggplot(plot_data, aes(x = change_ratio, y = value, color = probing)) +
   facet_wrap(~variable, scales = "free_y") +
   xlab("Normalized parameter change") +
   ylab(NULL)
+
+# -----------------------------------
+# When probing using get_FV_profile or get_power_profile use the following
+power_probe_data <- probe_profile(
+  mass = 75,
+  max_force = 3000,
+  max_velocity = 3,
+  time_to_max_activation = 0.3,
+  time_step = 0.001,
+  external_load = c(-40, -20, 0, 20, 40, 60, 80, 100),
+  profile_func = function(...) list(list = get_power_profile(...))
+)
 }

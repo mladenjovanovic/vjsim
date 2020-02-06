@@ -357,3 +357,57 @@ probe_profile <- function(mass = 75,
 
   return(fgen_probe_data)
 }
+
+
+#' Probe Samozino Take-off Velocity
+#'
+#' \code{probe_samozino_take_off_velocity} probes results of the \code{\link{get_samozino_take_off_velocity}} function by varying
+#' \code{F0}, \code{V0}, and \code{bodymass} parameters
+#' @param F0 Numeric vector. Default 3000
+#' @param V0 Numeric vector. Default 4
+#' @param bodyweight Numeric vector. Default 75
+#' @param push_off_distance Numeric vector. Default 0.4
+#' @param gravity_const Numeric vector. Default 9.81
+#' @param change_ratio Numeric vector indicating probing change ratios
+#' @param aggregate How should \code{\link{get_samozino_take_off_velocity}} output be aggregated?
+#'     Default is "raw". Other options involve "ratio" and "diff" which use initial
+#'     output values
+#' @return Probing data frame
+#' @export
+#' @examples
+#' require(ggplot2)
+#'
+#'  samozino_probe_data <- probe_samozino_take_off_velocity(
+#'    F0 = 3000,
+#'    V0 = 3.5,
+#'    push_off_distance = 0.4,
+#'    bodyweight = 75,
+#'    change_ratio = seq(0.8, 1.2, length.out = 1001)
+#'  )
+#'
+#'  ggplot(
+#'    samozino_probe_data,
+#'    aes(
+#'      x = change_ratio,
+#'      y = take_off_velocity,
+#'      color = probing
+#'    )
+#'  ) +
+#'    geom_line()
+probe_samozino_take_off_velocity <- function(F0 = 3000,
+                                             V0 = 4,
+                                             bodyweight = 75,
+                                             push_off_distance = 0.4,
+                                             gravity_const = 9.81,
+                                             change_ratio = seq(0.9, 1.1, length.out = 3),
+                                             aggregate = "raw"
+                                             ) {
+  get_probing_data(
+    args_list = list(F0 = F0, V0 = V0, bodyweight = bodyweight),
+    probe_func = function(...) list(take_off_velocity = get_samozino_take_off_velocity(...)),
+    change_ratio = change_ratio,
+    aggregate = aggregate,
+    push_off_distance = push_off_distance,
+    gravity_const = gravity_const
+  )
+}

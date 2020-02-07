@@ -47,13 +47,17 @@ fgen_get_force_percentage <- function(current_distance = 0,
   }
 
   if (any(push_off_distance < 0.3 | push_off_distance > 0.7)) {
-    stop("Push off distance needs to be within 0.3 - 0.7m.")
+    stop("Push off distance needs to be within 0.3 - 0.7m.", call. = FALSE)
   }
 
   if (any(peak_location > 0 | peak_location < -push_off_distance)) {
-    stop("Peak location needs to be lower than zero and larger than -Push off distance")
+    stop("Peak location needs to be lower than zero and larger than -Push off distance", call. = FALSE)
   }
 
+  # Few checks for the special case
+  if(length(peak_location) == 1 & length(decline_rate) == 1) {
+    if(peak_location == 0 & decline_rate == 0) return(rep(1, length(current_distance)))
+  }
   peak_location <- push_off_distance + peak_location
 
   y1 <- sin((decline_rate * (peak_location - current_distance) + 1) * pi / 2)

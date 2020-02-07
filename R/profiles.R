@@ -57,18 +57,108 @@ get_FV_profile <- function(profile_data, force = "mean_GRF_over_distance", veloc
   )
 
   # model
-  profile_model <- stats::lm(velocity ~ force, df)
+  get_fv_model <- function(df) {
+    tryCatch({
+      stats::lm(velocity ~ force, df)
+    },
+    error=function(cond) {
+      #message(paste("Error when creating linear model for", force, "~", velocity, "profile"))
+      #message("Here's the original error message:")
+      #message(cond)
+      #message("\nReturning 0")
+      return(NA)
+    },
+    warning=function(cond) {
+      #message(paste("Error when creating linear model for", force, "~", velocity, "profile"))
+      #message("Here's the original warning message:")
+      #message(cond)
+      #message("\nReturning 0")
+      return(NA)
+    }
+    )
+  }
+
+  profile_model <- get_fv_model(df)
+
+  if(is.na(profile_model[1])) {
+    return(list(
+      F0 = NA,
+      V0 = NA,
+      Pmax = NA,
+      Sfv = NA
+    ))
+  }
+
 
   # Get V0
-  velocity_0 <- stats::predict(profile_model, newdata = data.frame(force = 0))[[1]]
+  get_velocity_0 <- function(profile_model) {
+    tryCatch({
+      stats::predict(profile_model, newdata = data.frame(force = 0))
+    },
+    error=function(cond) {
+      #message(paste("Error when finding V0 for", force, "~", velocity, "profile"))
+      #message("Here's the original error message:")
+      #message(cond)
+      #message("\nReturning 0")
+      return(NA)
+    },
+    warning=function(cond) {
+      #message(paste("Warning when finding V0 for", force, "~", velocity, "profile"))
+      #message("Here's the original warning message:")
+      #message(cond)
+      #message("\nReturning 0")
+      return(NA)
+    }
+    )
+  }
+
+  velocity_0 <-  get_velocity_0(profile_model)
+
+  if(is.na(velocity_0)) {
+    return(list(
+      F0 = NA,
+      V0 = NA,
+      Pmax = NA,
+      Sfv = NA
+    ))
+  }
 
   # get F0
-  force_0 <- stats::uniroot(
-    function(x) {
-      stats::predict(profile_model, newdata = data.frame(force = x))
+  get_force_0 <- function(profile_model) {
+    tryCatch({
+    stats::uniroot(
+      function(x) {
+        stats::predict(profile_model, newdata = data.frame(force = x))
+      },
+      interval = c(0, 10 * max(profile_data[[force]]))
+    )
+      },
+    error=function(cond) {
+      #message(paste("Error when finding F0 for", force, "~", velocity, "profile"))
+      #message("Here's the original error message:")
+      #message(cond)
+      #message("\nReturning 0")
+      return(list(root = NA))
     },
-    interval = c(0, 10 * max(profile_data[[force]]))
-  )$root[[1]]
+    warning=function(cond) {
+      #message(paste("Warning when finding F0 for", force, "~", velocity, "profile"))
+      #message("Here's the original warning message:")
+      #message(cond)
+      #message("\nReturning 0")
+      return(list(root = NA))
+    }
+  )
+}
+  force_0 <- get_force_0(profile_model)$root[[1]]
+
+  if(is.na(force_0)) {
+    return(list(
+      F0 = NA,
+      V0 = NA,
+      Pmax = NA,
+      Sfv = NA
+    ))
+  }
 
   # get max Power
   power_max <- get_max_power(force_0, velocity_0)
@@ -107,16 +197,66 @@ get_power_profile <- function(profile_data, power = "mean_power", x_var = "mean_
   )
 
   # model
-  profile_model <- stats::lm(power ~ stats::poly(x_var,  poly_deg), df)
+  get_fv_model <- function(df) {
+    tryCatch({
+      stats::lm(power ~ stats::poly(x_var,  poly_deg), df)
+    },
+    error=function(cond) {
+      #message(paste("Error when creating linear model for", power, "~", x_var, "profile"))
+      #message("Here's the original error message:")
+      #message(cond)
+      #message("\nReturning 0")
+      return(NA)
+    },
+    warning=function(cond) {
+      #message(paste("Error when creating linear model for", power, "~", x_var, "profile"))
+      #message("Here's the original warning message:")
+      #message(cond)
+      #message("\nReturning 0")
+      return(NA)
+    }
+    )
+  }
+
+  profile_model <- get_fv_model(df)
+
+  if(is.na(profile_model[1])) {
+    return(list(
+      Pmax = NA,
+      Pmax_location = NA
+    ))
+  }
+
 
   # get max Power
-  power_max_optim <- stats::optimize(
-    function(x) {
-      stats::predict(profile_model, newdata = data.frame(x_var = x))
+  get_max_power <- function(profile_model) {
+    tryCatch({
+      stats::optimize(
+        function(x) {
+          stats::predict(profile_model, newdata = data.frame(x_var = x))
+        },
+        interval = c(0, 100 * max(profile_data[[x_var]])),
+        maximum = TRUE
+      )
     },
-    interval = c(0, 10 * max(profile_data[[x_var]])),
-    maximum = TRUE
-  )
+    error=function(cond) {
+      #essage(paste("Error when finding Pmax for", power, "~", x_var, "profile"))
+      #message("Here's the original error message:")
+      #message(cond)
+      #message("\nReturning 0")
+      return(list(objective = NA, maximum = NA))
+    },
+    warning=function(cond) {
+      #message(paste("Warning when finding Pmax for", power, "~", x_var, "profile"))
+      #message("Here's the original warning message:")
+      #message(cond)
+      #message("\nReturning 0")
+      return(list(objective = NA, maximum = NA))
+    }
+    )
+  }
+
+  power_max_optim <- get_max_power(profile_model)
 
   power_max <- power_max_optim$objective[[1]]
 

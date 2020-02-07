@@ -54,7 +54,6 @@ fgen_get_force_percentage <- function(current_distance = 0,
     stop("Peak location needs to be lower than zero and larger than -Push off distance")
   }
 
-
   peak_location <- push_off_distance + peak_location
 
   y1 <- sin((decline_rate * (peak_location - current_distance) + 1) * pi / 2)
@@ -123,6 +122,13 @@ fgen_get_activation <- function(current_time,
 
   activation <- (1 - initial_activation) / (1 + exp(-alpha * (current_time - time_to_max_activation / 2))) + initial_activation
 
+  if(length(time_to_max_activation) == 1) {
+    if (time_to_max_activation == 0) {
+      activation <- rep(1, length(activation))
+    }
+  } else {
+  activation <- ifelse(time_to_max_activation == 0, 1, activation)
+}
   return(activation)
 }
 

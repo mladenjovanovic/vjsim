@@ -113,6 +113,47 @@ profile_type <- c(
   "profile_load_impulse"
 )
 
+samozino_models <- c(
+  "Practical",
+  "Theoretical"
+)
+
+samozino_models_opt <- c(
+  "samozino_practical_profile",
+  "samozino_theoretical_profile"
+)
+
+samozino_profile_variables <- c(
+  "samozino_theoretical_profile.F0",
+  "samozino_theoretical_profile.V0",
+  "samozino_theoretical_profile.Pmax",
+  "samozino_theoretical_profile.Sfv",
+  "samozino_theoretical_profile.take_off_velocity",
+  "samozino_theoretical_profile.height",
+  "samozino_theoretical_profile.optimal_F0",
+  "samozino_theoretical_profile.optimal_V0",
+  "samozino_theoretical_profile.optimal_height",
+  "samozino_theoretical_profile.optimal_Pmax",
+  "samozino_theoretical_profile.optimal_take_off_velocity",
+  "samozino_theoretical_profile.optimal_Sfv",
+  "samozino_theoretical_profile.Sfv_perc",
+  "samozino_theoretical_profile.FV_imbalance",
+  "samozino_practical_profile.F0",
+  "samozino_practical_profile.V0",
+  "samozino_practical_profile.Pmax",
+  "samozino_practical_profile.Sfv",
+  "samozino_practical_profile.take_off_velocity",
+  "samozino_practical_profile.height",
+  "samozino_practical_profile.optimal_F0",
+  "samozino_practical_profile.optimal_V0",
+  "samozino_practical_profile.optimal_height",
+  "samozino_practical_profile.optimal_Pmax",
+  "samozino_practical_profile.optimal_take_off_velocity",
+  "samozino_practical_profile.optimal_Sfv",
+  "samozino_practical_profile.Sfv_perc",
+  "samozino_practical_profile.FV_imbalance"
+)
+
 vj_probing_change <- seq(0.9, 1.1, length.out = 7)
 
 # For profiling
@@ -162,6 +203,7 @@ ui <- navbarPage(
   tabPanel(
     "Simulator",
     sidebarPanel(actionButton("calculate", "Calculate"),
+      h3("System constraints"),
       h4("Bodyweight"),
       sliderInput("athlete1_BW", "Athlete 1", value = 75, min = 65, max = 100, ticks = FALSE, step = 1),
       sliderInput("athlete2_BW", "Athlete 2", value = 75, min = 65, max = 100, ticks = FALSE, step = 1),
@@ -170,6 +212,7 @@ ui <- navbarPage(
       sliderInput("athlete1_push_off_distance", "Athlete 1", value = 0.4, min = 0.3, max = 0.6, ticks = FALSE, step = 0.01),
       sliderInput("athlete2_push_off_distance", "Athlete 2", value = 0.4, min = 0.3, max = 0.6, ticks = FALSE, step = 0.01),
       hr(),
+      h3("Force Generator characteristics"),
       h4("Maximal Force"),
       sliderInput("athlete1_max_force", "Athlete 1", value = 3000, min = 2000, max = 5000, ticks = FALSE, step = 100),
       sliderInput("athlete2_max_force", "Athlete 2", value = 3000, min = 2000, max = 5000, ticks = FALSE, step = 100),
@@ -189,210 +232,306 @@ ui <- navbarPage(
       h4("Time to Max Activation"),
       sliderInput("athlete1_time_to_max_activation", "Athlete 1", value = 0.2, min = 0.1, max = 0.5, ticks = FALSE, step = 0.01),
       sliderInput("athlete2_time_to_max_activation", "Athlete 2", value = 0.2, min = 0.1, max = 0.5, ticks = FALSE, step = 0.01),
+      hr(),
+      h3("Special scenarios"),
+      checkboxInput("athlete1_constant_force", "Athlete 1: Constant force over push-off", value = FALSE),
+      checkboxInput("athlete2_constant_force", "Athlete 2: Constant force over push-off", value = FALSE),
+      checkboxInput("athlete1_no_viscous_force", "Athlete 1: No Viscous force", value = FALSE),
+      checkboxInput("athlete2_no_viscous_force", "Athlete 2: No Viscous force", value = FALSE),
+      checkboxInput("athlete1_instant_force", "Athlete 1: Instant force in time", value = FALSE),
+      checkboxInput("athlete2_instant_force", "Athlete 2: Instant force in time", value = FALSE),
       width = 3
     ),
 
-    mainPanel(tabsetPanel(
-      type = "tabs",
-      tabPanel(
-        "Force Generator",
-        br(),
-        h4("Force-Length Characteristic"),
-        checkboxInput("use_distance_to_take_off", "Use distance to take off?", value = FALSE),
-        plotlyOutput("force_length_characteristic"),
-        br(),
-        h4("Force-Time Characteristic"),
-        plotlyOutput("force_time_characteristic"),
-        br(),
-        h4("Force-Velocity Characteristic"),
-        plotlyOutput("force_velocity_characteristic")
-      ),
-      tabPanel(
-        "Jump Analysis",
-        br(),
-        fixedRow(
-          column(
-            6,
-            selectInput(
-              inputId = "jump_kinetics_x_var",
-              label = "X axis",
-              choices = trace_variables,
-              selected = "time"
+    mainPanel(
+      tabsetPanel(
+        type = "tabs",
+        tabPanel(
+          "Force Generator",
+          br(),
+          h4("Force-Length Characteristic"),
+          checkboxInput("use_distance_to_take_off", "Use distance to take off?", value = FALSE),
+          plotlyOutput("force_length_characteristic"),
+          br(),
+          h4("Force-Time Characteristic"),
+          plotlyOutput("force_time_characteristic"),
+          br(),
+          h4("Force-Velocity Characteristic"),
+          plotlyOutput("force_velocity_characteristic")
+        ),
+        tabPanel(
+          "Jump Analysis",
+          br(),
+          fixedRow(
+            column(
+              6,
+              selectInput(
+                inputId = "jump_kinetics_x_var",
+                label = "X axis",
+                choices = trace_variables,
+                selected = "time"
+              )
+            ),
+            column(
+              6,
+              selectInput(
+                inputId = "jump_kinetics_y_var",
+                label = "Y axis",
+                choices = trace_variables,
+                selected = "velocity"
+              )
             )
           ),
-          column(
-            6,
-            selectInput(
-              inputId = "jump_kinetics_y_var",
-              label = "Y axis",
-              choices = trace_variables,
-              selected = "velocity"
-            )
-          )
+          br(),
+          plotlyOutput("jump_trace"),
+          br(),
+          h4("Jump summary"),
+          dataTableOutput("jump_summary_table"),
+          br(),
+          h4("Raw trace"),
+          br(),
+          h5("Athlete 1"),
+          dataTableOutput("athlete1_jump_trace"),
+          br(),
+          h5("Athlete 2"),
+          dataTableOutput("athlete2_jump_trace")
         ),
-        br(),
-        plotlyOutput("jump_trace"),
-        br(),
-        h4("Jump summary"),
-        dataTableOutput("jump_summary_table"),
-        br(),
-        h4("Raw trace"),
-        br(),
-        h5("Athlete 1"),
-        dataTableOutput("athlete1_jump_trace"),
-        br(),
-        h5("Athlete 2"),
-        dataTableOutput("athlete2_jump_trace")
-      ),
-      tabPanel(
-        "Jump Sensitivity",
-        br(),
-        selectInput(
-          inputId = "probing_variable",
-          label = "Probing summary variable",
-          choices = summary_variables,
-          selected = "height"
-        ),
-        fixedRow(
-          column(
-            6,
-            h4("Athlete 1"),
-            plotlyOutput("athlete1_jump_probing")
+        tabPanel(
+          "Jump Sensitivity",
+          br(),
+          selectInput(
+            inputId = "probing_variable",
+            label = "Probing summary variable",
+            choices = summary_variables,
+            selected = "height"
           ),
-          column(
-            6,
-            h4("Athlete 2"),
-            plotlyOutput("athlete2_jump_probing")
-          )
-        ),
-        br(),
-        selectInput(
-          inputId = "parameter_variable",
-          label = "Probing Force Generator parameter",
-          choices = parameter_variables,
-          selected = "push_off_distance"
-        ),
-        fixedRow(
-          column(
-            6,
-            h4("Athlete 1"),
-            plotlyOutput("athlete1_parameter_probing")
-          ),
-          column(
-            6,
-            h4("Athlete 2"),
-            plotlyOutput("athlete2_parameter_probing")
-          )
-        )
-      ),
-      tabPanel(
-        "Profile Analysis",
-        br(),
-        selectInput(
-          inputId = "selected_external_load",
-          label = "External load",
-          choices = external_load_options,
-          multiple = TRUE,
-          selected = external_load_options_selected
-        ),
-        br(),
-        fixedRow(
-          column(
-            6,
-            selectInput(
-              inputId = "jump_profile_x_var",
-              label = "X axis",
-              choices = profiling_variables,
-              selected = "mean_GRF_over_distance"
+          fixedRow(
+            column(
+              6,
+              h4("Athlete 1"),
+              plotlyOutput("athlete1_jump_probing")
+            ),
+            column(
+              6,
+              h4("Athlete 2"),
+              plotlyOutput("athlete2_jump_probing")
             )
           ),
-          column(
-            6,
-            selectInput(
-              inputId = "jump_profile_y_var",
-              label = "Y axis",
-              choices = profiling_variables,
-              selected = "mean_velocity"
+          br(),
+          selectInput(
+            inputId = "parameter_variable",
+            label = "Probing Force Generator parameter",
+            choices = parameter_variables,
+            selected = "push_off_distance"
+          ),
+          fixedRow(
+            column(
+              6,
+              h4("Athlete 1"),
+              plotlyOutput("athlete1_parameter_probing")
+            ),
+            column(
+              6,
+              h4("Athlete 2"),
+              plotlyOutput("athlete2_parameter_probing")
             )
           )
         ),
-        br(),
-        plotlyOutput("jump_profile"),
-        br(),
-        h4("Profile summaries"),
-        fixedRow(
-          column(
-            6,
-            h5("Athlete 1"),
-            dataTableOutput("athlete1_jump_profile_summary")
+        tabPanel(
+          "Profile Analysis",
+          br(),
+          selectInput(
+            inputId = "selected_external_load",
+            label = "External load",
+            choices = external_load_options,
+            multiple = TRUE,
+            selected = external_load_options_selected
           ),
-          column(
-            6,
-            h5("Athlete 2"),
-            dataTableOutput("athlete2_jump_profile_summary")
-          )
+          br(),
+          fixedRow(
+            column(
+              6,
+              selectInput(
+                inputId = "jump_profile_x_var",
+                label = "X axis",
+                choices = profiling_variables,
+                selected = "mean_GRF_over_distance"
+              )
+            ),
+            column(
+              6,
+              selectInput(
+                inputId = "jump_profile_y_var",
+                label = "Y axis",
+                choices = profiling_variables,
+                selected = "mean_velocity"
+              )
+            )
+          ),
+          br(),
+          plotlyOutput("jump_profile"),
+          br(),
+          h4("Profile summaries"),
+          fixedRow(
+            column(
+              6,
+              h5("Athlete 1"),
+              dataTableOutput("athlete1_jump_profile_summary")
+            ),
+            column(
+              6,
+              h5("Athlete 2"),
+              dataTableOutput("athlete2_jump_profile_summary")
+            )
+          ),
+          h4("Profile data"),
+          br(),
+          h5("Athlete 1"),
+          dataTableOutput("athlete1_jump_profile_table"),
+          br(),
+          h5("Athlete 2"),
+          dataTableOutput("athlete2_jump_profile_table")
         ),
-        h4("Profile data"),
-        br(),
-        h5("Athlete 1"),
-        dataTableOutput("athlete1_jump_profile_table"),
-        br(),
-        h5("Athlete 2"),
-        dataTableOutput("athlete2_jump_profile_table")
-      ),
 
-      tabPanel(
-        "Profile Sensitivity",
-        br(),
-        selectInput(
-          inputId = "profile_variable",
-          label = "Probing profile variable",
-          choices = profile_summary_variables,
-          selected = "profile_mean_FV.Pmax"
-        ),
-        fixedRow(
-          column(
-            6,
-            h4("Athlete 1"),
-            plotlyOutput("athlete1_profile_probing")
+        tabPanel(
+          "Profile Sensitivity",
+          br(),
+          selectInput(
+            inputId = "profile_variable",
+            label = "Probing profile variable",
+            choices = profile_summary_variables,
+            selected = "profile_mean_FV.Pmax"
           ),
-          column(
-            6,
-            h4("Athlete 2"),
-            plotlyOutput("athlete2_profile_probing")
+          fixedRow(
+            column(
+              6,
+              h4("Athlete 1"),
+              plotlyOutput("athlete1_profile_probing")
+            ),
+            column(
+              6,
+              h4("Athlete 2"),
+              plotlyOutput("athlete2_profile_probing")
+            )
+          ),
+          br(),
+          fixedRow(
+            column(
+              6,
+              selectInput(
+                inputId = "profile_parameter_variable",
+                label = "Probing Force Generator parameter",
+                choices = parameter_variables,
+                selected = "push_off_distance"
+              ),
+              br(),
+              h4("Athlete 1"),
+              plotlyOutput("athlete1_profile_parameter_probing")
+            ),
+            column(
+              6,
+              selectInput(
+                inputId = "profile_type",
+                label = "Profile type",
+                choices = profile_type,
+                selected = "profile_mean_FV"
+              ),
+              br(),
+              h4("Athlete 2"),
+              plotlyOutput("athlete2_profile_parameter_probing")
+            )
           )
         ),
-        br(),
-        fixedRow(
-          column(
-            6,
-            selectInput(
-              inputId = "profile_parameter_variable",
-              label = "Probing Force Generator parameter",
-              choices = parameter_variables,
-              selected = "push_off_distance"
-            ),
-            br(),
-            h4("Athlete 1"),
-            plotlyOutput("athlete1_profile_parameter_probing")
+        tabPanel(
+          "Optimization Analysis",
+          br(),
+          selectInput(
+            inputId = "samozino_model_optimization",
+            label = "Model",
+            choices = samozino_models,
+            selected = "Practical"
           ),
-          column(
-            6,
-            selectInput(
-              inputId = "profile_type",
-              label = "Profile type",
-              choices = profile_type,
-              selected = "profile_mean_FV"
+          fixedRow(
+            column(
+              6,
+              br(),
+              h4("Athlete 1"),
+              plotlyOutput("athlete1_samozino_profile"),
+              br(),
+              h5("Sensitivity"),
+              plotlyOutput("athlete1_samozino_profile_probing"),
+              br(),
+              h5("Summary Table"),
+              dataTableOutput("athlete1_samozino_profile_summary")
             ),
-            br(),
-            h4("Athlete 2"),
-            plotlyOutput("athlete2_profile_parameter_probing")
+            column(
+              6,
+              br(),
+              h4("Athlete 2"),
+              plotlyOutput("athlete2_samozino_profile"),
+              br(),
+              h5("Sensitivity"),
+              plotlyOutput("athlete2_samozino_profile_probing"),
+              br(),
+              h5("Summary Table"),
+              dataTableOutput("athlete2_samozino_profile_summary")
+            )
+          )
+        ),
+        tabPanel(
+          "Optimization Sensitivity",
+          br(),
+          selectInput(
+            width = "50%",
+            inputId = "samozino_profile_variable",
+            label = "Probing profile variable",
+            choices = samozino_profile_variables,
+            selected = "profile_mean_FV.Pmax"
+          ),
+          fixedRow(
+            column(
+              6,
+              h4("Athlete 1"),
+              plotlyOutput("athlete1_samozino_profile_probing_optimization")
+            ),
+            column(
+              6,
+              h4("Athlete 2"),
+              plotlyOutput("athlete2_samozino_profile_probing_optimization")
+            )
+          ),
+          br(),
+          fixedRow(
+            column(
+              6,
+              selectInput(
+                inputId = "profile_parameter_variable_opt",
+                label = "Probing Force Generator parameter",
+                choices = parameter_variables,
+                selected = "push_off_distance"
+              ),
+              br(),
+              h4("Athlete 1"),
+              plotlyOutput("athlete1_samozino_profile_parameter_probing")
+            ),
+            column(
+              6,
+              selectInput(
+                inputId = "samozino_model_optimization_opt",
+                label = "Model",
+                choices = samozino_models_opt,
+                selected = "samozino_practical_profile"
+              ),
+              br(),
+              h4("Athlete 2"),
+              plotlyOutput("athlete2_samozino_profile_parameter_probing")
+            )
           )
         )
-      )
-    )),
-    # ----------------------------
-    tabPanel("Explorer")
+      ),
+      # ----------------------------
+      tabPanel("Explorer")
+    )
   )
 )
 
@@ -451,14 +590,22 @@ server <- function(input, output) {
   # Max Velocity
   athlete1_max_velocity <- eventReactive(input$calculate,
     {
-      return(input$athlete1_max_velocity)
+      if (input$athlete1_no_viscous_force) {
+        return(Inf)
+      } else {
+        return(input$athlete1_max_velocity)
+      }
     },
     ignoreNULL = FALSE
   )
 
   athlete2_max_velocity <- eventReactive(input$calculate,
     {
-      return(input$athlete2_max_velocity)
+      if (input$athlete2_no_viscous_force) {
+        return(Inf)
+      } else {
+        return(input$athlete2_max_velocity)
+      }
     },
     ignoreNULL = FALSE
   )
@@ -466,14 +613,22 @@ server <- function(input, output) {
   # Decline Rate
   athlete1_decline_rate <- eventReactive(input$calculate,
     {
-      return(input$athlete1_decline_rate)
+      if (input$athlete1_constant_force) {
+        return(0)
+      } else {
+        return(input$athlete1_decline_rate)
+      }
     },
     ignoreNULL = FALSE
   )
 
   athlete2_decline_rate <- eventReactive(input$calculate,
     {
-      return(input$athlete2_decline_rate)
+      if (input$athlete2_constant_force) {
+        return(0)
+      } else {
+        return(input$athlete2_decline_rate)
+      }
     },
     ignoreNULL = FALSE
   )
@@ -482,14 +637,22 @@ server <- function(input, output) {
   # Peak Location
   athlete1_peak_location <- eventReactive(input$calculate,
     {
-      return(input$athlete1_peak_location)
+      if (input$athlete1_constant_force) {
+        return(0)
+      } else {
+        return(input$athlete1_peak_location)
+      }
     },
     ignoreNULL = FALSE
   )
 
   athlete2_peak_location <- eventReactive(input$calculate,
     {
-      return(input$athlete2_peak_location)
+      if (input$athlete2_constant_force) {
+        return(0)
+      } else {
+        return(input$athlete2_peak_location)
+      }
     },
     ignoreNULL = FALSE
   )
@@ -497,14 +660,22 @@ server <- function(input, output) {
   # Time to max activation
   athlete1_time_to_max_activation <- eventReactive(input$calculate,
     {
-      return(input$athlete1_time_to_max_activation)
+      if (input$athlete1_instant_force) {
+        return(0)
+      } else {
+        return(input$athlete1_time_to_max_activation)
+      }
     },
     ignoreNULL = FALSE
   )
 
   athlete2_time_to_max_activation <- eventReactive(input$calculate,
     {
-      return(input$athlete2_time_to_max_activation)
+      if (input$athlete2_instant_force) {
+        return(0)
+      } else {
+        return(input$athlete2_time_to_max_activation)
+      }
     },
     ignoreNULL = FALSE
   )
@@ -683,7 +854,7 @@ server <- function(input, output) {
     {
       profile_probe_ratio <- probe_profile(
         mass = athlete1_BW(),
-        external_load =  as.numeric(input$selected_external_load),
+        external_load = as.numeric(input$selected_external_load),
         push_off_distance = athlete1_push_off_distance(),
         max_force = athlete1_max_force(),
         max_velocity = athlete1_max_velocity(),
@@ -704,30 +875,109 @@ server <- function(input, output) {
     ignoreNULL = FALSE
   )
 
-athlete2_profile_probe <- eventReactive(input$calculate,
-  {
-    profile_probe_ratio <- probe_profile(
-      mass = athlete2_BW(),
-      external_load = as.numeric(input$selected_external_load),
-      push_off_distance = athlete2_push_off_distance(),
-      max_force = athlete2_max_force(),
-      max_velocity = athlete2_max_velocity(),
-      time_to_max_activation = athlete2_time_to_max_activation(),
-      change_ratio = vj_probing_change,
-      aggregate = "ratio",
+  athlete2_profile_probe <- eventReactive(input$calculate,
+    {
+      profile_probe_ratio <- probe_profile(
+        mass = athlete2_BW(),
+        external_load = as.numeric(input$selected_external_load),
+        push_off_distance = athlete2_push_off_distance(),
+        max_force = athlete2_max_force(),
+        max_velocity = athlete2_max_velocity(),
+        time_to_max_activation = athlete2_time_to_max_activation(),
+        change_ratio = vj_probing_change,
+        aggregate = "ratio",
 
-      # Extra params
-      weight = athlete2_BW() * gravity_const,
-      gravity_const = gravity_const,
-      time_step = time_step,
-      decline_rate = athlete2_decline_rate(),
-      peak_location = athlete2_peak_location()
-    )
+        # Extra params
+        weight = athlete2_BW() * gravity_const,
+        gravity_const = gravity_const,
+        time_step = time_step,
+        decline_rate = athlete2_decline_rate(),
+        peak_location = athlete2_peak_location()
+      )
 
-    return(list(ratio = profile_probe_ratio))
-  },
-  ignoreNULL = FALSE
-)
+      return(list(ratio = profile_probe_ratio))
+    },
+    ignoreNULL = FALSE
+  )
+
+  # ------------------------
+  # Samozino optimization
+
+  athlete1_samozino_profile <- eventReactive(input$calculate,
+    {
+      profile_data <- athlete1_get_jump_profile()
+
+      samozino_profile <- get_all_samozino_profiles(profile_data)
+
+      return(samozino_profile)
+    },
+    ignoreNULL = FALSE
+  )
+
+  athlete2_samozino_profile <- eventReactive(input$calculate,
+    {
+      profile_data <- athlete2_get_jump_profile()
+
+      samozino_profile <- get_all_samozino_profiles(profile_data)
+
+      return(samozino_profile)
+    },
+    ignoreNULL = FALSE
+  )
+
+  # ---------------------------
+  # Samozino probing
+  athlete1_samozino_profile_probe <- eventReactive(input$calculate,
+    {
+      profile_probe_ratio <- probe_profile(
+        mass = athlete1_BW(),
+        external_load = as.numeric(input$selected_external_load),
+        push_off_distance = athlete1_push_off_distance(),
+        max_force = athlete1_max_force(),
+        max_velocity = athlete1_max_velocity(),
+        time_to_max_activation = athlete1_time_to_max_activation(),
+        change_ratio = vj_probing_change,
+        aggregate = "ratio",
+        profile_func = get_all_samozino_profiles,
+
+        # Extra params
+        weight = athlete1_BW() * gravity_const,
+        gravity_const = gravity_const,
+        time_step = time_step,
+        decline_rate = athlete1_decline_rate(),
+        peak_location = athlete1_peak_location()
+      )
+
+      return(list(ratio = profile_probe_ratio))
+    },
+    ignoreNULL = FALSE
+  )
+
+  athlete2_samozino_profile_probe <- eventReactive(input$calculate,
+    {
+      profile_probe_ratio <- probe_profile(
+        mass = athlete2_BW(),
+        external_load = as.numeric(input$selected_external_load),
+        push_off_distance = athlete2_push_off_distance(),
+        max_force = athlete2_max_force(),
+        max_velocity = athlete2_max_velocity(),
+        time_to_max_activation = athlete2_time_to_max_activation(),
+        change_ratio = vj_probing_change,
+        aggregate = "ratio",
+        profile_func = get_all_samozino_profiles,
+
+        # Extra params
+        weight = athlete2_BW() * gravity_const,
+        gravity_const = gravity_const,
+        time_step = time_step,
+        decline_rate = athlete2_decline_rate(),
+        peak_location = athlete2_peak_location()
+      )
+
+      return(list(ratio = profile_probe_ratio))
+    },
+    ignoreNULL = FALSE
+  )
 
   # -----------------------------------------------------
   # Simulator
@@ -741,29 +991,29 @@ athlete2_profile_probe <- eventReactive(input$calculate,
 
     athlete1_DF <- data.frame(
       current_distance = current_distance,
-      distance_perc = current_distance / input$athlete1_push_off_distance,
-      distance_to_take_off = current_distance - input$athlete1_push_off_distance,
+      distance_perc = current_distance / athlete1_push_off_distance(),
+      distance_to_take_off = current_distance - athlete1_push_off_distance(),
       force_perc = vjsim::fgen_get_force_percentage(
         current_distance = current_distance,
-        push_off_distance = input$athlete1_push_off_distance,
-        decline_rate = input$athlete1_decline_rate,
-        peak_location = input$athlete1_peak_location
+        push_off_distance = athlete1_push_off_distance(),
+        decline_rate = athlete1_decline_rate(),
+        peak_location = athlete1_peak_location()
       )
     )
-    athlete1_DF$force <- athlete1_DF$force_perc * input$athlete1_max_force
+    athlete1_DF$force <- athlete1_DF$force_perc * athlete1_max_force()
 
     athlete2_DF <- data.frame(
       current_distance = current_distance,
-      distance_perc = current_distance / input$athlete2_push_off_distance,
-      distance_to_take_off = current_distance - input$athlete2_push_off_distance,
+      distance_perc = current_distance / athlete2_push_off_distance(),
+      distance_to_take_off = current_distance - athlete2_push_off_distance(),
       force_perc = vjsim::fgen_get_force_percentage(
         current_distance = current_distance,
-        push_off_distance = input$athlete2_push_off_distance,
-        decline_rate = input$athlete2_decline_rate,
-        peak_location = input$athlete2_peak_location
+        push_off_distance = athlete2_push_off_distance(),
+        decline_rate = athlete2_decline_rate(),
+        peak_location = athlete2_peak_location()
       )
     )
-    athlete2_DF$force <- athlete2_DF$force_perc * input$athlete2_max_force
+    athlete2_DF$force <- athlete2_DF$force_perc * athlete2_max_force()
 
 
 
@@ -830,21 +1080,21 @@ athlete2_profile_probe <- eventReactive(input$calculate,
       current_time = current_time,
       activation = vjsim::fgen_get_activation(
         current_time = current_time,
-        initial_activation = (input$athlete1_BW * 9.81) / input$athlete1_max_force,
-        time_to_max_activation = input$athlete1_time_to_max_activation
+        initial_activation = (athlete1_BW() * 9.81) / athlete1_max_force(),
+        time_to_max_activation = athlete1_time_to_max_activation()
       )
     )
-    athlete1_DF$force <- athlete1_DF$activation * input$athlete1_max_force
+    athlete1_DF$force <- athlete1_DF$activation * athlete1_max_force()
 
     athlete2_DF <- data.frame(
       current_time = current_time,
       activation = vjsim::fgen_get_activation(
         current_time = current_time,
-        initial_activation = (input$athlete2_BW * 9.81) / input$athlete2_max_force,
-        time_to_max_activation = input$athlete2_time_to_max_activation
+        initial_activation = (athlete2_BW() * 9.81) / athlete2_max_force(),
+        time_to_max_activation = athlete2_time_to_max_activation()
       )
     )
-    athlete2_DF$force <- athlete2_DF$activation * input$athlete2_max_force
+    athlete2_DF$force <- athlete2_DF$activation * athlete2_max_force()
 
     gg <- plot_ly() %>%
       add_lines(
@@ -886,25 +1136,25 @@ athlete2_profile_probe <- eventReactive(input$calculate,
 
   # -------------
   output$force_velocity_characteristic <- renderPlotly({
-    external_force <- seq(0, input$athlete1_max_force, length.out = fgen_length_out)
+    external_force <- seq(0, athlete1_max_force(), length.out = fgen_length_out)
 
     athlete1_DF <- data.frame(
       external_force = external_force,
       velocity = vjsim::fgen_get_velocity(
         external_force = external_force,
-        max_force = input$athlete1_max_force,
-        max_velocity = input$athlete1_max_velocity
+        max_force = athlete1_max_force(),
+        max_velocity = athlete1_max_velocity()
       )
     )
 
-    external_force <- seq(0, input$athlete2_max_force, length.out = fgen_length_out)
+    external_force <- seq(0, athlete2_max_force(), length.out = fgen_length_out)
 
     athlete2_DF <- data.frame(
       external_force = external_force,
       velocity = vjsim::fgen_get_velocity(
         external_force = external_force,
-        max_force = input$athlete2_max_force,
-        max_velocity = input$athlete2_max_velocity
+        max_force = athlete2_max_force(),
+        max_velocity = athlete2_max_velocity()
       )
     )
 
@@ -1184,7 +1434,8 @@ athlete2_profile_probe <- eventReactive(input$calculate,
       athlete1_probing,
       input$parameter_variable,
       summary_variables = summary_variables,
-      key_columns = 13)
+      key_columns = 13
+    )
 
     gg <- plot_ly() %>%
       add_lines(
@@ -1224,7 +1475,8 @@ athlete2_profile_probe <- eventReactive(input$calculate,
       athlete2_probing,
       input$parameter_variable,
       summary_variables = summary_variables,
-      key_columns = 13)
+      key_columns = 13
+    )
 
     gg <- plot_ly() %>%
       add_lines(
@@ -1435,7 +1687,7 @@ athlete2_profile_probe <- eventReactive(input$calculate,
         text = ~ paste(
           probing, "\n",
           "Normalized change =", round(change_ratio, 2), "\n",
-          "Normalized",input$profile_variable, "chage", "=", round(variable, 2), "\n"
+          "Normalized", input$profile_variable, "chage", "=", round(variable, 2), "\n"
         )
       ) %>%
       layout(
@@ -1480,7 +1732,7 @@ athlete2_profile_probe <- eventReactive(input$calculate,
         text = ~ paste(
           probing, "\n",
           "Normalized change =", round(change_ratio, 2), "\n",
-          "Normalized",input$profile_variable, "chage", "=", round(variable, 2), "\n"
+          "Normalized", input$profile_variable, "chage", "=", round(variable, 2), "\n"
         )
       ) %>%
       layout(
@@ -1510,9 +1762,9 @@ athlete2_profile_probe <- eventReactive(input$calculate,
       input$profile_parameter_variable,
       summary_variables = profile_summary_variables,
       key_columns = 12
-      ) %>%
+    ) %>%
       filter(grepl(input$profile_type, variable)) %>%
-      mutate(variable = str_remove(variable, paste(input$profile_type, ".", sep="")))
+      mutate(variable = str_remove(variable, paste(input$profile_type, ".", sep = "")))
 
 
     gg <- plot_ly() %>%
@@ -1555,7 +1807,7 @@ athlete2_profile_probe <- eventReactive(input$calculate,
       key_columns = 12
     ) %>%
       filter(grepl(input$profile_type, variable)) %>%
-      mutate(variable = str_remove(variable, paste(input$profile_type, ".", sep="")))
+      mutate(variable = str_remove(variable, paste(input$profile_type, ".", sep = "")))
 
 
     gg <- plot_ly() %>%
@@ -1584,6 +1836,593 @@ athlete2_profile_probe <- eventReactive(input$calculate,
     return(gg)
   })
 
+
+  # ------------------------------------------------------------
+  # Optimization
+
+  output$athlete1_samozino_profile <- renderPlotly({
+    withProgress(message = "Samozino profile", value = 0, {
+      incProgress(0.5, detail = "Athlete 1")
+      athlete1_samozino_profile <- athlete1_samozino_profile()
+      athlete1_jump_profile_data <- athlete1_get_jump_profile()
+      incProgress(1, detail = "Athlete 1")
+    })
+
+    if (input$samozino_model_optimization == "Practical") {
+      F0 <- athlete1_samozino_profile$list$samozino_practical_profile$F0
+      V0 <- athlete1_samozino_profile$list$samozino_practical_profile$V0
+      optimal_F0 <- athlete1_samozino_profile$list$samozino_practical_profile$optimal_F0
+      optimal_V0 <- athlete1_samozino_profile$list$samozino_practical_profile$optimal_V0
+
+      athlete1_plot_data <- data.frame(
+        x_var = athlete1_jump_profile_data[, "mean_GRF_over_distance"],
+        y_var = athlete1_jump_profile_data[, "mean_velocity_as_TOV_half"],
+        athlete1_jump_profile_data
+      )
+      y_label <- "Take-off Velocity / 2 (m/s)"
+    } else {
+      F0 <- athlete1_samozino_profile$list$samozino_theoretical_profile$F0
+      V0 <- athlete1_samozino_profile$list$samozino_theoretical_profile$V0
+      optimal_F0 <- athlete1_samozino_profile$list$samozino_theoretical_profile$optimal_F0
+      optimal_V0 <- athlete1_samozino_profile$list$samozino_theoretical_profile$optimal_V0
+
+      athlete1_plot_data <- data.frame(
+        x_var = athlete1_jump_profile_data[, "mean_GRF_over_distance"],
+        y_var = athlete1_jump_profile_data[, "mean_velocity"],
+        athlete1_jump_profile_data
+      )
+      y_label <- "Mean Velocity (m/s)"
+    }
+
+
+
+    plot_data <- tibble(
+      mean_force = seq(0, max(F0, optimal_F0), length.out = fgen_length_out),
+      mean_velocity = (mean_force / (-(F0 / V0))) + V0,
+      optimal_mean_velocity = (mean_force / (-(optimal_F0 / optimal_V0))) + optimal_V0,
+      take_off_velocity = get_take_off_velocity(
+        mean_force = mean_force,
+        mass = athlete1_BW(),
+        push_off_distance = athlete1_push_off_distance(),
+        gravity_const = gravity_const
+      ),
+      take_off_velocity_half = take_off_velocity / 2
+    )
+
+    plot_data <- plot_data %>%
+      mutate(
+        mean_velocity = ifelse(mean_velocity < 0, NA, mean_velocity),
+        optimal_mean_velocity = ifelse(optimal_mean_velocity < 0, NA, optimal_mean_velocity)
+      )
+
+    gg <- plot_ly() %>%
+      add_lines(
+        data = plot_data, x = ~mean_force, y = ~take_off_velocity_half,
+        name = "", line = list(color = "grey"),
+        hoverinfo = "text",
+        text = ~ paste(
+          "Model prediction\n",
+          "mean_GRF_over_distance =", round(mean_force, 0), "N\n",
+          "take_off_velocity", round(take_off_velocity, 2), "m/s\n"
+        )
+      ) %>%
+      add_lines(
+        data = plot_data, x = ~mean_force, y = ~mean_velocity,
+        name = paste(input$samozino_model_optimization, "profile"), line = list(color = "#5DA5DA"),
+        hoverinfo = "text",
+        text = ~ paste(
+          input$samozino_model_optimization, "profile\n",
+          "mean_GRF_over_distance =", round(mean_force, 0), "N\n",
+          "mean_velocity =", round(mean_velocity, 2), "m/s\n"
+        )
+      ) %>%
+      add_lines(
+        data = plot_data, x = ~mean_force, y = ~optimal_mean_velocity,
+        name = "Optimal profile", line = list(color = "#5DA5DA", dash = "dot"),
+        hoverinfo = "text",
+        text = ~ paste(
+          "Optimal profile\n",
+          "mean_GRF_over_distance =", round(mean_force, 0), "N\n",
+          "mean_velocity =", round(optimal_mean_velocity, 2), "m/s\n"
+        )
+      ) %>%
+      add_markers(
+        data = athlete1_plot_data, x = ~x_var, y = ~y_var,
+        name = "Jumps", marker = list(color = "#5DA5DA"),
+        hoverinfo = "text",
+        text = ~ paste(
+          "Jumps", "\n",
+          "external_load =", round(external_load, 2), "kg\n",
+          "mass =", round(mass, 2), "kg\n",
+          "weight =", round(weight, 2), "N\n",
+          "take_off_time =", round(take_off_time, 2), "s\n",
+          "take_off_velocity =", round(take_off_velocity, 2), "m/s\n",
+          "height =", round(height, 2), "m\n",
+          "mean_GRF_over_distance =", round(mean_GRF_over_distance, 0), "N\n",
+          "mean_GRF_over_time =", round(mean_GRF_over_time, 0), "N\n",
+          "peak_GRF =", round(peak_GRF, 0), "N\n",
+          "mean_velocity =", round(mean_velocity, 2), "m/s\n",
+          "peak_velocity =", round(peak_velocity, 2), "m/s\n",
+          "mean_power =", round(mean_power, 0), "W\n",
+          "peak_power =", round(peak_power, 0), "W\n",
+          "peak_RFD =", round(peak_RFD, 0), "N/s\n",
+          "peak_RPD =", round(peak_RPD, 0), "W/s\n",
+          "work_done =", round(work_done, 2), "J\n",
+          "impulse =", round(impulse, 2), "Ns\n"
+        )
+      ) %>%
+      layout(
+        showlegend = FALSE,
+        yaxis = list(
+          side = "left", title = y_label,
+          showgrid = TRUE, zeroline = TRUE
+        ),
+        xaxis = list(
+          side = "left", title = "Mean GRF Over Distance (N)",
+          showgrid = TRUE, zeroline = TRUE
+        )
+      )
+
+    return(gg)
+  })
+
+
+  output$athlete2_samozino_profile <- renderPlotly({
+    withProgress(message = "Samozino profile", value = 0, {
+      incProgress(0.5, detail = "Athlete 2")
+      athlete2_samozino_profile <- athlete2_samozino_profile()
+      athlete2_jump_profile_data <- athlete2_get_jump_profile()
+      incProgress(1, detail = "Athlete 2")
+    })
+
+    if (input$samozino_model_optimization == "Practical") {
+      F0 <- athlete2_samozino_profile$list$samozino_practical_profile$F0
+      V0 <- athlete2_samozino_profile$list$samozino_practical_profile$V0
+      optimal_F0 <- athlete2_samozino_profile$list$samozino_practical_profile$optimal_F0
+      optimal_V0 <- athlete2_samozino_profile$list$samozino_practical_profile$optimal_V0
+
+      athlete2_plot_data <- data.frame(
+        x_var = athlete2_jump_profile_data[, "mean_GRF_over_distance"],
+        y_var = athlete2_jump_profile_data[, "mean_velocity_as_TOV_half"],
+        athlete2_jump_profile_data
+      )
+      y_label <- "Take-off Velocity / 2 (m/s)"
+    } else {
+      F0 <- athlete2_samozino_profile$list$samozino_theoretical_profile$F0
+      V0 <- athlete2_samozino_profile$list$samozino_theoretical_profile$V0
+      optimal_F0 <- athlete2_samozino_profile$list$samozino_theoretical_profile$optimal_F0
+      optimal_V0 <- athlete2_samozino_profile$list$samozino_theoretical_profile$optimal_V0
+
+      athlete2_plot_data <- data.frame(
+        x_var = athlete2_jump_profile_data[, "mean_GRF_over_distance"],
+        y_var = athlete2_jump_profile_data[, "mean_velocity"],
+        athlete2_jump_profile_data
+      )
+      y_label <- "Mean Velocity (m/s)"
+    }
+
+
+
+    plot_data <- tibble(
+      mean_force = seq(0, max(F0, optimal_F0), length.out = fgen_length_out),
+      mean_velocity = (mean_force / (-(F0 / V0))) + V0,
+      optimal_mean_velocity = (mean_force / (-(optimal_F0 / optimal_V0))) + optimal_V0,
+      take_off_velocity = get_take_off_velocity(
+        mean_force = mean_force,
+        mass = athlete2_BW(),
+        push_off_distance = athlete2_push_off_distance(),
+        gravity_const = gravity_const
+      ),
+      take_off_velocity_half = take_off_velocity / 2
+    )
+
+    plot_data <- plot_data %>%
+      mutate(
+        mean_velocity = ifelse(mean_velocity < 0, NA, mean_velocity),
+        optimal_mean_velocity = ifelse(optimal_mean_velocity < 0, NA, optimal_mean_velocity)
+      )
+
+    gg <- plot_ly() %>%
+      add_lines(
+        data = plot_data, x = ~mean_force, y = ~take_off_velocity_half,
+        name = "", line = list(color = "grey"),
+        hoverinfo = "text",
+        text = ~ paste(
+          "Model prediction\n",
+          "mean_GRF_over_distance =", round(mean_force, 0), "N\n",
+          "take_off_velocity", round(take_off_velocity, 2), "m/s\n"
+        )
+      ) %>%
+      add_lines(
+        data = plot_data, x = ~mean_force, y = ~mean_velocity,
+        name = paste(input$samozino_model_optimization, "profile"), line = list(color = "#FAA43A"),
+        hoverinfo = "text",
+        text = ~ paste(
+          input$samozino_model_optimization, "profile\n",
+          "mean_GRF_over_distance =", round(mean_force, 0), "N\n",
+          "mean_velocity =", round(mean_velocity, 2), "m/s\n"
+        )
+      ) %>%
+      add_lines(
+        data = plot_data, x = ~mean_force, y = ~optimal_mean_velocity,
+        name = "Optimal profile", line = list(color = "#FAA43A", dash = "dot"),
+        hoverinfo = "text",
+        text = ~ paste(
+          "Optimal profile\n",
+          "mean_GRF_over_distance =", round(mean_force, 0), "N\n",
+          "mean_velocity =", round(optimal_mean_velocity, 2), "m/s\n"
+        )
+      ) %>%
+      add_markers(
+        data = athlete2_plot_data, x = ~x_var, y = ~y_var,
+        name = "Jumps", marker = list(color = "#FAA43A"),
+        hoverinfo = "text",
+        text = ~ paste(
+          "Jumps", "\n",
+          "external_load =", round(external_load, 2), "kg\n",
+          "mass =", round(mass, 2), "kg\n",
+          "weight =", round(weight, 2), "N\n",
+          "take_off_time =", round(take_off_time, 2), "s\n",
+          "take_off_velocity =", round(take_off_velocity, 2), "m/s\n",
+          "height =", round(height, 2), "m\n",
+          "mean_GRF_over_distance =", round(mean_GRF_over_distance, 0), "N\n",
+          "mean_GRF_over_time =", round(mean_GRF_over_time, 0), "N\n",
+          "peak_GRF =", round(peak_GRF, 0), "N\n",
+          "mean_velocity =", round(mean_velocity, 2), "m/s\n",
+          "peak_velocity =", round(peak_velocity, 2), "m/s\n",
+          "mean_power =", round(mean_power, 0), "W\n",
+          "peak_power =", round(peak_power, 0), "W\n",
+          "peak_RFD =", round(peak_RFD, 0), "N/s\n",
+          "peak_RPD =", round(peak_RPD, 0), "W/s\n",
+          "work_done =", round(work_done, 2), "J\n",
+          "impulse =", round(impulse, 2), "Ns\n"
+        )
+      ) %>%
+      layout(
+        showlegend = FALSE,
+        yaxis = list(
+          side = "left", title = y_label,
+          showgrid = TRUE, zeroline = TRUE
+        ),
+        xaxis = list(
+          side = "left", title = "Mean GRF Over Distance (N)",
+          showgrid = TRUE, zeroline = TRUE
+        )
+      )
+
+    return(gg)
+  })
+
+
+  output$athlete1_samozino_profile_probing <- renderPlotly({
+    withProgress(message = "Samozino profile", value = 0, {
+      incProgress(0.5, detail = "Athlete 1")
+      athlete1_samozino_profile <- athlete1_samozino_profile()
+      incProgress(1, detail = "Athlete 1")
+    })
+
+
+
+    if (input$samozino_model_optimization == "Practical") {
+      F0 <- athlete1_samozino_profile$list$samozino_practical_profile$F0
+      V0 <- athlete1_samozino_profile$list$samozino_practical_profile$V0
+      optimal_F0 <- athlete1_samozino_profile$list$samozino_practical_profile$optimal_F0
+      optimal_V0 <- athlete1_samozino_profile$list$samozino_practical_profile$optimal_V0
+    } else {
+      F0 <- athlete1_samozino_profile$list$samozino_theoretical_profile$F0
+      V0 <- athlete1_samozino_profile$list$samozino_theoretical_profile$V0
+      optimal_F0 <- athlete1_samozino_profile$list$samozino_theoretical_profile$optimal_F0
+      optimal_V0 <- athlete1_samozino_profile$list$samozino_theoretical_profile$optimal_V0
+    }
+
+    plot_data <- probe_samozino_take_off_velocity(
+      F0 = F0,
+      V0 = V0,
+      bodyweight = athlete1_BW(),
+      push_off_distance = athlete1_push_off_distance(),
+      gravity_const = gravity_const,
+      change_ratio = seq(0.9, 1.1, length.out = fgen_length_out)
+    )
+
+    gg <- plot_ly() %>%
+      add_lines(
+        data = plot_data, x = ~change_ratio, y = ~take_off_velocity,
+        name = ~probing, color = ~probing,
+        line = list(
+          color = c(
+            "F0" = "#5DA5DA",
+            "V0" =  "#FAA43A",
+            "bodyweight" = "#4D4D4D"
+          )
+        ),
+        hoverinfo = "text",
+        text = ~ paste(
+          probing, "\n",
+          "Normalized change =", round(change_ratio, 2), "\n",
+          "Model Take-off Velocity", "=", round(take_off_velocity, 2), "m/s\n"
+        )
+      ) %>%
+      layout(
+        showlegend = TRUE,
+        yaxis = list(
+          side = "left", title = "Model Take-off Velocity",
+          showgrid = TRUE, zeroline = TRUE
+        ),
+        xaxis = list(
+          side = "left", title = "Normalized parameter change",
+          showgrid = TRUE, zeroline = FALSE
+        )
+      )
+
+    return(gg)
+  })
+
+  output$athlete2_samozino_profile_probing <- renderPlotly({
+    withProgress(message = "Samozino profile", value = 0, {
+      incProgress(0.5, detail = "Athlete 2")
+      athlete2_samozino_profile <- athlete2_samozino_profile()
+      incProgress(1, detail = "Athlete 2")
+    })
+
+
+
+    if (input$samozino_model_optimization == "Practical") {
+      F0 <- athlete2_samozino_profile$list$samozino_practical_profile$F0
+      V0 <- athlete2_samozino_profile$list$samozino_practical_profile$V0
+      optimal_F0 <- athlete2_samozino_profile$list$samozino_practical_profile$optimal_F0
+      optimal_V0 <- athlete2_samozino_profile$list$samozino_practical_profile$optimal_V0
+    } else {
+      F0 <- athlete2_samozino_profile$list$samozino_theoretical_profile$F0
+      V0 <- athlete2_samozino_profile$list$samozino_theoretical_profile$V0
+      optimal_F0 <- athlete2_samozino_profile$list$samozino_theoretical_profile$optimal_F0
+      optimal_V0 <- athlete2_samozino_profile$list$samozino_theoretical_profile$optimal_V0
+    }
+
+    plot_data <- probe_samozino_take_off_velocity(
+      F0 = F0,
+      V0 = V0,
+      bodyweight = athlete2_BW(),
+      push_off_distance = athlete2_push_off_distance(),
+      gravity_const = gravity_const,
+      change_ratio = seq(0.9, 1.1, length.out = fgen_length_out)
+    )
+
+    gg <- plot_ly() %>%
+      add_lines(
+        data = plot_data, x = ~change_ratio, y = ~take_off_velocity,
+        name = ~probing, color = ~probing,
+        line = list(
+          color = c(
+            "F0" = "#5DA5DA",
+            "V0" =  "#FAA43A",
+            "bodyweight" = "#4D4D4D"
+          )
+        ),
+        hoverinfo = "text",
+        text = ~ paste(
+          probing, "\n",
+          "Normalized change =", round(change_ratio, 2), "\n",
+          "Model Take-off Velocity", "=", round(take_off_velocity, 2), "m/s\n"
+        )
+      ) %>%
+      layout(
+        showlegend = TRUE,
+        yaxis = list(
+          side = "left", title = "Model Take-off Velocity",
+          showgrid = TRUE, zeroline = TRUE
+        ),
+        xaxis = list(
+          side = "left", title = "Normalized parameter change",
+          showgrid = TRUE, zeroline = FALSE
+        )
+      )
+
+    return(gg)
+  })
+
+  output$athlete1_samozino_profile_summary <- renderDataTable({
+    withProgress(message = "Samozino profile", value = 0, {
+      incProgress(0.5, detail = "Athlete 1")
+      athlete1_jump_profile_data <- athlete1_get_jump_profile()
+      incProgress(1, detail = "Athlete 1")
+    })
+
+    all_profiles <- get_all_samozino_profiles(athlete1_jump_profile_data)$data_frame
+
+    df <- datatable(all_profiles, rownames = FALSE) %>%
+      formatRound(columns = 3, digits = 2)
+    return(df)
+  })
+
+  output$athlete2_samozino_profile_summary <- renderDataTable({
+    withProgress(message = "Samozino profile", value = 0, {
+      incProgress(0.5, detail = "Athlete 2")
+      athlete2_jump_profile_data <- athlete2_get_jump_profile()
+      incProgress(1, detail = "Athlete 2")
+    })
+
+    all_profiles <- get_all_samozino_profiles(athlete2_jump_profile_data)$data_frame
+
+    df <- datatable(all_profiles, rownames = FALSE) %>%
+      formatRound(columns = 3, digits = 2)
+    return(df)
+  })
+
+  # ----------------------------
+  # Probing
+  output$athlete1_samozino_profile_probing_optimization <- renderPlotly({
+    withProgress(message = "Profile probing", value = 0, {
+      incProgress(0.5, detail = "Athlete 1")
+      athlete1_probing <- athlete1_samozino_profile_probe()$ratio
+      incProgress(1, detail = "Athlete 1")
+    })
+
+    # Convert
+    plot_data <- get_metric_sensitivity(athlete1_probing, input$samozino_profile_variable)
+
+    gg <- plot_ly() %>%
+      add_lines(
+        data = plot_data, x = ~change_ratio, y = ~variable,
+        name = ~probing, color = ~probing,
+        line = list(
+          color = c(
+            "mass" = "#4D4D4D",
+            "max_force" = "#5DA5DA",
+            "max_velocity" =  "#FAA43A",
+            "push_off_distance" = "#60BD68",
+            "time_to_max_activation" = "#B276B2"
+          )
+        ),
+        hoverinfo = "text",
+        text = ~ paste(
+          probing, "\n",
+          "Normalized change =", round(change_ratio, 2), "\n",
+          "Normalized", input$samozino_profile_variable, "chage", "=", round(variable, 2), "\n"
+        )
+      ) %>%
+      layout(
+        showlegend = TRUE,
+        yaxis = list(
+          side = "left", title = paste("Normalized", input$samozino_profile_variable, "chage"),
+          showgrid = TRUE, zeroline = FALSE
+        ),
+        xaxis = list(
+          side = "left", title = "Normalized parameter change",
+          showgrid = TRUE, zeroline = FALSE
+        )
+      )
+
+    return(gg)
+  })
+
+  output$athlete2_samozino_profile_probing_optimization <- renderPlotly({
+    withProgress(message = "Profile probing", value = 0, {
+      incProgress(0.5, detail = "Athlete 2")
+      athlete2_probing <- athlete2_samozino_profile_probe()$ratio
+      incProgress(1, detail = "Athlete 2")
+    })
+
+    # Convert
+    plot_data <- get_metric_sensitivity(athlete2_probing, input$samozino_profile_variable)
+
+    gg <- plot_ly() %>%
+      add_lines(
+        data = plot_data, x = ~change_ratio, y = ~variable,
+        name = ~probing, color = ~probing,
+        line = list(
+          color = c(
+            "mass" = "#4D4D4D",
+            "max_force" = "#5DA5DA",
+            "max_velocity" =  "#FAA43A",
+            "push_off_distance" = "#60BD68",
+            "time_to_max_activation" = "#B276B2"
+          )
+        ),
+        hoverinfo = "text",
+        text = ~ paste(
+          probing, "\n",
+          "Normalized change =", round(change_ratio, 2), "\n",
+          "Normalized", input$samozino_profile_variable, "chage", "=", round(variable, 2), "\n"
+        )
+      ) %>%
+      layout(
+        showlegend = TRUE,
+        yaxis = list(
+          side = "left", title = paste("Normalized", input$samozino_profile_variable, "chage"),
+          showgrid = TRUE, zeroline = FALSE
+        ),
+        xaxis = list(
+          side = "left", title = "Normalized parameter change",
+          showgrid = TRUE, zeroline = FALSE
+        )
+      )
+
+    return(gg)
+  })
+
+  output$athlete1_samozino_profile_parameter_probing <- renderPlotly({
+    withProgress(message = "Profile probing", value = 0, {
+      incProgress(0.5, detail = "Athlete 1")
+      athlete1_probing <- athlete1_samozino_profile_probe()$ratio
+      incProgress(1, detail = "Athlete 1")
+    })
+    # Convert
+    plot_data <- get_parameter_sensitivity(
+      athlete1_probing,
+      input$profile_parameter_variable_opt,
+      summary_variables = samozino_profile_variables,
+      key_columns = 7
+    ) %>%
+      filter(grepl(input$samozino_model_optimization_opt, variable)) %>%
+      mutate(variable = str_remove(variable, paste(input$samozino_model_optimization_opt, ".", sep = "")))
+
+    gg <- plot_ly() %>%
+      add_lines(
+        data = plot_data, x = ~change_ratio, y = ~value,
+        name = ~variable, color = ~variable,
+        hoverinfo = "text",
+        text = ~ paste(
+          variable, "\n",
+          input$profile_parameter_variable_opt, " change =", round(change_ratio, 2), "\n",
+          variable, "change =", round(value, 2), "\n"
+        )
+      ) %>%
+      layout(
+        showlegend = TRUE,
+        yaxis = list(
+          side = "left", title = "Normalized metric change",
+          showgrid = TRUE, zeroline = TRUE
+        ),
+        xaxis = list(
+          side = "left", title = paste("Normalized", input$profile_parameter_variable_opt, "change"),
+          showgrid = TRUE, zeroline = FALSE
+        )
+      )
+
+    return(gg)
+  })
+
+  output$athlete2_samozino_profile_parameter_probing <- renderPlotly({
+    withProgress(message = "Profile probing", value = 0, {
+      incProgress(0.5, detail = "Athlete 2")
+      athlete2_probing <- athlete2_samozino_profile_probe()$ratio
+      incProgress(1, detail = "Athlete 2")
+    })
+    # Convert
+    plot_data <- get_parameter_sensitivity(
+      athlete2_probing,
+      input$profile_parameter_variable_opt,
+      summary_variables = samozino_profile_variables,
+      key_columns = 7
+    ) %>%
+      filter(grepl(input$samozino_model_optimization_opt, variable)) %>%
+      mutate(variable = str_remove(variable, paste(input$samozino_model_optimization_opt, ".", sep = "")))
+
+    gg <- plot_ly() %>%
+      add_lines(
+        data = plot_data, x = ~change_ratio, y = ~value,
+        name = ~variable, color = ~variable,
+        hoverinfo = "text",
+        text = ~ paste(
+          variable, "\n",
+          input$profile_parameter_variable_opt, " change =", round(change_ratio, 2), "\n",
+          variable, "change =", round(value, 2), "\n"
+        )
+      ) %>%
+      layout(
+        showlegend = TRUE,
+        yaxis = list(
+          side = "left", title = "Normalized metric change",
+          showgrid = TRUE, zeroline = TRUE
+        ),
+        xaxis = list(
+          side = "left", title = paste("Normalized", input$profile_parameter_variable_opt, "change"),
+          showgrid = TRUE, zeroline = FALSE
+        )
+      )
+
+    return(gg)
+  })
 
 }
 

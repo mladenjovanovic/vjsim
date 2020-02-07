@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get Mean Power — get_mean_power • vjsim</title>
+<title>Vertical Jump Profile — vj_profile • vjsim</title>
 
 
 <!-- jquery -->
@@ -35,8 +35,8 @@
 
 
 
-<meta property="og:title" content="Get Mean Power — get_mean_power" />
-<meta property="og:description" content="Function get_mean_power calculates the vertical jump mean power using kinetic and potential enery" />
+<meta property="og:title" content="Vertical Jump Profile — vj_profile" />
+<meta property="og:description" content="vj_profile generates vertical jump profile by loading the vertical jump with external_load" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -132,54 +132,44 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get Mean Power</h1>
-    <small class="dont-index">Source: <a href='https://github.com/mladenjovanovic/vjsim/blob/master/R/utils.R'><code>R/utils.R</code></a></small>
-    <div class="hidden name"><code>get_mean_power.Rd</code></div>
+    <h1>Vertical Jump Profile</h1>
+    <small class="dont-index">Source: <a href='https://github.com/mladenjovanovic/vjsim/blob/master/R/profiles.R'><code>R/profiles.R</code></a></small>
+    <div class="hidden name"><code>vj_profile.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Function <code>get_mean_power</code> calculates the vertical jump mean power using kinetic and potential enery</p>
+    <p><code>vj_profile</code> generates vertical jump profile by loading the vertical jump with <code>external_load</code></p>
     </div>
 
-    <pre class="usage"><span class='fu'>get_mean_power</span>(
-  <span class='no'>mass</span>,
-  <span class='kw'>weight</span> <span class='kw'>=</span> <span class='no'>mass</span> * <span class='fl'>9.81</span>,
-  <span class='no'>take_off_velocity</span>,
-  <span class='no'>push_off_distance</span>,
-  <span class='no'>time_taken</span>
-)</pre>
+    <pre class="usage"><span class='fu'>vj_profile</span>(<span class='kw'>external_load</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(-<span class='fl'>40</span>, -<span class='fl'>20</span>, <span class='fl'>0</span>, <span class='fl'>20</span>, <span class='fl'>40</span>, <span class='fl'>60</span>, <span class='fl'>80</span>, <span class='fl'>100</span>), <span class='kw'>mass</span> <span class='kw'>=</span> <span class='fl'>75</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
+      <th>external_load</th>
+      <td><p>Numeric vector. Default is  <code><a href='https://rdrr.io/r/base/c.html'>c(-40, -20, 0, 20, 40, 60, 80)</a></code></p></td>
+    </tr>
+    <tr>
       <th>mass</th>
-      <td><p>Numeric vector</p></td>
+      <td><p>Numeric value. Represents bodyweight</p></td>
     </tr>
     <tr>
-      <th>weight</th>
-      <td><p>Numeric vector. Default <code>mass</code> * 9.81</p></td>
-    </tr>
-    <tr>
-      <th>take_off_velocity</th>
-      <td><p>Numeric vector</p></td>
-    </tr>
-    <tr>
-      <th>push_off_distance</th>
-      <td><p>Numeric vector</p></td>
-    </tr>
-    <tr>
-      <th>time_taken</th>
-      <td><p>Numeric vector</p></td>
+      <th>...</th>
+      <td><p>Parameters forwarded to <code><a href='vj_simulate.html'>vj_simulate</a></code></p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>Numeric vector</p>
+    <p>Data frame. Returns the data frame from <code><a href='vj_simulate.html'>vj_simulate</a></code> with extra two columns:
+    <code>bodyweigh</code>t and <code>external_load</code></p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>get_mean_power</span>(<span class='fl'>100</span>, <span class='fl'>100</span> * <span class='fl'>9.81</span>, <span class='fl'>4</span>, <span class='fl'>0.4</span>, <span class='fl'>0.3</span>)</div><div class='output co'>#&gt; [1] 3974.667</div></pre>
+    <pre class="examples"><div class='input'><span class='no'>vj_profile_data</span> <span class='kw'>&lt;-</span> <span class='fu'>vj_profile</span>(<span class='kw'>mass</span> <span class='kw'>=</span> <span class='fl'>75</span>)
+
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>vj_profile_data</span>$<span class='no'>mass</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>vj_profile_data</span>$<span class='no'>height</span>)</div><div class='img'><img src='vj_profile-1.png' alt='' width='700' height='433' /></div><div class='input'><span class='fu'><a href='https://rdrr.io/r/graphics/plot.html'>plot</a></span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>vj_profile_data</span>$<span class='no'>mean_GRF_over_distance</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>vj_profile_data</span>$<span class='no'>mean_velocity</span>)</div><div class='img'><img src='vj_profile-2.png' alt='' width='700' height='433' /></div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

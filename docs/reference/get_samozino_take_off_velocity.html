@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get Mean Power — get_mean_power • vjsim</title>
+<title>Get Maximal Take-off Velocty — get_samozino_take_off_velocity • vjsim</title>
 
 
 <!-- jquery -->
@@ -35,8 +35,9 @@
 
 
 
-<meta property="og:title" content="Get Mean Power — get_mean_power" />
-<meta property="og:description" content="Function get_mean_power calculates the vertical jump mean power using kinetic and potential enery" />
+<meta property="og:title" content="Get Maximal Take-off Velocty — get_samozino_take_off_velocity" />
+<meta property="og:description" content="get_samozino_take_off_velocity returns maximal take off velocity that could be achieve based on the Samozino et al.
+    model which uses vertical jump profile F0 and V0." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -132,60 +133,68 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get Mean Power</h1>
-    <small class="dont-index">Source: <a href='https://github.com/mladenjovanovic/vjsim/blob/master/R/utils.R'><code>R/utils.R</code></a></small>
-    <div class="hidden name"><code>get_mean_power.Rd</code></div>
+    <h1>Get Maximal Take-off Velocty</h1>
+    <small class="dont-index">Source: <a href='https://github.com/mladenjovanovic/vjsim/blob/master/R/samozino.R'><code>R/samozino.R</code></a></small>
+    <div class="hidden name"><code>get_samozino_take_off_velocity.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Function <code>get_mean_power</code> calculates the vertical jump mean power using kinetic and potential enery</p>
+    <p><code>get_samozino_take_off_velocity</code> returns maximal take off velocity that could be achieve based on the Samozino <em>et al.</em>
+    model which uses vertical jump profile <code>F0</code> and <code>V0</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>get_mean_power</span>(
-  <span class='no'>mass</span>,
-  <span class='kw'>weight</span> <span class='kw'>=</span> <span class='no'>mass</span> * <span class='fl'>9.81</span>,
-  <span class='no'>take_off_velocity</span>,
-  <span class='no'>push_off_distance</span>,
-  <span class='no'>time_taken</span>
+    <pre class="usage"><span class='fu'>get_samozino_take_off_velocity</span>(
+  <span class='kw'>F0</span> <span class='kw'>=</span> <span class='fl'>3000</span>,
+  <span class='kw'>V0</span> <span class='kw'>=</span> <span class='fl'>4</span>,
+  <span class='kw'>bodyweight</span> <span class='kw'>=</span> <span class='fl'>75</span>,
+  <span class='kw'>push_off_distance</span> <span class='kw'>=</span> <span class='fl'>0.4</span>,
+  <span class='kw'>gravity_const</span> <span class='kw'>=</span> <span class='fl'>9.81</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>mass</th>
-      <td><p>Numeric vector</p></td>
+      <th>F0</th>
+      <td><p>Numeric vector. Default 3000</p></td>
     </tr>
     <tr>
-      <th>weight</th>
-      <td><p>Numeric vector. Default <code>mass</code> * 9.81</p></td>
+      <th>V0</th>
+      <td><p>Numeric vector. Default 4</p></td>
     </tr>
     <tr>
-      <th>take_off_velocity</th>
-      <td><p>Numeric vector</p></td>
+      <th>bodyweight</th>
+      <td><p>Numeric vector. Default 75</p></td>
     </tr>
     <tr>
       <th>push_off_distance</th>
-      <td><p>Numeric vector</p></td>
+      <td><p>Numeric vector. Default 0.4</p></td>
     </tr>
     <tr>
-      <th>time_taken</th>
-      <td><p>Numeric vector</p></td>
+      <th>gravity_const</th>
+      <td><p>Numeric vector. Default 9.81</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>Numeric vector</p>
+    <p>Numeric vector representing maximal take-off velocity</p>
+    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
+
+    <p>Samozino, Pierre. ‘A Simple Method for Measuring Lower Limb Force, Velocity and Power Capabilities During Jumping’. In Biomechanics of Training and Testing, edited by Jean-Benoit Morin and Pierre Samozino, 65–96. Cham: Springer International Publishing, 2018. https://doi.org/10.1007/978-3-319-05633-3_4.</p>
+<p>———. ‘Optimal Force-Velocity Profile in Ballistic Push-off: Measurement and Relationship with Performance’. In Biomechanics of Training and Testing, edited by Jean-Benoit Morin and Pierre Samozino, 97–119. Cham: Springer International Publishing, 2018. https://doi.org/10.1007/978-3-319-05633-3_5.</p>
+<p>Samozino, Pierre, Jean-Benoît Morin, Frédérique Hintzy, and Alain Belli. ‘Jumping Ability: A Theoretical Integrative Approach’. Journal of Theoretical Biology 264, no. 1 (May 2010): 11–18. https://doi.org/10.1016/j.jtbi.2010.01.021.</p>
+<p>Samozino, Pierre, Enrico Rejc, Pietro Enrico Di Prampero, Alain Belli, and Jean-Benoît Morin. ‘Optimal Force–Velocity Profile in Ballistic Movements—Altius’: Medicine &amp; Science in Sports &amp; Exercise 44, no. 2 (February 2012): 313–22. https://doi.org/10.1249/MSS.0b013e31822d757a.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>get_mean_power</span>(<span class='fl'>100</span>, <span class='fl'>100</span> * <span class='fl'>9.81</span>, <span class='fl'>4</span>, <span class='fl'>0.4</span>, <span class='fl'>0.3</span>)</div><div class='output co'>#&gt; [1] 3974.667</div></pre>
+    <pre class="examples"><div class='input'><span class='fu'>get_samozino_take_off_velocity</span>(<span class='kw'>F0</span> <span class='kw'>=</span> <span class='fl'>2500</span>, <span class='kw'>V0</span> <span class='kw'>=</span> <span class='fl'>3.7</span>, <span class='kw'>bodyweight</span> <span class='kw'>=</span> <span class='fl'>85</span>, <span class='kw'>push_off_distance</span> <span class='kw'>=</span> <span class='fl'>0.42</span>)</div><div class='output co'>#&gt; [1] 2.718405</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       <li><a href="#value">Value</a></li>
+      <li><a href="#references">References</a></li>
       <li><a href="#examples">Examples</a></li>
     </ul>
 

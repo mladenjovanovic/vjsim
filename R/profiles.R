@@ -56,6 +56,8 @@ get_FV_profile <- function(profile_data, force = "mean_GRF_over_distance", veloc
     velocity = profile_data[[velocity]]
   )
 
+  bodyweight <- profile_data$bodyweight[1]
+
   # model
   get_fv_model <- function(df) {
     tryCatch({
@@ -83,8 +85,10 @@ get_FV_profile <- function(profile_data, force = "mean_GRF_over_distance", veloc
   if(is.na(profile_model[1])) {
     return(list(
       F0 = NA,
+      F0_rel = NA,
       V0 = NA,
       Pmax = NA,
+      Pmax_rel = NA,
       Sfv = NA
     ))
   }
@@ -117,8 +121,10 @@ get_FV_profile <- function(profile_data, force = "mean_GRF_over_distance", veloc
   if(is.na(velocity_0)) {
     return(list(
       F0 = NA,
+      F0_rel = NA,
       V0 = NA,
       Pmax = NA,
+      Pmax_rel = NA,
       Sfv = NA
     ))
   }
@@ -154,8 +160,10 @@ get_FV_profile <- function(profile_data, force = "mean_GRF_over_distance", veloc
   if(is.na(force_0)) {
     return(list(
       F0 = NA,
+      F0_rel = NA,
       V0 = NA,
       Pmax = NA,
+      Pmax_rel = NA,
       Sfv = NA
     ))
   }
@@ -168,8 +176,10 @@ get_FV_profile <- function(profile_data, force = "mean_GRF_over_distance", veloc
 
   return(list(
     F0 = force_0,
+    F0_rel = force_0 / bodyweight,
     V0 = velocity_0,
     Pmax = power_max,
+    Pmax_rel = power_max / bodyweight,
     Sfv = slope
   ))
 }
@@ -195,6 +205,8 @@ get_power_profile <- function(profile_data, power = "mean_power", x_var = "mean_
     power = profile_data[[power]],
     x_var = profile_data[[x_var]]
   )
+
+  bodyweight <- profile_data$bodyweight[1]
 
   # model
   get_fv_model <- function(df) {
@@ -223,6 +235,7 @@ get_power_profile <- function(profile_data, power = "mean_power", x_var = "mean_
   if(is.na(profile_model[1])) {
     return(list(
       Pmax = NA,
+      Pmax_rel = NA,
       Pmax_location = NA
     ))
   }
@@ -265,6 +278,7 @@ get_power_profile <- function(profile_data, power = "mean_power", x_var = "mean_
 
   return(list(
     Pmax = power_max,
+    Pmax_rel = power_max / bodyweight,
     Pmax_location = power_max_location
   ))
 }

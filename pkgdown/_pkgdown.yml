@@ -11,5 +11,5 @@ navbar:
         href: articles/profiling-vjsim.html
       - text: 'Optimization with vjsim'
         href: articles/optimization-vjsim.html
-      - text: 'Exploration'
-        href: articles/explore-vjsim.html
+      - text: 'Exploring with vjsim'
+        href: articles/exploring-vjsim.html

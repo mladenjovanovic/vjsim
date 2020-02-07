@@ -142,3 +142,33 @@ get_impulse <- function(mass,
                        take_off_velocity) {
   mass * take_off_velocity
 }
+
+#' Get Take-off Velocity
+#'
+#' \code{get_take_off_velocity} returns take off velocity when \code{mean_force} is applied to the object
+#' of \code{mass} over \code{push_off_distance} in vertical direction, assuming zero starting velocity
+#' @param mean_force Numeric vector. Default 3000
+#' @param mass Numeric vector. Default 75
+#' @param push_off_distance Numeric vector. Default 0.4
+#' @param gravity_const Numeric vector. Default 9.81
+#' @return Numeric vector
+#' @export
+#' @examples
+#' get_take_off_velocity(
+#'   mean_force = 2000,
+#'   mass= 85,
+#'   push_off_distance = 0.4
+#' )
+get_take_off_velocity <- function(mean_force = 3000,
+                                  mass = 75,
+                                  push_off_distance = 0.4,
+                                  gravity_const = 9.81) {
+
+
+  ifelse(
+    mean_force < mass * gravity_const,
+    NA,
+    sqrt(2*push_off_distance*(mean_force / mass - gravity_const))
+    )
+
+}

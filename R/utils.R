@@ -163,12 +163,5 @@ get_take_off_velocity <- function(mean_force = 3000,
                                   mass = 75,
                                   push_off_distance = 0.4,
                                   gravity_const = 9.81) {
-
-
-  ifelse(
-    mean_force < mass * gravity_const,
-    NA,
-    sqrt(2*push_off_distance*(mean_force / mass - gravity_const))
-    )
-
+  sqrt(2*push_off_distance*(mean_force / mass - gravity_const))
 }

@@ -179,12 +179,12 @@ get_all_samozino_profiles <- function(profile_data) {
   profiles_df$profile <- factor(
     profiles_df$profile,
     levels = c(
-      "samozino_theoretical_profile",
-      "samozino_practical_profile"
+      "samozino_practical_profile",
+      "samozino_theoretical_profile"
     ),
     labels = c(
-      "Samozino theoretical profile",
-      "Samozino practical profile"
+      "Samozino practical profile",
+      "Samozino theoretical profile"
     )
   )
 

@@ -116,7 +116,7 @@ get_FV_profile <- function(profile_data, force = "mean_GRF_over_distance", veloc
     )
   }
 
-  velocity_0 <-  get_velocity_0(profile_model)
+  velocity_0 <-  get_velocity_0(profile_model)[[1]]
 
   if(is.na(velocity_0)) {
     return(list(
@@ -332,10 +332,14 @@ get_all_profiles <- function(profile_data) {
     velocity = "take_off_velocity"
   )
   profile_load_take_off_velocity$L0 <- profile_load_take_off_velocity$F0
+  profile_load_take_off_velocity$L0_rel <- profile_load_take_off_velocity$F0_rel
   profile_load_take_off_velocity$Imax <- profile_load_take_off_velocity$Pmax
+  profile_load_take_off_velocity$Imax_rel <- profile_load_take_off_velocity$Pmax_rel
   profile_load_take_off_velocity$Slv <- profile_load_take_off_velocity$Sfv
   profile_load_take_off_velocity$F0 <- NULL
+  profile_load_take_off_velocity$F0_rel <- NULL
   profile_load_take_off_velocity$Pmax <- NULL
+  profile_load_take_off_velocity$Pmax_rel <- NULL
   profile_load_take_off_velocity$Sfv <- NULL
 
   # Impulse ~ Load
@@ -345,9 +349,11 @@ get_all_profiles <- function(profile_data) {
     x_var = "mass"
   )
   profile_load_impulse$Imax <- profile_load_impulse$Pmax
+  profile_load_impulse$Imax_rel <- profile_load_impulse$Pmax_rel
   profile_load_impulse$Imax_location <- profile_load_impulse$Pmax_location
   profile_load_impulse$L0_perc <- profile_load_impulse$Imax_location / profile_load_take_off_velocity$L0
   profile_load_impulse$Pmax <- NULL
+  profile_load_impulse$Pmax_rel <- NULL
   profile_load_impulse$Pmax_location <- NULL
 
   # Bind all profiles

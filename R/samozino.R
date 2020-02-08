@@ -94,6 +94,8 @@ get_samozino_optimal_profile <- function(F0 = 3000,
   optimal_take_off_velocity <- 1 / results$value
   optimal_height <- get_height(optimal_take_off_velocity, gravity_const)
   optimal_Pmax <- get_max_power(optimal_F0, optimal_V0)
+  height <- get_height(take_off_velocity, gravity_const)
+
 
   df <- list(
     F0 = F0,
@@ -103,14 +105,18 @@ get_samozino_optimal_profile <- function(F0 = 3000,
     Pmax_rel = get_max_power(F0, V0) / bodyweight,
     Sfv = Sfv,
     take_off_velocity = take_off_velocity,
-    height = get_height(take_off_velocity, gravity_const),
+    height = height,
     optimal_F0 = optimal_F0,
     optimal_F0_rel = optimal_F0 / bodyweight,
     optimal_V0 = optimal_V0,
     optimal_height = optimal_height,
+    optimal_height_diff = optimal_height - height,
+    optimal_height_ratio = optimal_height / height,
     optimal_Pmax = optimal_Pmax,
     optimal_Pmax_rel = optimal_Pmax / bodyweight,
     optimal_take_off_velocity = optimal_take_off_velocity,
+    optimal_take_off_velocity_diff = optimal_take_off_velocity - take_off_velocity,
+    optimal_take_off_velocity_ratio = optimal_take_off_velocity / take_off_velocity,
     optimal_Sfv = optimal_Sfv,
     Sfv_perc = (Sfv / optimal_Sfv),
     FV_imbalance = abs(1 - (Sfv / optimal_Sfv))

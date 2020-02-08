@@ -79,7 +79,7 @@ vj_simulate <- function( # system constrains
   previous_power <- 0
 
   # List for saving kinetics trace
-  trace_data <- list(max_iter)
+  trace_data <- vector("list", length = max_iter)
   trace_index <- 1
 
   # --------------------------

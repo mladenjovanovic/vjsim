@@ -5,8 +5,8 @@ account: athletess
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 1706171
-bundleId: 2783019
+bundleId: 2783179
 url: https://athletess.shinyapps.io/shiny-simulator/
-when: 1581097303.23725
+when: 1581102331.59436
 asMultiple: FALSE
 asStatic: FALSE

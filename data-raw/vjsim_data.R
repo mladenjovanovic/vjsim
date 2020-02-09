@@ -145,7 +145,9 @@ for(i in seq(1, parameters_len)) {
     height_force_ratio = bodyweight_jump_force$height / bodyweight_jump$height,
     height_velocity = bodyweight_jump_velocity$height,
     height_velocity_diff = bodyweight_jump_velocity$height - bodyweight_jump$height,
-    height_velocity_ratio = bodyweight_jump_velocity$height / bodyweight_jump$height
+    height_velocity_ratio = bodyweight_jump_velocity$height / bodyweight_jump$height,
+    height_diff = (bodyweight_jump_velocity$height - bodyweight_jump$height) - (bodyweight_jump_force$height - bodyweight_jump$height),
+    height_ratio = (bodyweight_jump_velocity$height - bodyweight_jump$height) / (bodyweight_jump_force$height - bodyweight_jump$height)
   )
 
   # -------------------------

@@ -30,5 +30,10 @@ Suggests:
     shiny,
     plotly,
     DT,
-    directlabels
+    directlabels,
+    ClustOfVar,
+    ape,
+    mgcv,
+    vip,
+    pdp
 VignetteBuilder: knitr

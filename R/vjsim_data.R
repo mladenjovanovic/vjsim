@@ -4,7 +4,7 @@
 #' characteristics as latent or intrinsic qualities and manifested performance in a single jump
 #' as well as profile metrics and optimization metrics
 #'
-#' @format A data frame with 8640 rows and 146 variables:
+#' @format A data frame with 8640 rows and 148 variables:
 #' \describe{
 #'    \item{force_generator.bodyweight}{}
 #'    \item{force_generator.push_off_distance}{}
@@ -78,6 +78,8 @@
 #'    \item{probe_bodyweight_jump.height_velocity}{}
 #'    \item{probe_bodyweight_jump.height_velocity_diff}{}
 #'    \item{probe_bodyweight_jump.height_velocity_ratio}{}
+#'    \item{probe_bodyweight_jump.height_diff}{}
+#'    \item{probe_bodyweight_jump.height_ratio}{}
 #'    \item{profile_mean_FV.F0}{}
 #'    \item{profile_mean_FV.F0_rel}{}
 #'    \item{profile_mean_FV.V0}{}

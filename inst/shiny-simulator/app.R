@@ -3,6 +3,12 @@ library(plotly)
 library(tidyverse)
 library(vjsim)
 library(DT)
+library(ClustOfVar)
+library(ape)
+library(mgcv)
+library(vip)
+library(pdp)
+library(ape)
 
 # ----------------------------------------------
 # Constants
@@ -206,6 +212,11 @@ get_parameter_sensitivity <- function(probing_data, parameter, invert = FALSE, s
 
   return(df)
 }
+
+
+data("vjsim_data")
+vjsim_data_features <- colnames(vjsim_data)
+
 
 # -----------------------------------------------
 # User Interface
@@ -544,16 +555,126 @@ ui <- navbarPage(
             )
           )
         )
+      )
+    )
+  ),
+  # ----------------------------
+  tabPanel(
+    "Explorer",
+    tabsetPanel(
+      type = "tabs",
+      tabPanel(
+        "Data",
+        br(),
+        dataTableOutput("explorer_data")
       ),
-      # ----------------------------
-      tabPanel("Explorer")
+      tabPanel(
+        "Explore",
+        br(),
+        fixedRow(
+          column(
+            6,
+            selectInput(
+              inputId = "explore_feature1", width = "80%",
+              label = "Feature 1",
+              choices = vjsim_data_features,
+              selected = "force_generator.Pmax_rel"
+            )
+          ),
+          column(
+            6,
+            selectInput(
+              inputId = "explore_feature2", width = "80%",
+              label = "Feature 2",
+              choices = vjsim_data_features,
+              selected = "bodyweight_jump.height"
+            )
+          )
+        ),
+        br(),
+        h4("Scatterplot"),
+        plotlyOutput("explore_chart", height = "600px"),
+        br(),
+        h4("Analysis"),
+        dataTableOutput("explore_table", width = "30%"),
+        br(),
+        h4("Descriptive stats"),
+        fixedRow(
+          column(
+            6,
+            plotlyOutput("explore_chart_histogram_feature1"),
+            dataTableOutput("explore_table_feature1")
+          ),
+          column(
+            6,
+            plotlyOutput("explore_chart_histogram_feature2"),
+            dataTableOutput("explore_table_feature2")
+          )
+        )
+      ),
+      tabPanel(
+        "Modeler",
+        br(),
+        fixedRow(
+          column(
+            5,
+            selectInput(
+              inputId = "modeler_target", width = "100%",
+              label = "Target variable",
+              choices = vjsim_data_features,
+              selected = "bodyweight_jump.height"
+            )
+          ),
+          column(
+            7,
+            selectInput(
+              inputId = "modeler_predictors", width = "100%",
+              label = "Predictors",
+              choices = vjsim_data_features,
+              multiple = TRUE,
+              selected = "force_generator.Pmax_rel"
+            )
+          )
+        ),
+        checkboxInput("interactions", "Add Interactions", FALSE),
+        actionButton("model", "Model"),
+        br(),
+        h3("Model Predictions"),
+        plotlyOutput("modeler_residuals", height = "600px"),
+        h3("Predictors importance"),
+        plotlyOutput("modeler_predictor_importance"),
+        h3("PDP+ICE plot"),
+        selectInput(
+          inputId = "pdp_ice_predictor",
+          label = "Predictor",
+          choices = c("")
+        ),
+        checkboxInput("ice_line", "Add ICE", FALSE),
+        plotlyOutput("pdp_ice_plot", height = "600px"),
+        h3("Linear Regression Coefficients"),
+        verbatimTextOutput("modeler_linear_model_summary")
+      ),
+      tabPanel(
+        "Feature Clustering",
+        br(),
+        fixedRow(
+          column(10,
+                 selectInput(inputId = "feature_clustering", width = "100%",
+                             label = "Features",
+                             choices = vjsim_data_features,
+                             multiple = TRUE,
+                             selected = "")),
+          column(2, br(), actionButton("analyze", "Analyze"))),
+        br(),
+        plotOutput("feature_clustering_chart")
+      )
     )
   )
 )
 
 # -----------------------------------------------
 # Server
-server <- function(input, output) {
+server <- function(input, output, session) {
   # ---------------------------------------------
   # Reactive parameters
   # These response when CALCULATE is pushed
@@ -994,6 +1115,48 @@ server <- function(input, output) {
     },
     ignoreNULL = FALSE
   )
+
+  # Explorer
+  explore_data <- reactive({
+    df <- select_(vjsim_data, .dots = c(
+      input$explore_feature1,
+      input$explore_feature2
+    ))
+    return(df)
+  })
+
+
+  # -----------------------------------------------------
+  # Explorer
+
+  # Modeler
+  modeler_linear_model <- eventReactive(input$model, {
+
+    # Update PDP list
+    updateSelectInput(session, "pdp_ice_predictor",
+      choices = input$modeler_predictors
+    )
+
+    model_df <- select_(vjsim_data, .dots = c(
+      input$modeler_target,
+      input$modeler_predictors
+    ))
+    interactions_string <- "~."
+    if (input$interactions) interactions_string <- "~.*."
+    model <- lm(as.formula(paste(input$modeler_target, interactions_string)), data = model_df)
+
+    return(list(
+      data = model_df,
+      model = model
+    ))
+  })
+
+  # -----------------------------------------------------
+  # Feature Clustering
+  feature_clustering_model <- eventReactive(input$analyze, {
+    cluster_model <- hclustvar(select_(vjsim_data, .dots = input$feature_clustering))
+    return(cluster_model)
+  })
 
   # -----------------------------------------------------
   # Simulator
@@ -2440,6 +2603,253 @@ server <- function(input, output) {
     return(gg)
   })
 
+
+  # ----------------------------------------------------------------------
+  # Explorer
+  output$explorer_data <- renderDataTable({
+    return(datatable(vjsim_data, rownames = FALSE) %>%
+      formatRound(columns = 1:ncol(vjsim_data), digits = 2))
+  })
+
+
+  output$explore_chart <- renderPlotly({
+    df <- explore_data()
+
+    plot_data <- data.frame(x = df[[1]], y = df[[2]])
+    gam_model <- mgcv::gam(y ~ s(x, bs = "cs"), data = plot_data, method = "REML")
+    lm_model <- stats::lm(y ~ x, data = plot_data)
+
+    gam_data <- data.frame(x = seq(min(plot_data$x), max(plot_data$x), length.out = fgen_length_out))
+    gam_data$y_gam <- predict(gam_model, newdata = gam_data)
+    gam_data$y_lm <- predict(lm_model, newdata = gam_data)
+
+    gg <- plot_ly() %>%
+      add_markers(
+        data = plot_data, x = ~x, y = ~y,
+        name = "Scatterplot", marker = list(color = "rgba(93,165,218, 0.5)"),
+        hoverinfo = "text",
+        text = ~ paste(
+          input$explore_feature1, "=", round(x, 2), "\n",
+          input$explore_feature2, "=", round(y, 2), "\n"
+        )
+      ) %>%
+      add_lines(
+        data = gam_data, x = ~x, y = ~y_gam,
+        name = "GAM prediction", line = list(color = "black"),
+        hoverinfo = "text",
+        text = ~ paste(
+          input$explore_feature1, "=", round(x, 2), "\n",
+          "GAM prediction=", round(y_gam, 2), "\n"
+        )
+      ) %>%
+      add_lines(
+        data = gam_data, x = ~x, y = ~y_lm,
+        name = "LM prediction", line = list(color = "grey", dash = "dot"),
+        hoverinfo = "text",
+        text = ~ paste(
+          input$explore_feature1, "=", round(x, 2), "\n",
+          "LM prediction=", round(y_lm, 2), "\n"
+        )
+      ) %>%
+      layout(
+        showlegend = TRUE,
+        yaxis = list(
+          side = "left", title = input$explore_feature2,
+          showgrid = TRUE, zeroline = FALSE
+        ),
+        xaxis = list(
+          side = "left", title = input$explore_feature1,
+          showgrid = TRUE, zeroline = FALSE
+        )
+      )
+    return(gg)
+
+
+    # gg <- ggplot(df, aes_string(x = input$explore_feature1, y = input$explore_feature2)) +
+    #  theme_minimal() +
+    #  geom_point(color = "#5DA5DA", alpha = 0.5) +
+    #  stat_smooth(color = "black", alpha = 0.5, method = "gam", formula = y~s(x, bs = "cs"))
+    # return(gg)
+  })
+
+
+  output$explore_table <- renderDataTable({
+    df <- explore_data()
+
+    plot_data <- data.frame(x = df[[1]], y = df[[2]])
+    gam_model <- mgcv::gam(y ~ s(x, bs = "cs"), data = plot_data, method = "REML")
+
+    correlation <- cor(df[[1]], df[[2]])
+    output_df <- data.frame(
+      Pearson = correlation,
+      LM.Rsquared = correlation^2,
+      GAM.Rsquare = summary(gam_model)$r.sq
+    )
+
+    df <- datatable(output_df, rownames = FALSE) %>%
+      formatRound(columns = 1:3, digits = 2)
+    return(df)
+  })
+
+  output$explore_chart_histogram_feature1 <- renderPlotly({
+    df <- explore_data()
+
+    plot_data <- data.frame(x = df[[1]])
+    gg <- ggplot(plot_data, aes(x = x)) +
+      theme_minimal() +
+      geom_density(fill = "#5DA5DA", alpha = 0.5) +
+      labs(x = input$explore_feature1)
+
+    return(ggplotly(gg))
+  })
+
+  output$explore_chart_histogram_feature2 <- renderPlotly({
+    df <- explore_data()
+
+    plot_data <- data.frame(x = df[[2]])
+    gg <- ggplot(plot_data, aes(x = x)) +
+      theme_minimal() +
+      geom_density(fill = "#FAA43A", alpha = 0.5) +
+      labs(x = input$explore_feature2)
+
+    return(ggplotly(gg))
+  })
+
+  output$explore_table_feature1 <- renderDataTable({
+    df <- explore_data()
+    df <- data.frame(x = df[[1]]) %>%
+      summarize(
+        mean = mean(x),
+        SD = sd(x),
+        median = median(x),
+        IQR = IQR(x),
+        min = min(x),
+        max = max(x)
+      )
+
+    df <- datatable(df, rownames = FALSE) %>%
+      formatRound(columns = seq(1, ncol(df)), digits = 2)
+    return(df)
+  })
+
+  output$explore_table_feature2 <- renderDataTable({
+    df <- explore_data()
+    df <- data.frame(x = df[[2]]) %>%
+      summarize(
+        mean = mean(x),
+        SD = sd(x),
+        median = median(x),
+        IQR = IQR(x),
+        min = min(x),
+        max = max(x)
+      )
+
+    df <- datatable(df, rownames = FALSE) %>%
+      formatRound(columns = seq(1, ncol(df)), digits = 2)
+    return(df)
+  })
+
+  # -----------------------------------------------------------------------------
+  # Modeler
+
+  output$modeler_linear_model_summary <- renderPrint({
+    withProgress(message = "Modeling", value = 0, {
+      incProgress(0.5)
+      modeler_df <- modeler_linear_model()
+      incProgress(1)
+    })
+    return(summary(modeler_df$model))
+  })
+
+  output$modeler_residuals <- renderPlotly({
+    withProgress(message = "Modeling", value = 0, {
+      incProgress(0.5)
+      modeler_df <- modeler_linear_model()
+      plot_data <- data.frame(y = vjsim_data[[input$modeler_target]])
+      plot_data$resid <- resid(modeler_df$model)
+      plot_data$pred <- predict(modeler_df$model)
+
+      gg <- plot_ly() %>%
+        add_markers(
+          data = plot_data, x = ~y, y = ~pred,
+          name = "Predicted", marker = list(color = "rgba(93,165,218, 0.5)"),
+          hoverinfo = "text",
+          text = ~ paste(
+            input$modeler_target, "=", round(y, 2), "\n",
+            "Predicted =", round(pred, 2), "\n"
+          )
+        ) %>%
+        add_lines(
+          data = plot_data, x = ~y, y = ~y,
+          name = "Identity line", line = list(color = "grey", dash = "dot")
+        ) %>%
+        layout(
+          showlegend = FALSE,
+          yaxis = list(
+            side = "left", title = paste("Predicted", input$modeler_target),
+            showgrid = TRUE, zeroline = FALSE
+          ),
+          xaxis = list(
+            side = "left", title = input$modeler_target,
+            showgrid = TRUE, zeroline = FALSE
+          )
+        )
+      incProgress(1)
+    })
+
+    return(gg)
+  })
+
+
+  output$modeler_predictor_importance <- renderPlotly({
+    withProgress(message = "Feature Importante", value = 0, {
+      incProgress(0.5)
+      modeler_df <- modeler_linear_model()
+      gg <- ggplotly(vip::vip(modeler_df$model, train = modeler_df$data, method = "firm") + theme_minimal())
+      incProgress(1)
+    })
+    return(gg)
+  })
+
+  output$pdp_ice_plot <- renderPlotly({
+    withProgress(message = "PDP+ICE", value = 0, {
+      incProgress(0.5)
+      modeler_df <- modeler_linear_model()
+      gg <- ggplot()
+      if (input$pdp_ice_predictor %in% input$modeler_predictors) {
+        gg <- ggplotly(
+          pdp::partial(
+            modeler_df$model,
+            train = modeler_df$data,
+            pred.var = input$pdp_ice_predictor,
+            plot = TRUE,
+            rug = FALSE,
+            ice = input$ice_line,
+            plot.engine = "ggplot2",
+            alpha = ifelse(input$ice_line, 0.01, 1),
+          ) +
+            theme_minimal() +
+            ylab(paste("Predicte", input$modeler_target))
+        )
+      }
+      incProgress(1)
+    })
+    return(gg)
+  })
+
+  # -------------------------------------------------
+  # Clustering
+
+  output$feature_clustering_chart <- renderPlot({
+    withProgress(message = "Feature Clustering", value = 0, {
+      incProgress(0.5)
+      pp <- plot(as.phylo(feature_clustering_model()), type = "phylogram", cex = 1,
+                 direction = "leftwards",
+                 no.margin = TRUE)
+      incProgress(1)
+    })
+    return(pp)
+  })
 }
 
 # Run the application

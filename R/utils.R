@@ -165,3 +165,31 @@ get_take_off_velocity <- function(mean_force = 3000,
                                   gravity_const = 9.81) {
   sqrt(2*push_off_distance*(mean_force / mass - gravity_const))
 }
+
+#' Get Aerial Time
+#'
+#' \code{get_aerial_time} returns aerial time from the jump \code{height}
+#' @param height Numeric vector. Jump height in meters
+#' @param gravity_const Numeric vector. Default 9.81
+#' @return Numeric vector. Aerial time in seconds
+#' @export
+#' @examples
+#' get_aerial_time(0.4)
+get_aerial_time <- function(height,
+                            gravity_const = 9.81) {
+  sqrt(8*height/gravity_const)
+}
+
+#' Get Height from Aerial Time
+#'
+#' \code{get_height_from_aerial_time} returns jump height using \code{aerial_time}
+#' @param aerial_time Numeric vector. Aerial time in seconds
+#' @param gravity_const Numeric vector. Default 9.81
+#' @return Numeric vector. Jump height in meters
+#' @export
+#' @examples
+#' get_height_from_aerial_time (0.7)
+get_height_from_aerial_time <- function(aerial_time,
+                            gravity_const = 9.81) {
+  1/8 * gravity_const * aerial_time^2
+}

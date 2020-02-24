@@ -1,6 +1,9 @@
 ---
 title: "Optimization models with `vjsim`"
 output: rmarkdown::html_vignette
+bibliography: [references.bib]
+biblio-style: apalike
+link-citations: yes
 vignette: >
   %\VignetteIndexEntry{optimization-vjsim}
   %\VignetteEngine{knitr::rmarkdown}
@@ -23,3 +26,8 @@ knitr::opts_chunk$set(
 ```
 
 (To be written soon...)
+
+
+- Assuming equal $\bar{F}$ for distance and time [@samozinoSimpleMethodMeasuring2018, page 2941, equation 6]
+
+# References

@@ -198,7 +198,6 @@ fgen_get_velocity <- function(external_force, max_force = 3000, max_velocity = 4
 #'     \code{current_distance}, and \code{current_velocity}), system constraints (\code{mass}, \code{weight}, and \code{push_off_distance}),
 #'     and parameters of the Forge Generator (\code{max_force}, \code{current_velocity}, \code{decline_rate}, \code{peak_location},
 #'     and \code{time_to_max_activation})
-#' #
 #' @param current_time Numeric vector. Default is 0
 #' @param current_distance Numeric vector. Default is 0
 #' @param current_velocity Numeric vector. Default is 0

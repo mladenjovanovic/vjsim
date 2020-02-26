@@ -8,7 +8,7 @@
 #' @param gravity_const Numeric value. Default is 9.81
 #' @param time_step Numeric value. Time step used in simulation. Default is 0.001
 #' @param save_trace Logical. Default is TRUE
-#' @param fgen_func Function used to represent Force Generator. Defauls it \code{link{fgen_get_output}}.
+#' @param fgen_func Function used to represent Force Generator. Default is \code{\link{fgen_get_output}}.
 #' @param iter Logical. Default is FALSE
 #' @param max_iter Numeric value. Defaut value 1000
 #' @param ... Forwarded to \code{fgen_func}

@@ -1,0 +1,28 @@
+---
+title: "Modeling with `vjsim`"
+output: rmarkdown::html_vignette
+bibliography: [references.bib]
+biblio-style: apalike
+link-citations: yes
+vignette: >
+  %\VignetteIndexEntry{modeling-vjsim}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.align = "center",
+  fig.width = 6,
+  fig.height = 4,
+  dpi = 300,
+  out.width = "90%",
+  auto_pdf = TRUE,
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+(To be written soon...)

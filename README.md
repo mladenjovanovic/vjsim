@@ -82,6 +82,15 @@ Access it by clicking the above link or running the following code:
 vignette("exploring-vjsim")
 ```
 
+### [Modeling](https://mladenjovanovic.github.io/vjsim/articles/modeling-vjsim.html)
+
+In this vignette I am going to show you how you can use `vjsim` to
+create athlete profiles from collected data
+
+``` r
+vignette("modeling-vjsim")
+```
+
 ## [Shiny App](https://athletess.shinyapps.io/shiny-simulator/)
 
 To run the Shiny app, use the following code, or by clicking on the

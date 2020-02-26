@@ -76,6 +76,15 @@ In this vignette we are going to explore various assumptions of the model, "opti
 vignette("exploring-vjsim")
 ```
 
+### [Modeling](https://mladenjovanovic.github.io/vjsim/articles/modeling-vjsim.html)
+
+In this vignette I am going to show you how you can use `vjsim` to create athlete profiles from collected data
+
+``` r
+vignette("modeling-vjsim")
+```
+
+
 ## [Shiny App](https://athletess.shinyapps.io/shiny-simulator/)
 
 To run the Shiny app, use the following code, or by clicking on the above link (this will take you to the *shinyapps.io*)

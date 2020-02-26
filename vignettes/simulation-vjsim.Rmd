@@ -43,7 +43,7 @@ library(cowplot)
 library(DT)
 ```
 
-Before reading this vignette, please read [Introduction to vjsim](https://htmlpreview.github.io/?https://github.com/mladenjovanovic/vjsim/master/doc/introduction-vjsim.html) vignette by running:
+Before reading this vignette, please read [Introduction to vjsim](https://mladenjovanovic.github.io/vjsim/articles/introduction-vjsim.html) vignette by running:
 
 ```{r eval=FALSE}
 vignette("introduction-vjsim")

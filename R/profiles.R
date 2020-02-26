@@ -43,13 +43,15 @@ vj_profile <- function(external_load = c(-40, -20, 0, 20, 40, 60, 80, 100),
 #' @param profile_data Data frame returned from \code{\link{vj_profile}} function
 #' @param force Character string. Name of the column in the \code{profile_data}. Default is "mean_GRF_over_distance"
 #' @param velocity Character string. Name of the column in the \code{profile_data}. Default is "mean_velocity"
+#' @param poly_deg Integer. Number of polynomial degrees. Forwarded to \code{\link[stats]{poly}} function.
+#'     Default is 1 (for simple linear regression)
 #' @return List with calculated \code{F0}, \code{V0}, \code{Pmax}, and \code{Sfv}
 #' @export
 #' @examples
 #' fv_profile <- vj_profile(mass = 75)
 #' get_FV_profile(fv_profile)
 #'
-get_FV_profile <- function(profile_data, force = "mean_GRF_over_distance", velocity = "mean_velocity") {
+get_FV_profile <- function(profile_data, force = "mean_GRF_over_distance", velocity = "mean_velocity", poly_deg = 1) {
   # Extract data
   df <- data.frame(
     force = profile_data[[force]],
@@ -61,7 +63,7 @@ get_FV_profile <- function(profile_data, force = "mean_GRF_over_distance", veloc
   # model
   get_fv_model <- function(df) {
     tryCatch({
-      stats::lm(velocity ~ force, df)
+      stats::lm(velocity ~ stats::poly(force,  poly_deg), df)
     },
     error=function(cond) {
       #message(paste("Error when creating linear model for", force, "~", velocity, "profile"))

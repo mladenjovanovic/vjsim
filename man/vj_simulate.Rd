@@ -30,7 +30,7 @@ vj_simulate(
 
 \item{save_trace}{Logical. Default is TRUE}
 
-\item{fgen_func}{Function used to represent Force Generator. Defauls it \code{link{fgen_get_output}}.}
+\item{fgen_func}{Function used to represent Force Generator. Default is \code{\link{fgen_get_output}}.}
 
 \item{iter}{Logical. Default is FALSE}
 

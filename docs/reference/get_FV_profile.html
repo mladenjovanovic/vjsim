@@ -149,7 +149,8 @@
     <pre class="usage"><span class='fu'>get_FV_profile</span>(
   <span class='no'>profile_data</span>,
   <span class='kw'>force</span> <span class='kw'>=</span> <span class='st'>"mean_GRF_over_distance"</span>,
-  <span class='kw'>velocity</span> <span class='kw'>=</span> <span class='st'>"mean_velocity"</span>
+  <span class='kw'>velocity</span> <span class='kw'>=</span> <span class='st'>"mean_velocity"</span>,
+  <span class='kw'>poly_deg</span> <span class='kw'>=</span> <span class='fl'>1</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -166,6 +167,11 @@
     <tr>
       <th>velocity</th>
       <td><p>Character string. Name of the column in the <code>profile_data</code>. Default is "mean_velocity"</p></td>
+    </tr>
+    <tr>
+      <th>poly_deg</th>
+      <td><p>Integer. Number of polynomial degrees. Forwarded to <code><a href='https://rdrr.io/r/stats/poly.html'>poly</a></code> function.
+Default is 1 (for simple linear regression)</p></td>
     </tr>
     </table>
 

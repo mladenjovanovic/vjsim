@@ -579,7 +579,7 @@ Similar question that can be asked is "If I change a particular Force Generator 
 Our initial value for max force is 3,000N. Now we are interested which performance metric changes the most when max force changes.
 
 ```{r}
-# Need this packege to label the lines
+# Need this package to label the lines
 # install.packages("directlabels")
 require(directlabels) 
 

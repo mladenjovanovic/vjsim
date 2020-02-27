@@ -43,7 +43,7 @@ library(cowplot)
 library(DT)
 ```
 
-Before reading this vignette, please read [Introduction to vjsim](https://htmlpreview.github.io/?https://github.com/mladenjovanovic/vjsim/master/doc/introduction-vjsim.html) vignette by running:
+Before reading this vignette, please read [Introduction to vjsim](https://mladenjovanovic.github.io/vjsim/articles/introduction-vjsim.html) vignette by running:
 
 ```{r eval=FALSE}
 vignette("introduction-vjsim")
@@ -579,7 +579,7 @@ Similar question that can be asked is "If I change a particular Force Generator 
 Our initial value for max force is 3,000N. Now we are interested which performance metric changes the most when max force changes.
 
 ```{r}
-# Need this packege to label the lines
+# Need this package to label the lines
 # install.packages("directlabels")
 require(directlabels) 
 

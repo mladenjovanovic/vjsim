@@ -7,7 +7,8 @@
 get_FV_profile(
   profile_data,
   force = "mean_GRF_over_distance",
-  velocity = "mean_velocity"
+  velocity = "mean_velocity",
+  poly_deg = 1
 )
 }
 \arguments{
@@ -16,6 +17,9 @@ get_FV_profile(
 \item{force}{Character string. Name of the column in the \code{profile_data}. Default is "mean_GRF_over_distance"}
 
 \item{velocity}{Character string. Name of the column in the \code{profile_data}. Default is "mean_velocity"}
+
+\item{poly_deg}{Integer. Number of polynomial degrees. Forwarded to \code{\link[stats]{poly}} function.
+Default is 1 (for simple linear regression)}
 }
 \value{
 List with calculated \code{F0}, \code{V0}, \code{Pmax}, and \code{Sfv}

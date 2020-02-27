@@ -310,7 +310,7 @@ gg <-  ggplot(filter(plot_data, variable == "height"),
 gg
 
 ## -----------------------------------------------------------------------------
-# Need this packege to label the lines
+# Need this package to label the lines
 # install.packages("directlabels")
 require(directlabels) 
 

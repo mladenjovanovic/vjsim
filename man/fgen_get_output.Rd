@@ -52,7 +52,6 @@ List with five elements: kinematics, system_constraints, fgen_parameters, fgen_o
     \code{current_distance}, and \code{current_velocity}), system constraints (\code{mass}, \code{weight}, and \code{push_off_distance}),
     and parameters of the Forge Generator (\code{max_force}, \code{current_velocity}, \code{decline_rate}, \code{peak_location},
     and \code{time_to_max_activation})
-#
 }
 \examples{
 state <- expand.grid(

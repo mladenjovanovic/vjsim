@@ -3,8 +3,13 @@ title: "Profiling in `vjsim`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{profiling-vjsim}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+bibliography: [references.bib]
+biblio-style: apalike
+link-citations: yes
 ---
 
 ```{r, include = FALSE}
@@ -23,3 +28,694 @@ knitr::opts_chunk$set(
 ```
 
 
+# Profiling
+
+```{r setup}
+# Install vjsim if you haven't already by running the following commands
+# install.packages("devtools")
+# devtools::install_github("mladenjovanovic/vjsim")
+
+# Install tidyverse and cowplot packages
+# install.packages(c("tidyverse", "cowplot", "DT), dependencies = TRUE)
+
+library(vjsim)
+library(tidyverse)
+library(cowplot)
+library(DT)
+```
+
+Before reading this vignette, please read [Introduction to vjsim](https://mladenjovanovic.github.io/vjsim/articles/introduction-vjsim.html) and [Simulation in vjsim](https://mladenjovanovic.github.io/vjsim/articles/simulation-vjsim.html) vignettes by running:
+
+```{r eval=FALSE}
+vignette("introduction-vjsim")
+vignette("simulation-vjsim")
+```
+
+Once we know how `vjsim` works and how to simulate one jump, we might be interested in checking how jump kinetic parameters change when we add (or remove[^remove_weight]) external weight in a form of a barbell or hex-barbell. For the purpose of this vignette, this external load is equal to:
+
+```{r}
+# External load in kilograms
+external_load <- c(0, 20, 40, 60, 80, 100)
+```
+
+[^remove_weight]: Removing weight is a bit trickier to be performed in real life settings, but in simulation it is no brainer. In real life, the weight is reduced by using some type of elastic resistance that pulls upward. Unfortunatelly, this only reduces bodyweight (i.e. force), but does not reduce mass or inertial. 
+
+To simulate vertical jump with this external loads, we will used `vjsim::vj_profile` functions:
+
+```{r}
+profile_data <- vjsim::vj_profile(
+  external_load = external_load,
+
+  # Simulation parameters
+  mass = 75,
+  push_off_distance = 0.4,
+  max_force = 3000,
+  max_velocity = 4
+
+  # Other parameters are default in the `vjsim::fgen_get_output`
+  # weight = mass * gravity_const,
+  # gravity_const = 9.81,
+  # decline_rate = 1.05,
+  # peak_location = -push_off_distance * 0.15,
+  # time_to_max_activation = 0.3
+)
+```
+
+Data frame returned from `vjsim::vj_profile` is the same as data frame returned from `vjsim::vj_simulate` with additional two columns: 'bodyweight' and 'external_load': 
+
+```{r}
+datatable(profile_data, rownames = FALSE) %>%
+  formatRound(columns = 1:ncol(profile_data), digits = 2)
+```
+
+Now that we have performed multiple jumps, we can plot various profiles. To save time (and code space), let's create a function for plotting: 
+
+```{r}
+plot_profile <- function(profile_data, x_var, y_var) {
+  df <- data.frame(
+    x_var = profile_data[[x_var]],
+    y_var = profile_data[[y_var]]
+  )
+
+  gg <- ggplot(df, aes(x = x_var, y = y_var)) +
+    theme_cowplot(8) +
+    geom_line(color = "blue") +
+    geom_point(color = "blue") +
+    labs(x = x_var, y = y_var)
+
+  return(gg)
+}
+```
+
+## Load~Height and Load~TOV Profile
+
+The first profile we want to plot is the load~height profile, to see how adding external resistance affects the jump height of this individual athlete:
+
+```{r}
+plot_profile(profile_data, "external_load", "height")
+```
+
+Rather than using external load on x-axis, we can use total system load, which is equal to bodyweigth plus external load:
+
+```{r}
+plot_profile(profile_data, "mass", "height")
+```
+
+As can be seen from both profile, the higher the external load, the lower the jump height. It seems that this profile, or relationship, is curvilinear, although not much. Rather than using height, we can use take-off velocity (TOV):
+
+```{r}
+plot_profile(profile_data, "mass", "take_off_velocity")
+```
+
+With this profile, the relationship is more linear. What we want to *extract* from this profile are the $Mass_0$ and $TOV_0$, or the points where this profile line, when extened (or extrapolated), cuts the x- and y-axes. It is easier to explain in picture:
+
+```{r}
+lm_model <- lm(take_off_velocity~mass, profile_data)
+
+model_data <- tibble(
+  mass = seq(-50, 300),
+  predicted_tov = predict(lm_model, newdata = data.frame(mass = mass))
+)
+
+plot_profile(profile_data, "mass", "take_off_velocity") +
+  geom_line(data = model_data, aes(y = predicted_tov, x = mass), alpha = 0.5, linetype = "dashed") +
+  geom_hline(yintercept = 0, color = "grey", alpha = 0.5) +
+  geom_vline(xintercept = 0, color = "grey", alpha = 0.5)
+```
+
+We can do that by using `vjsim::get_FV_profile` function. `vjsim::get_FV_profile` utilizes simple linear regression to model the relationship between two variables (mass and TOV in this case) and spits out few summaries:
+
+```{r}
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "mass",
+  velocity = "take_off_velocity"
+)
+```
+
+`vjsim::get_FV_profile` assumes force and velocity variables, and thus can be used to calculate max power ('Pmax'), but nonetheless it can be used in this scenario (but we need to disregard the Pmax; we will use it in another profile). Here, F0 represents $Mass_0$, and we can see that, according to this profile and linear regression used, it is equal to 260kg. This means that when total load (i.e. total system mass) is equal to 260kg, TOV will be equal to zero. F0_rel is F0 divided by bodyweight (which is saved in the `profile_data` object). V0 is the hypothetical take-off velocity when total system load is equal to zero. 'Sfv' represents the slope of this regression line. Sfv is equal to -74, which means that for every increase in TOV for 1m/s, total system load needs to be decreased by 74kg. 
+
+We can apply this profiling to external load rather than total load:
+
+```{r}
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "external_load",
+  velocity = "take_off_velocity"
+)
+```
+
+We can see that now the F0 (or $Mass_0$) is equal to 185kg. Now V0 is equal to predicted take-off velocity of the bodyweight jump (since that implies zero external load). It is not exactly equal to TOV from the profile table, since this is modeled value. 
+
+For Load~Height profile (acually mass~height model), since it is curvilinear, we can use 2nd degree polynomial regression. Before using `vjsim::get_FV_profile`, let's plot the polynomial model and see how it extendes beyond profile data (this is needed to be checked since we will calculate $Mass_0$ and $Height_0$):
+
+```{r}
+lm_model <- lm(height~poly(mass, 2), profile_data)
+
+model_data <- tibble(
+  mass = seq(-10, 250),
+  predicted_height = predict(lm_model, newdata = data.frame(mass = mass))
+)
+
+plot_profile(profile_data, "mass", "height") +
+  geom_line(data = model_data, aes(y = predicted_height, x = mass), alpha = 0.5, linetype = "dashed") +
+  geom_hline(yintercept = 0, color = "grey", alpha = 0.5) +
+  geom_vline(xintercept = 0, color = "grey", alpha = 0.5)
+```
+
+The usual problem with polynomial regressions is exactly this extrapolation beyond the data (which is needed to get $Mass_0$ and $Height_0$). As can be seen from the figure, the 2nd degree polynomial fit never cuts through the x-axis (where Height is equal to 0), and thus $Mass_0$ cannot be computed. Let's see whar happens when using 3rd degree polynomial:
+
+```{r}
+lm_model <- lm(height~poly(mass, 3), profile_data)
+
+model_data <- tibble(
+  mass = seq(-10, 250),
+  predicted_height = predict(lm_model, newdata = data.frame(mass = mass))
+)
+
+plot_profile(profile_data, "mass", "height") +
+  geom_line(data = model_data, aes(y = predicted_height, x = mass), alpha = 0.5, linetype = "dashed") +
+  geom_hline(yintercept = 0, color = "grey", alpha = 0.5) +
+  geom_vline(xintercept = 0, color = "grey", alpha = 0.5)
+```
+
+With this 3rd degree polynomial model, $Mass_0$ and $Height_0$ can be computed. We can do that with `vjsim::get_FV_profile`, but we will use 'poly_deg = 3' argument to fit 3rd degree polynomial regression model:
+
+```{r}
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "mass",
+  velocity = "height", 
+  poly_deg = 3
+)
+```
+
+According to this model, when mass is equal to 215kg, jump height is equal to 0m. In practice, we never tend to use load this high, but load that allows for at least 10-15cm (0.1-0.15m) jump height. 
+
+To make this simpler, we can use simple linear regression instead to see how this differs:
+
+```{r}
+lm_model <- lm(height~poly(mass, 1), profile_data)
+
+model_data <- tibble(
+  mass = seq(-10, 250),
+  predicted_height = predict(lm_model, newdata = data.frame(mass = mass))
+)
+
+plot_profile(profile_data, "mass", "height") +
+  geom_line(data = model_data, aes(y = predicted_height, x = mass), alpha = 0.5, linetype = "dashed") +
+  geom_hline(yintercept = 0, color = "grey", alpha = 0.5) +
+  geom_vline(xintercept = 0, color = "grey", alpha = 0.5)
+```
+
+And finally calculate $Mass_0$ and $Height_0$:
+
+```{r}
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "mass",
+  velocity = "height"
+)
+```
+
+From these few examples, we can see how profiling depends on the variables used, as well as the models used (i.e. polynomial or linear regression) and thus how can the (extrapolated) parameters differ. 
+
+From a simulation perspective, we would be interested to see if $F_0$ and $V_0$ can be used to infer *underlying* (or latent or hidden) Force Generator `max_force` and `max_velocity` characteristics. I will explore this in [Exploring](https://mladenjovanovic.github.io/vjsim/articles/exploring-vjsim.html) vignette. For now let's explore other profiles.
+
+## Mean Force~Mean Velocity Profile
+
+Instead of using mass or external load, we can use mean ground reaction force (GRF) over distance [^GRF_over_distance] with mean velocity. Why mean GRF over distance and not over time? Because using mean GRF over distance give correct results for work and thus power calculus, while mean GRF over time does not (but can be used to calculate impulse). 
+
+[^GRF_over_distance]: As explained in the previous vignettes, there is a difference in calculating mean GRF over time and over distance, since former uses work and latter uses impulse. You can check that by running `plot_profile(profile_data, "mean_GRF_over_distance", "mean_GRF_over_time") + geom_abline(slope = 1, linetype = "dashed")`
+
+Let's plot the relationship:
+
+```{r}
+plot_profile(profile_data, "mean_GRF_over_distance", "mean_velocity")
+```
+
+As can be seen from the above figure, from the data simulated using `vjsim`, it seems that this relationship is not linear, but curvilinear. We do tend to model it with simple linear regression.
+
+```{r}
+lm_model <- lm(mean_velocity~poly(mean_GRF_over_distance, 1), profile_data)
+
+model_data <- tibble(
+  mean_GRF_over_distance = seq(-50, 3500),
+  predicted_mv = predict(lm_model, newdata = data.frame(mean_GRF_over_distance = mean_GRF_over_distance))
+)
+
+plot_profile(profile_data, "mean_GRF_over_distance", "mean_velocity") +
+  geom_line(data = model_data, aes(y = predicted_mv, x = mean_GRF_over_distance), alpha = 0.5, linetype = "dashed") +
+  geom_hline(yintercept = 0, color = "grey", alpha = 0.5) +
+  geom_vline(xintercept = 0, color = "grey", alpha = 0.5)
+```
+
+The extracted $F_0$ and $V_0$ are the following:
+
+```{r}
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "mean_GRF_over_distance",
+  velocity = "mean_velocity"
+)
+```
+
+If you remember from simulation parameters, Force Generator max force was set to 3000N and max velocity to 4m/s. From this simple example, we can see that *manifested* F-V relationship doesn't uncover *latent* force generator characteristic. This will be further explored in another vignette. 
+
+From $F_0$ and $V_0$ we can calculate $P_{max}$, which is equal to $\frac{F_0 \times V_0}{4}$ (assuming linear relationship). Let's see what happens when we use 2nd degree polynomial fit:
+
+```{r}
+lm_model <- lm(mean_velocity~poly(mean_GRF_over_distance, 2), profile_data)
+
+model_data <- tibble(
+  mean_GRF_over_distance = seq(-50, 3500),
+  predicted_mv = predict(lm_model, newdata = data.frame(mean_GRF_over_distance = mean_GRF_over_distance))
+)
+
+plot_profile(profile_data, "mean_GRF_over_distance", "mean_velocity") +
+  geom_line(data = model_data, aes(y = predicted_mv, x = mean_GRF_over_distance), alpha = 0.5, linetype = "dashed") +
+  geom_hline(yintercept = 0, color = "grey", alpha = 0.5) +
+  geom_vline(xintercept = 0, color = "grey", alpha = 0.5)
+```
+
+The extracted $F_0$ and $V_0$ are now equal to:
+
+```{r}
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "mean_GRF_over_distance",
+  velocity = "mean_velocity",
+  poly_deg = 2
+)
+```
+
+And if we use 3rd degree polynomial fit:
+
+```{r}
+lm_model <- lm(mean_velocity~poly(mean_GRF_over_distance, 3), profile_data)
+
+model_data <- tibble(
+  mean_GRF_over_distance = seq(-50, 3500),
+  predicted_mv = predict(lm_model, newdata = data.frame(mean_GRF_over_distance = mean_GRF_over_distance))
+)
+
+plot_profile(profile_data, "mean_GRF_over_distance", "mean_velocity") +
+  geom_line(data = model_data, aes(y = predicted_mv, x = mean_GRF_over_distance), alpha = 0.5, linetype = "dashed") +
+  geom_hline(yintercept = 0, color = "grey", alpha = 0.5) +
+  geom_vline(xintercept = 0, color = "grey", alpha = 0.5)
+```
+
+The extracted $F_0$ and $V_0$ are now equal to:
+
+```{r}
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "mean_GRF_over_distance",
+  velocity = "mean_velocity",
+  poly_deg = 3
+)
+```
+
+As can be seen from the examples above, each model fit provides different estimates for $F_0$ and $V_0$ (using `vjsim` data), but we do tend to represent it with simple linear regression. As can be seen from estimated $F_0$ and $V_0$, they do not seem to recover Force Generator max force and max velocity. 
+
+## Mean Force~Mean Power Profile
+
+As seen from the Mean Force~Mean Velocity Profile, $P_{max}$ can be calculated using $F_0$ and $V_0$. But rather than estimating it, we can actually plot it, since we have that data available from `vjsim` and in our profilind data frame:
+
+```{r}
+plot_profile(profile_data, "mean_GRF_over_distance", "mean_power")
+```
+
+Also, rather than using mean GRF over distance for power profile, we can also use mass and external load:
+
+```{r}
+plot_profile(profile_data, "external_load", "mean_power")
+```
+
+```{r}
+plot_profile(profile_data, "mass", "mean_power")
+```
+
+This is a typical power profile. We can fit 2nd degree polynomial fit to these data points (using mean GRF over distance):
+
+```{r}
+lm_model <- lm(mean_power~poly(mean_GRF_over_distance, 2), profile_data)
+
+model_data <- tibble(
+  mean_GRF_over_distance = seq(-50, 3500),
+  predicted_mp = predict(lm_model, newdata = data.frame(mean_GRF_over_distance = mean_GRF_over_distance))
+)
+
+plot_profile(profile_data, "mean_GRF_over_distance", "mean_power") +
+  geom_line(data = model_data, aes(y = predicted_mp, x = mean_GRF_over_distance), alpha = 0.5, linetype = "dashed") +
+  geom_hline(yintercept = 0, color = "grey", alpha = 0.5) +
+  geom_vline(xintercept = 0, color = "grey", alpha = 0.5)
+```
+
+From this curve we can extract (or predict) mean $P_{max}$. For that reason there is `vjsim::get_power_profile` function:
+
+```{r}
+vjsim::get_power_profile(
+  profile_data = profile_data,
+  x_var = "mean_GRF_over_distance",
+  power = "mean_power"
+)
+```
+
+As can be checked, this $P_{max}$ and $P_{max}$ estiamated using $F_0$ and $V_0$ (using simple linear regression) is not that different. 
+
+According to Maximum Dynamic Output Hypothesis, this peak in mean power (i.e. $P_{max}$) happens at one's own bodyweight[@jaricLegMusclesDesign2009]:
+
+> Specifically, here we show that the optimal load for the power and momentum production in vertical jumping in habitually active individuals (but not in strength/power-trained athletes) could be the subject’s own body.
+
+But as can be seen, this is not the case in `vjsim` simulation. I personally see Power as *instrumentalist*, not *realist*. In other words, it is just a mathematics not some magical latent property of the Force Generator. 
+
+## Using Peak rather than Mean values
+
+For far we have used mean force and mean velocity, as well as mean power. We can instead use peak values instead. Here is a profile between peak GRF and peak velocity[^peak_velocity]:
+
+[^peak_velocity]: Please note that the peak velocity tends to be slightly higher than the take-off velocity, since there is some decceleration happening right before the take-off (see Simulation vignette for more info)
+
+```{r}
+plot_profile(profile_data, "peak_GRF", "peak_velocity")
+```
+
+We can also extract $F_0$ and $V_0$ from this relationship (using simple linear regression model):
+
+```{r}
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "peak_GRF",
+  velocity = "peak_velocity"
+)
+```
+
+Let's check the peak power profile:
+
+```{r}
+plot_profile(profile_data, "peak_GRF", "peak_power")
+```
+
+And if we want to extract the peak value (i.e. peak value of the peak power):
+
+```{r}
+vjsim::get_power_profile(
+  profile_data = profile_data,
+  x_var = "peak_GRF",
+  power = "peak_power"
+)
+```
+
+There are numerous profiles that could be created in `vjsim` (and with real data). Function `vjsim::get_all_profiles` runs the most common profiles and returns their results (in a list and a data frame):
+
+```{r}
+all_profiles <- vjsim::get_all_profiles(
+  profile_data = profile_data
+)
+
+datatable(all_profiles$data_frame, rownames = FALSE) %>%
+  formatRound(columns = 1:ncol(all_profiles$data_frame), digits = 2)
+```
+
+# Probing profiles
+
+As explained in the previous vignettes, probing means checking for sensitivity when Force Generator characteristics change. This implies changing one characteristic, while keeping all the others the same, and repeating this process for all other characteristics (or parameters). In the previous vignette we have probed how Force Generator characteristics affect single bodyweight jump performance, but now we are interested to see how profile characteristics are affected. 
+
+To do probing we can use `vjsim::probe_profile` function. Let's probe the mass~take-off velocity profile:
+
+```{r}
+probe_data <- probe_profile(
+  mass = 75,
+  max_force = 3000,
+  max_velocity = 4,
+  time_to_max_activation = 0.3,
+  time_step = 0.001,
+  external_load = c(0, 20, 40, 60, 80, 100),
+  change_ratio = seq(0.9, 1.1, length.out = 3),
+
+  # Profile variables
+  profile_func = function(...) {
+    list(list = get_FV_profile(
+      ...,
+      force = "mass",
+      velocity = "take_off_velocity"
+    ))
+  },
+  aggregate = "ratio"
+)
+
+datatable(probe_data, rownames = FALSE) %>%
+  formatRound(columns = 1:ncol(probe_data), digits = 2)
+```
+
+Plotting the probing data will convey more information. To avoid repeating the same code, let's write a plotting function. 
+
+```{r}
+# Need this package to label the lines
+# install.packages("directlabels")
+require(directlabels) 
+
+plot_probe <- function(probing_data) {
+  # Convert to long
+  probe_data <- gather(probe_data, key = "variable", value = "value", -(1:8))
+  
+  gg <- ggplot(probe_data,
+    aes(x = change_ratio, y = value, color = probing)
+    ) +
+   theme_cowplot(6) +
+   geom_line() +
+   facet_wrap(~variable, scales = "free_y") +
+   xlab("Normalized parameter change") +
+   ylab("Normalized profile change") +
+   scale_color_manual(values = c(
+     "mass" = "#4D4D4D",
+     "max_force" = "#5DA5DA",
+     "max_velocity" =  "#FAA43A",
+     "push_off_distance" = "#60BD68",
+     "time_to_max_activation" = "#B276B2")) +
+    xlim(c(0.9, 1.2)) 
+    
+  fgen_facets <- direct.label(gg, list("last.bumpup", cex = 0.4))
+  
+  gg <- ggplot(probe_data,
+  aes(x = change_ratio, y = value, color = variable)) +
+   theme_cowplot(8) +
+   geom_line() +
+   facet_wrap(~probing, scales = "free_y") +
+   xlab("Normalized parameter change") +
+   ylab("Normalized profile change") +
+   xlim(c(0.9, 1.2))
+  
+  profile_facets <- direct.label(gg, list("last.bumpup", cex = 0.4))
+  
+  
+  return(list(
+    fgen_facets = fgen_facets,
+    profile_facets = profile_facets)
+  )
+}
+```
+
+Now we can finally plot the probing for mass~take-off velocity profile. The output of the function has two figures - one uses profile metrics for facets, and the other uses Force Generator characteristics for facets. The information in both graphs is the same, it is just organized differently to answer different questions.
+
+```{r}
+plot_probe(probe_data)
+```
+
+As can be seen from the figures Force Generator max force seems to affect both $F_0$ and $V_0$, while max velocity only affects the $V_0$ in the mass~take-off velocity profile.
+
+The next profile we can probe is the mean force~mean velocity profile:
+
+```{r}
+probe_data <- probe_profile(
+  mass = 75,
+  max_force = 3000,
+  max_velocity = 4,
+  time_to_max_activation = 0.3,
+  time_step = 0.001,
+  external_load = c(0, 20, 40, 60, 80, 100),
+  change_ratio = seq(0.9, 1.1, length.out = 3),
+
+  # Profile variables
+  profile_func = function(...) {
+    list(list = get_FV_profile(
+      ...,
+      force = "mean_GRF_over_distance",
+      velocity = "mean_velocity"
+    ))
+  },
+  aggregate = "ratio"
+)
+
+plot_probe(probe_data)
+```
+
+As can be seen from the figures Force Generator max force seems to affect both $F_0$ and $V_0$ (negativelly, actually), while max velocity only affects the $V_0$ in the mass~take-off velocity profile. Let's plot these profile changes to inspect why this happens:
+
+```{r}
+profile_data_original <- vjsim::vj_profile(
+  external_load = external_load,
+
+  # Simulation parameters
+  mass = 75,
+  push_off_distance = 0.4,
+  max_force = 3000,
+  max_velocity = 4
+
+  # Other parameters are default in the `vjsim::fgen_get_output`
+  # weight = mass * gravity_const,
+  # gravity_const = 9.81,
+  # decline_rate = 1.05,
+  # peak_location = -push_off_distance * 0.15,
+  # time_to_max_activation = 0.3
+)
+
+profile_data_velocity <- vjsim::vj_profile(
+  external_load = external_load,
+
+  # Simulation parameters
+  mass = 75,
+  push_off_distance = 0.4,
+  max_force = 3000,
+  max_velocity = 4 * 1.1,
+
+  # Other parameters are default in the `vjsim::fgen_get_output`
+  # weight = mass * gravity_const,
+  # gravity_const = 9.81,
+  # decline_rate = 1.05,
+  # peak_location = -push_off_distance * 0.15,
+  # time_to_max_activation = 0.3
+)
+
+profile_data_force <- vjsim::vj_profile(
+  external_load = external_load,
+
+  # Simulation parameters
+  mass = 75,
+  push_off_distance = 0.4,
+  max_force = 3000 * 1.1, 
+  max_velocity = 4
+
+  # Other parameters are default in the `vjsim::fgen_get_output`
+  # weight = mass * gravity_const,
+  # gravity_const = 9.81,
+  # decline_rate = 1.05,
+  # peak_location = -push_off_distance * 0.15,
+  # time_to_max_activation = 0.3
+)
+
+x_var <- "mean_GRF_over_distance"
+y_var <- "mean_velocity"
+
+profile_probe_data <- rbind(
+  data.frame(
+    profile = "original",
+    force = profile_data_original[[x_var]],
+    velocity = profile_data_original[[y_var]]
+    ),
+  
+    data.frame(
+    profile = "velocity",
+    force = profile_data_velocity[[x_var]],
+    velocity = profile_data_velocity[[y_var]]
+    ),
+  
+    data.frame(
+    profile = "force",
+    force = profile_data_force[[x_var]],
+    velocity = profile_data_force[[y_var]]
+    )
+)
+
+gg <- ggplot(profile_probe_data, aes(x = force, y = velocity, color = profile)) +
+  theme_cowplot(8) +
+  geom_line(alpha = 0.8) +
+  geom_point(alpha = 0.8)
+gg
+```
+
+Red line represents *original* F-V profile; green line represents F-V profile with 10% improvement in Force Generator max velocity parameter, and blue line represents F-V profile with 10% improvement in Force Generator max force parameter. If we extend this profile using simple linear regression, we get the following:
+
+```{r}
+gg <- ggplot(profile_probe_data, aes(x = force, y = velocity, color = profile)) +
+  theme_cowplot(8) +
+  #geom_line(alpha = 0.8) +
+  geom_point(alpha = 0.8) +
+  geom_smooth(method = lm, se=FALSE, alpha = 0.5, fullrange=TRUE, size = 0.5, linetype = "dashed") +
+  xlim(-10, 3800) +
+  geom_hline(yintercept = 0, color = "grey", alpha = 0.5) +
+  geom_vline(xintercept = 0, color = "grey", alpha = 0.5)
+gg
+```
+
+It does seem that increasing max force decreseas $V_0$ as predicted by the `vjsim::probe_profile` function. Even if we check the previou graph (without the extrapolation), increasing max force does increase mean velocity in the profiling range, but due to the change in slope, this results in lower $V_0$. This represents an *artefact* that we need to be vary off when profiling and extrapolating beyond our data. 
+
+To finish with the probing, let's plot mass~take-off velocity profile using this very same technique:
+
+```{r}
+x_var <- "mass"
+y_var <- "take_off_velocity"
+
+profile_probe_data <- rbind(
+  data.frame(
+    profile = "original",
+    force = profile_data_original[[x_var]],
+    velocity = profile_data_original[[y_var]]
+    ),
+  
+    data.frame(
+    profile = "velocity",
+    force = profile_data_velocity[[x_var]],
+    velocity = profile_data_velocity[[y_var]]
+    ),
+  
+    data.frame(
+    profile = "force",
+    force = profile_data_force[[x_var]],
+    velocity = profile_data_force[[y_var]]
+    )
+)
+
+gg <- ggplot(profile_probe_data, aes(x = force, y = velocity, color = profile)) +
+  theme_cowplot(8) +
+  geom_line(alpha = 0.8) +
+  geom_point(alpha = 0.8)
+gg
+```
+
+And not extrapolate further out to check for $F_0$ and $V_0$:
+
+```{r}
+gg <- ggplot(profile_probe_data, aes(x = force, y = velocity, color = profile)) +
+  theme_cowplot(8) +
+  #geom_line(alpha = 0.8) +
+  geom_point(alpha = 0.8) +
+  geom_smooth(method = lm, se=FALSE, alpha = 0.5, fullrange=TRUE, size = 0.5, linetype = "dashed") +
+  xlim(-10, 300) +
+  geom_hline(yintercept = 0, color = "grey", alpha = 0.5) +
+  geom_vline(xintercept = 0, color = "grey", alpha = 0.5)
+gg
+
+```
+
+There are few take-off point from this little exercse: manifested $F_0$ and $V_0$ does not recover Force Generator characteristics and increasing Force Generator characteristic (particularly max force and max velocity) yields improvements in the jump performance across external load; BUT due to the change in slope, extrapolation to $F_0$ and $V_0$ (i.e., beyond used external load and our data) can tell us opposite story. Be vary of this.
+
+# Shiny App
+
+Now start playing with the code or with the [Shiny App](https://athletess.shinyapps.io/shiny-simulator/) by click on the previous link or by running the following code:
+
+```{r eval=FALSE}
+vjsim::run_simulator()
+```
+
+The [Shiny App](https://athletess.shinyapps.io/shiny-simulator/) will allow you much more interactive environment for exploring the `vjsim`. 
+
+# Want to learn more?
+
+Please continue by reading "Optimization in `vjsim`" ([LINK](https://mladenjovanovic.github.io/vjsim/articles/optimization-vjsim.html)) vignette:
+
+```{r eval=FALSE}
+vignette("optimization-vjsim")
+```
+ 
+# References

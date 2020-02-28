@@ -512,6 +512,177 @@ gg <- ggplot(profile_probe_data, aes(x = force, y = velocity, color = profile)) 
 gg
 
 
+## -----------------------------------------------------------------------------
+# Profile data for Force Generator with only viscous components
+profile_data <- vjsim::vj_profile(
+  external_load = external_load,
+
+  # Simulation parameters
+  mass = 75,
+  push_off_distance = 0.4,
+  max_force = 3000,
+  max_velocity = 4,
+
+  # Other parameters are default in the `vjsim::fgen_get_output`
+  # weight = mass * gravity_const,
+  # gravity_const = 9.81,
+  
+  # Setting these to 0 removes these components from the Force Generator
+  decline_rate = 0,
+  peak_location = 0,
+  time_to_max_activation = 0
+)
+
+## -----------------------------------------------------------------------------
+plot_profile(profile_data, "mass", "height")
+
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "mass",
+  velocity = "height"
+)
+
+## -----------------------------------------------------------------------------
+plot_profile(profile_data, "mass", "take_off_velocity")
+
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "mass",
+  velocity = "take_off_velocity"
+)
+
+## -----------------------------------------------------------------------------
+plot_profile(profile_data, "mean_GRF_over_distance", "mean_velocity")
+
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "mean_GRF_over_distance",
+  velocity = "mean_velocity"
+)
+
+## -----------------------------------------------------------------------------
+plot_profile(profile_data, "peak_GRF", "peak_velocity")
+
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "peak_GRF",
+  velocity = "peak_velocity"
+)
+
+## -----------------------------------------------------------------------------
+# Profile data for Force Generator with only viscous components
+profile_data <- vjsim::vj_profile(
+  external_load = external_load,
+
+  # Simulation parameters
+  mass = 75,
+  push_off_distance = 0.4,
+  max_force = 3000,
+  
+  max_velocity = Inf, # Needs to be infinite
+
+  # Other parameters are default in the `vjsim::fgen_get_output`
+  # weight = mass * gravity_const,
+  # gravity_const = 9.81,
+  
+  # Setting these to 0 removes these components from the Force Generator
+  decline_rate = 0,
+  peak_location = 0,
+  time_to_max_activation = 0
+)
+
+## -----------------------------------------------------------------------------
+plot_profile(profile_data, "mass", "height")
+
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "mass",
+  velocity = "height"
+)
+
+## -----------------------------------------------------------------------------
+plot_profile(profile_data, "mass", "take_off_velocity")
+
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "mass",
+  velocity = "take_off_velocity"
+)
+
+## -----------------------------------------------------------------------------
+plot_profile(profile_data, "mean_GRF_over_distance", "mean_velocity")
+
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "mean_GRF_over_distance",
+  velocity = "mean_velocity"
+)
+
+## -----------------------------------------------------------------------------
+plot_profile(profile_data, "peak_GRF", "peak_velocity")
+
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "peak_GRF",
+  velocity = "peak_velocity"
+)
+
+## -----------------------------------------------------------------------------
+# Profile data for Force Generator with only viscous components
+profile_data <- vjsim::vj_profile(
+  external_load = external_load,
+
+  # Simulation parameters
+  mass = 75,
+  push_off_distance = 0.4,
+  max_force = 3000,
+  
+  max_velocity = Inf, # Needs to be infinite
+
+  # Other parameters are default in the `vjsim::fgen_get_output`
+  # weight = mass * gravity_const,
+  # gravity_const = 9.81,
+  # decline_rate = 1.05,
+  # peak_location = -push_off_distance * 0.15,
+  # time_to_max_activation = 0.3
+)
+
+## -----------------------------------------------------------------------------
+plot_profile(profile_data, "mass", "height")
+
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "mass",
+  velocity = "height"
+)
+
+## -----------------------------------------------------------------------------
+plot_profile(profile_data, "mass", "take_off_velocity")
+
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "mass",
+  velocity = "take_off_velocity"
+)
+
+## -----------------------------------------------------------------------------
+plot_profile(profile_data, "mean_GRF_over_distance", "mean_velocity")
+
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "mean_GRF_over_distance",
+  velocity = "mean_velocity"
+)
+
+## -----------------------------------------------------------------------------
+plot_profile(profile_data, "peak_GRF", "peak_velocity")
+
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "peak_GRF",
+  velocity = "peak_velocity"
+)
+
 ## ----eval=FALSE---------------------------------------------------------------
 #  vjsim::run_simulator()
 

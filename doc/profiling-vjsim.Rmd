@@ -388,7 +388,7 @@ According to Maximum Dynamic Output Hypothesis, this peak in mean power (i.e. $P
 
 > Specifically, here we show that the optimal load for the power and momentum production in vertical jumping in habitually active individuals (but not in strength/power-trained athletes) could be the subject’s own body.
 
-But as can be seen, this is not the case in `vjsim` simulation. I personally see Power as *instrumentalist*, not *realist*. In other words, it is just a mathematics not some magical latent property of the Force Generator. 
+But as can be seen, this is not the case in `vjsim` simulation. I personally see Power as *operationalist*, not *realist* [@borsboomMeasuringMindConceptual2009]. In other words, it is just a mathematics not some magical latent property of the Force Generator. 
 
 ## Using Peak rather than Mean values
 
@@ -699,6 +699,220 @@ gg
 ```
 
 There are few take-off point from this little exercse: manifested $F_0$ and $V_0$ does not recover Force Generator characteristics and increasing Force Generator characteristic (particularly max force and max velocity) yields improvements in the jump performance across external load; BUT due to the change in slope, extrapolation to $F_0$ and $V_0$ (i.e., beyond used external load and our data) can tell us opposite story. Be vary of this.
+
+# Additional interesting topics
+
+One of the initial reasons why I created `vjsim` and got into simulating vertical jump in the first place, is to test whether F-V relationship would emerge with a simple Force Generator [@jovanovicUnderstandingForceVelocityCurve2018]. Now with `vjsim` that can be easily tested. Let's play with few ideas.
+
+## Force Generator without Force-Length and Force-Time characteristics
+
+Let's assume Force Generator characteristics without Force-Length and Force-Time characteristics. This implies instant max force and viscous force only (i.e. Force-Velocity characteristic; see previous vignettes for more information about these components). We are interested in checking if F-V relationship will be manifested and if $F_0$ and $V_0$ will uncover *true* Force Generator characteristics. 
+
+```{r}
+# Profile data for Force Generator with only viscous components
+profile_data <- vjsim::vj_profile(
+  external_load = external_load,
+
+  # Simulation parameters
+  mass = 75,
+  push_off_distance = 0.4,
+  max_force = 3000,
+  max_velocity = 4,
+
+  # Other parameters are default in the `vjsim::fgen_get_output`
+  # weight = mass * gravity_const,
+  # gravity_const = 9.81,
+  
+  # Setting these to 0 removes these components from the Force Generator
+  decline_rate = 0,
+  peak_location = 0,
+  time_to_max_activation = 0
+)
+```
+
+Here are the profiles:
+
+```{r}
+plot_profile(profile_data, "mass", "height")
+
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "mass",
+  velocity = "height"
+)
+```
+
+```{r}
+plot_profile(profile_data, "mass", "take_off_velocity")
+
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "mass",
+  velocity = "take_off_velocity"
+)
+```
+
+```{r}
+plot_profile(profile_data, "mean_GRF_over_distance", "mean_velocity")
+
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "mean_GRF_over_distance",
+  velocity = "mean_velocity"
+)
+```
+
+```{r}
+plot_profile(profile_data, "peak_GRF", "peak_velocity")
+
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "peak_GRF",
+  velocity = "peak_velocity"
+)
+```
+
+As can be seen from the mean force~mean velocity, manifested and extrapolated $V_0$ and $F_0$ do not recover Force Generator characteristics. This is due to constraints of the system (e.g. push-off distance, inertial). 
+
+## Force Generator as *pure* force
+
+In this experiment we are going to assume that Force Generator generates constant force of 3,000N. Let's see how that affects manifested profiles. 
+
+```{r}
+# Profile data for Force Generator with only viscous components
+profile_data <- vjsim::vj_profile(
+  external_load = external_load,
+
+  # Simulation parameters
+  mass = 75,
+  push_off_distance = 0.4,
+  max_force = 3000,
+  
+  max_velocity = Inf, # Needs to be infinite
+
+  # Other parameters are default in the `vjsim::fgen_get_output`
+  # weight = mass * gravity_const,
+  # gravity_const = 9.81,
+  
+  # Setting these to 0 removes these components from the Force Generator
+  decline_rate = 0,
+  peak_location = 0,
+  time_to_max_activation = 0
+)
+```
+
+Here are the profiles:
+
+```{r}
+plot_profile(profile_data, "mass", "height")
+
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "mass",
+  velocity = "height"
+)
+```
+
+```{r}
+plot_profile(profile_data, "mass", "take_off_velocity")
+
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "mass",
+  velocity = "take_off_velocity"
+)
+```
+
+```{r}
+plot_profile(profile_data, "mean_GRF_over_distance", "mean_velocity")
+
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "mean_GRF_over_distance",
+  velocity = "mean_velocity"
+)
+```
+
+```{r}
+plot_profile(profile_data, "peak_GRF", "peak_velocity")
+
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "peak_GRF",
+  velocity = "peak_velocity"
+)
+```
+
+As can be seen from the figures above, simple Force Generator with constant force results in mass~height and mass~take-off velocity profile, but not F-V profiles for mean force and peak force. 
+
+## Force Generator without viscous components
+
+For a final experiment let's check how profiles emerge for the Force Generator without Force-Velocity characteristic, but with Force-Time and Force-Length relationships.
+
+```{r}
+# Profile data for Force Generator with only viscous components
+profile_data <- vjsim::vj_profile(
+  external_load = external_load,
+
+  # Simulation parameters
+  mass = 75,
+  push_off_distance = 0.4,
+  max_force = 3000,
+  
+  max_velocity = Inf, # Needs to be infinite
+
+  # Other parameters are default in the `vjsim::fgen_get_output`
+  # weight = mass * gravity_const,
+  # gravity_const = 9.81,
+  # decline_rate = 1.05,
+  # peak_location = -push_off_distance * 0.15,
+  # time_to_max_activation = 0.3
+)
+```
+
+Here are the profiles:
+
+```{r}
+plot_profile(profile_data, "mass", "height")
+
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "mass",
+  velocity = "height"
+)
+```
+
+```{r}
+plot_profile(profile_data, "mass", "take_off_velocity")
+
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "mass",
+  velocity = "take_off_velocity"
+)
+```
+
+```{r}
+plot_profile(profile_data, "mean_GRF_over_distance", "mean_velocity")
+
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "mean_GRF_over_distance",
+  velocity = "mean_velocity"
+)
+```
+
+```{r}
+plot_profile(profile_data, "peak_GRF", "peak_velocity")
+
+vjsim::get_FV_profile(
+  profile_data = profile_data,
+  force = "peak_GRF",
+  velocity = "peak_velocity"
+)
+```
+
+From these simulation experiments, it seems that mass~height and mass~TOV are manifested regardless of the Force Generator characteristics (as long as there is force). This implies that we only need a simple Force Generator for the F-V (here F-V means load~velocity) profile to emerge. 
 
 # Shiny App
 

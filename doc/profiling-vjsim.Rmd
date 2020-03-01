@@ -533,7 +533,7 @@ probe_data <- probe_profile(
   max_velocity = 4,
   time_to_max_activation = 0.3,
   time_step = 0.001,
-  external_load = c(0, 20, 40, 60, 80, 100),
+  external_load = external_load,
   change_ratio = seq(0.9, 1.1, length.out = 3),
 
   # Profile variables
@@ -699,6 +699,104 @@ gg
 ```
 
 There are few take-off point from this little exercse: manifested $F_0$ and $V_0$ does not recover Force Generator characteristics and increasing Force Generator characteristic (particularly max force and max velocity) yields improvements in the jump performance across external load; BUT due to the change in slope, extrapolation to $F_0$ and $V_0$ (i.e., beyond used external load and our data) can tell us opposite story. Be vary of this.
+
+# Bootstrapping FV profiles
+
+As have been demonstrated thorough this vignette, estimated $F_0$ and $V_0$ depend on the data points and their number, as well as the model selected (i.e. simple linear regression or polynomial regression). The data points will not be exactly on the regression line. This will introduce uncertainty in the $F_0$ and $V_0$ estimation. With the simple linear regression, uncertainty in the line coefficients (i.e. slope and intercept) is expressed with the *standard errors* and *confidence intervals* (assuming there is some *true* individual profile). Since $F_0$ and $V_0$ represents nothing more than another way to represents a line, we can also estimate uncertainty around them. 
+
+To do this, I will use *bootstrap* and my `bmbstats` package[^bmbstats][@R-bmbstats; @jovanovicBmbstatsMagnitudebasedStatistics2020; @jovanovicStatisticalModellingSports2019]. Bootstrap method is very simple: it just resamples the sample with the equal number of observations (which implies repeated resamples to happen). For each bootstrap resample the estimators (in this case $F_0$ and $V_0$ are estimated). 
+
+[^bmbstats]: `bmbstats` package and acompanying book are currently in development, but you can access them on GitHub: https://github.com/mladenjovanovic/bmbstats and https://github.com/mladenjovanovic/bmbstats-book. The `bmbstats` book can be read on the GitHub pages: https://mladenjovanovic.github.io/bmbstats-book/
+
+`bmbstats` needs to be installed from the GitHub repository: 
+
+```{r}
+# Install bmbstats if you haven't already by running the following commands
+# install.packages("devtools")
+# devtools::install_github("mladenjovanovic/bmbstats")
+
+library(bmbstats)
+```
+
+The following code (actually a wrapper code), puts profiling estimates inside the bootstrap loop (1000 resamples) and provides 90% confidence intervals (CIs) estimated using percentile method. Additionally, this code generates a profile plot (assuming simple linear regression)
+
+```{r}
+boot_profile <- function(profile_data, force = "mass", velocity = "take_off_velocity", poly_deg = 1) {
+  
+  profile_estimators <- function(data, SESOI_lower, SESOI_upper, na.rm, init_boot) {
+    # Get profile
+    profile <- vjsim::get_FV_profile(
+         profile_data = data,
+         force = force,
+         velocity = velocity,
+         poly_deg = poly_deg
+    )
+    
+    # Return profile
+    return(profile)
+  }
+  
+  # Perform bootstrap
+  boot_data <- bmbstats::bmbstats(
+    data = profile_data,
+    estimator_function = profile_estimators,
+    boot_samples = 1000,
+    boot_type = "perc"
+    )
+  
+  # Add plot
+  plot_data <- data.frame(F0 = boot_data$boot$t[, 1], V0 = boot_data$boot$t[, 2])
+  
+  n_points <- nrow(plot_data)
+  
+  plot_data <- data.frame(
+    x = c(plot_data$F0, rep(0, n_points)),
+    y = c(rep(0, n_points), plot_data$V0),
+    group = c(seq(1, n_points), seq(1, n_points))
+  )
+  
+  gg <- ggplot(plot_data, aes(x = x, y = y, group = group)) +
+    theme_cowplot(8) +
+    geom_line(alpha = 0.01, color = "blue") +
+    labs(x = force, y = velocity)
+  
+  boot_data$graphs <- gg
+  
+  return(boot_data)
+}
+```
+
+Let's use out profile data to perform the bootstrap and estimate uncertainty around $F_0$ and $V_0$. Let's use mass and TOV profile first:
+
+```{r}
+boot_data <- boot_profile(profile_data, force = "mass", velocity = "take_off_velocity")
+```
+
+The 90% CIs of the profile estimators (i.e. $F_0$ and $V_0$) can be found inside the object:
+
+```{r}
+boot_data$estimators
+```
+
+This uncertainty around $F_0$ and $V_0$ can easily be plotted: 
+
+```{r}
+boot_data$graphs
+```
+
+Each line on the above plot represents bootstrap resample. 
+
+Now let's repeat this for the mean GRF (over distance) and mean velocity profile:
+
+```{r}
+boot_data <- boot_profile(profile_data, force = "mean_GRF_over_distance", velocity = "take_off_velocity")
+
+boot_data$estimators
+
+boot_data$graphs
+```
+
+Even with the simulated model, that doesn't have *measurement error* involved, the uncertainty around profile parameters emerge (due representing jump performance profile with regression model and extrapolating). This topic will be further discussed in the `exploring-vjsim` vignette. For now it is important to realize the uncertainty around FV profile estimate (even without measurement error issues). 
 
 # Additional interesting topics
 

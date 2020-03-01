@@ -362,7 +362,7 @@ probe_data <- probe_profile(
   max_velocity = 4,
   time_to_max_activation = 0.3,
   time_step = 0.001,
-  external_load = c(0, 20, 40, 60, 80, 100),
+  external_load = external_load,
   change_ratio = seq(0.9, 1.1, length.out = 3),
 
   # Profile variables
@@ -511,6 +511,74 @@ gg <- ggplot(profile_probe_data, aes(x = force, y = velocity, color = profile)) 
   geom_vline(xintercept = 0, color = "grey", alpha = 0.5)
 gg
 
+
+## -----------------------------------------------------------------------------
+# Install bmbstats if you haven't already by running the following commands
+# install.packages("devtools")
+# devtools::install_github("mladenjovanovic/bmbstats")
+
+library(bmbstats)
+
+## -----------------------------------------------------------------------------
+boot_profile <- function(profile_data, force = "mass", velocity = "take_off_velocity", poly_deg = 1) {
+  
+  profile_estimators <- function(data, SESOI_lower, SESOI_upper, na.rm, init_boot) {
+    # Get profile
+    profile <- vjsim::get_FV_profile(
+         profile_data = data,
+         force = force,
+         velocity = velocity,
+         poly_deg = poly_deg
+    )
+    
+    # Return profile
+    return(profile)
+  }
+  
+  # Perform bootstrap
+  boot_data <- bmbstats::bmbstats(
+    data = profile_data,
+    estimator_function = profile_estimators,
+    boot_samples = 1000,
+    boot_type = "perc"
+    )
+  
+  # Add plot
+  plot_data <- data.frame(F0 = boot_data$boot$t[, 1], V0 = boot_data$boot$t[, 2])
+  
+  n_points <- nrow(plot_data)
+  
+  plot_data <- data.frame(
+    x = c(plot_data$F0, rep(0, n_points)),
+    y = c(rep(0, n_points), plot_data$V0),
+    group = c(seq(1, n_points), seq(1, n_points))
+  )
+  
+  gg <- ggplot(plot_data, aes(x = x, y = y, group = group)) +
+    theme_cowplot(8) +
+    geom_line(alpha = 0.01, color = "blue") +
+    labs(x = force, y = velocity)
+  
+  boot_data$graphs <- gg
+  
+  return(boot_data)
+}
+
+## -----------------------------------------------------------------------------
+boot_data <- boot_profile(profile_data, force = "mass", velocity = "take_off_velocity")
+
+## -----------------------------------------------------------------------------
+boot_data$estimators
+
+## -----------------------------------------------------------------------------
+boot_data$graphs
+
+## -----------------------------------------------------------------------------
+boot_data <- boot_profile(profile_data, force = "mean_GRF_over_distance", velocity = "take_off_velocity")
+
+boot_data$estimators
+
+boot_data$graphs
 
 ## -----------------------------------------------------------------------------
 # Profile data for Force Generator with only viscous components

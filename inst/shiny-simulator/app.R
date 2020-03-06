@@ -152,6 +152,7 @@ samozino_profile_variables <- c(
   "samozino_theoretical_profile.optimal_Sfv",
   "samozino_theoretical_profile.Sfv_perc",
   "samozino_theoretical_profile.FV_imbalance",
+  "samozino_theoretical_profile.probe_IMB",
   "samozino_practical_profile.F0",
   "samozino_practical_profile.F0_rel",
   "samozino_practical_profile.V0",
@@ -173,7 +174,8 @@ samozino_profile_variables <- c(
   "samozino_practical_profile.optimal_take_off_velocity_ratio",
   "samozino_practical_profile.optimal_Sfv",
   "samozino_practical_profile.Sfv_perc",
-  "samozino_practical_profile.FV_imbalance"
+  "samozino_practical_profile.FV_imbalance",
+  "samozino_practical_profile.probe_IMB",
 )
 
 vj_probing_change <- seq(0.9, 1.1, length.out = 7)

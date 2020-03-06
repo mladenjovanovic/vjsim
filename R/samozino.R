@@ -64,9 +64,13 @@ get_samozino_optimal_profile <- function(F0 = 3000,
     gravity_constant = gravity_const
   )
 
-  # function to be returned to optim
   take_off_velocity <- get_samozino_take_off_velocity(F0, V0, bodyweight, push_off_distance, gravity_const)
 
+  # Probe TOV
+  take_off_velocity_v_increase <- get_samozino_take_off_velocity(F0, V0 * 1.1, bodyweight, push_off_distance, gravity_const)
+  take_off_velocity_f_increase <- get_samozino_take_off_velocity(F0 * 1.1, V0, bodyweight, push_off_distance, gravity_const)
+
+  # function to be returned to optim
   opt_jump_func <- function(par, data) {
     new_F0 <- data$F0 / par[1]
     new_V0 <- data$V0 * par[1]
@@ -80,6 +84,7 @@ get_samozino_optimal_profile <- function(F0 = 3000,
     )
     return(1 / take_off_velocity)
   }
+
   # ------------------------
   # Find optimal parameters
   upper_bound <- (F0 / bodyweight) / gravity_const
@@ -118,8 +123,9 @@ get_samozino_optimal_profile <- function(F0 = 3000,
     optimal_take_off_velocity_diff = optimal_take_off_velocity - take_off_velocity,
     optimal_take_off_velocity_ratio = optimal_take_off_velocity / take_off_velocity,
     optimal_Sfv = optimal_Sfv,
-    Sfv_perc = (Sfv / optimal_Sfv),
-    FV_imbalance = abs(1 - (Sfv / optimal_Sfv))
+    Sfv_perc = (Sfv / optimal_Sfv) * 100,
+    FV_imbalance = abs(1 - (Sfv / optimal_Sfv)) * 100,
+    probe_IMB = (take_off_velocity_v_increase - take_off_velocity) / (take_off_velocity_f_increase - take_off_velocity) * 100
   )
   return(df)
 }

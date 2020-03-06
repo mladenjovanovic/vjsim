@@ -35,5 +35,7 @@ Suggests:
     ape,
     mgcv,
     vip,
-    pdp
+    pdp,
+    boot,
+    bmbstats
 VignetteBuilder: knitr

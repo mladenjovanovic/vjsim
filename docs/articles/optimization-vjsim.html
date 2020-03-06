@@ -94,7 +94,11 @@
 
       
 
-      </header><script src="optimization-vjsim_files/header-attrs-2.1/header-attrs.js"></script><div class="row">
+      </header><script src="optimization-vjsim_files/header-attrs-2.1/header-attrs.js"></script><script src="optimization-vjsim_files/htmlwidgets-1.5.1/htmlwidgets.js"></script><script src="optimization-vjsim_files/jquery-1.12.4/jquery.min.js"></script><link href="optimization-vjsim_files/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet">
+<script src="optimization-vjsim_files/datatables-binding-0.12/datatables.js"></script><link href="optimization-vjsim_files/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet">
+<link href="optimization-vjsim_files/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet">
+<script src="optimization-vjsim_files/dt-core-1.10.20/js/jquery.dataTables.min.js"></script><link href="optimization-vjsim_files/crosstalk-1.0.0/css/crosstalk.css" rel="stylesheet">
+<script src="optimization-vjsim_files/crosstalk-1.0.0/js/crosstalk.min.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1>Optimization models with <code>vjsim</code>
@@ -108,17 +112,527 @@
 
     
     
-<p>(To be written soon…)</p>
-<ul>
-<li>Assuming equal <span class="math inline">\(\bar{F}\)</span> for distance and time <span class="citation">(Samozino <a href="#ref-samozinoSimpleMethodMeasuring2018" role="doc-biblioref">2018</a>, 2941, equation 6)</span>
-</li>
-</ul>
+<div id="introduction-to-samozino-et-al--method" class="section level1">
+<h1 class="hasAnchor">
+<a href="#introduction-to-samozino-et-al--method" class="anchor"></a>Introduction to Samozino <em>et al.</em> method</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># Install vjsim if you haven't already by running the following commands</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="co"># install.packages("devtools")</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="co"># devtools::install_github("mladenjovanovic/vjsim")</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="co"># Install tidyverse and cowplot packages</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="co"># install.packages(c("tidyverse", "cowplot", "DT), dependencies = TRUE)</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a></span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(vjsim)</span>
+<span id="cb1-9"><a href="#cb1-9"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(tidyverse)</span>
+<span id="cb1-10"><a href="#cb1-10"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(cowplot)</span>
+<span id="cb1-11"><a href="#cb1-11"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(DT)</span></code></pre></div>
+<p>Before reading this vignette, please read <a href="https://mladenjovanovic.github.io/vjsim/articles/introduction-vjsim.html">Introduction to vjsim</a>, <a href="https://mladenjovanovic.github.io/vjsim/articles/simulation-vjsim.html">Simulation in vjsim</a> and <a href="https://mladenjovanovic.github.io/vjsim/articles/profiling-vjsim.html">Profiling in vjsim</a> vignettes by running:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw"><a href="https://rdrr.io/r/utils/vignette.html">vignette</a></span>(<span class="st">"introduction-vjsim"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="kw"><a href="https://rdrr.io/r/utils/vignette.html">vignette</a></span>(<span class="st">"simulation-vjsim"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="kw"><a href="https://rdrr.io/r/utils/vignette.html">vignette</a></span>(<span class="st">"profiling-vjsim"</span>)</span></code></pre></div>
+<p>This vignette is influenced with the works of Samozino, JB Morin <em>et al.</em> <span class="citation">(Samozino et al. <a href="#ref-samozinoSimpleMethodMeasuring2008" role="doc-biblioref">2008</a>, <a href="#ref-samozinoJumpingAbilityTheoretical2010" role="doc-biblioref">2010</a>, <a href="#ref-samozinoOptimalForceVelocity2012" role="doc-biblioref">2012</a>, <a href="#ref-samozinoForceVelocityProfileImbalance2013" role="doc-biblioref">2013</a>; Pierre Samozino <a href="#ref-samozinoOptimalForceVelocityProfile2018" role="doc-biblioref">2018</a><a href="#ref-samozinoOptimalForceVelocityProfile2018" role="doc-biblioref">b</a>, <a href="#ref-samozinoSimpleMethodMeasuring2018" role="doc-biblioref">2018</a><a href="#ref-samozinoSimpleMethodMeasuring2018" role="doc-biblioref">a</a>, <a href="#ref-samozinoSimpleMethodMeasuring2018" role="doc-biblioref">2018</a><a href="#ref-samozinoSimpleMethodMeasuring2018" role="doc-biblioref">a</a>)</span> and Jimenez-Reyes <em>et al.</em> <span class="citation">(Jiménez-Reyes et al. <a href="#ref-jimenez-reyesEffectivenessIndividualizedTraining2017" role="doc-biblioref">2017</a>; Jiménez-Reyes, Samozino, and Morin <a href="#ref-jimenez-reyesOptimizedTrainingJumping2019" role="doc-biblioref">2019</a>)</span>. I will provide a short summary and implementation in <code>vjsim</code> as well as some of my opinions regarding <em>Samozino optimization model</em>, but you are urged to check the references for more thorough information.</p>
+<p>In the previous vignette <a href="https://mladenjovanovic.github.io/vjsim/articles/profiling-vjsim.html">Profiling in vjsim</a> I demonstrated the ideas behind Force-Velocity (FV) and Load-Velocity (LV) profiling and their implementation in <code>vjsim</code>, as well as the issues with those methods. This is relatively easy, since we are using simulated data. But collecting data on real athletes is harder, and <span class="citation">Samozino et al. (<a href="#ref-samozinoSimpleMethodMeasuring2008" role="doc-biblioref">2008</a>)</span> and <span class="citation">Samozino et al. (<a href="#ref-samozinoJumpingAbilityTheoretical2010" role="doc-biblioref">2010</a>)</span> created a simple method for estimating mean force and mean velocity from load~jump height profiling. To demonstrate how this works, and what are the assumptions of this model, I will used the profile from the previous vignette:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># External load in kilograms</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a>external_load &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">0</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">60</span>, <span class="dv">80</span>, <span class="dv">100</span>)</span>
+<span id="cb3-3"><a href="#cb3-3"></a></span>
+<span id="cb3-4"><a href="#cb3-4"></a>profile_data &lt;-<span class="st"> </span>vjsim<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/vj_profile.html">vj_profile</a></span>(</span>
+<span id="cb3-5"><a href="#cb3-5"></a>  <span class="dt">external_load =</span> external_load,</span>
+<span id="cb3-6"><a href="#cb3-6"></a></span>
+<span id="cb3-7"><a href="#cb3-7"></a>  <span class="co"># Simulation parameters</span></span>
+<span id="cb3-8"><a href="#cb3-8"></a>  <span class="dt">mass =</span> <span class="dv">75</span>,</span>
+<span id="cb3-9"><a href="#cb3-9"></a>  <span class="dt">push_off_distance =</span> <span class="fl">0.4</span>,</span>
+<span id="cb3-10"><a href="#cb3-10"></a>  <span class="dt">max_force =</span> <span class="dv">3000</span>,</span>
+<span id="cb3-11"><a href="#cb3-11"></a>  <span class="dt">max_velocity =</span> <span class="dv">4</span></span>
+<span id="cb3-12"><a href="#cb3-12"></a></span>
+<span id="cb3-13"><a href="#cb3-13"></a>  <span class="co"># Other parameters are default in the `vjsim::fgen_get_output`</span></span>
+<span id="cb3-14"><a href="#cb3-14"></a>  <span class="co"># weight = mass * gravity_const,</span></span>
+<span id="cb3-15"><a href="#cb3-15"></a>  <span class="co"># gravity_const = 9.81,</span></span>
+<span id="cb3-16"><a href="#cb3-16"></a>  <span class="co"># decline_rate = 1.05,</span></span>
+<span id="cb3-17"><a href="#cb3-17"></a>  <span class="co"># peak_location = -push_off_distance * 0.15,</span></span>
+<span id="cb3-18"><a href="#cb3-18"></a>  <span class="co"># time_to_max_activation = 0.3</span></span>
+<span id="cb3-19"><a href="#cb3-19"></a>)</span></code></pre></div>
+<p>As illustrated in the previous vignette, with <code>vjsim</code> we can create various FV profiles. But <span class="citation">Samozino et al. (<a href="#ref-samozinoSimpleMethodMeasuring2008" role="doc-biblioref">2008</a>)</span> and <span class="citation">Samozino et al. (<a href="#ref-samozinoJumpingAbilityTheoretical2010" role="doc-biblioref">2010</a>)</span> suggested a simple <em>field</em> method that can approximate mean force (<span class="math inline">\(\bar{F}\)</span>) and mean velocity (<span class="math inline">\(\bar{v}\)</span>) from a known (1) bodyweight, (2) jump height and (3) push-off distance. Otherwise, more expensive equipment, such as force place, is needed. The goal is to <em>approximate</em> laboratory Force-Velocity profiling using <em>field</em> Load-Height profile.</p>
+<p>To represent jump, we will use introduced model in <code>vjsim</code>, where we have object of mass <span class="math inline">\(m\)</span>, that is acelerated over push-off distance (or height) <span class="math inline">\(h_{po}\)</span> by the action of the Force Generator, eventually reaching jump height <span class="math inline">\(h\)</span>. The jump is performed vertically, on Earth, where the gravity constant <span class="math inline">\(g\)</span> is equal to <span class="math inline">\(9.81ms^-2\)</span>. At the end of the push-off distance, object reaches the take-off velocity (<span class="math inline">\(TOV\)</span>, or <span class="math inline">\(v_{to}\)</span>), from which we can calculate height reached. Actualy, in this field method, we calculate TOV from jump height reached using the inverse ballistic equation:</p>
+<p><span class="math display">\[
+v_{to} = \sqrt{2gh}
+\]</span></p>
+<p>For the object to reach jump height, Force Generator must do some <em>work</em>. Using the work (or energy) equation, we can derive mean force <span class="math inline">\(\bar{F}\)</span>. Please note that this mean force is <em>mean over distance</em> (see <a href="https://mladenjovanovic.github.io/vjsim/articles/introduction-vjsim.html">Introduction to vjsim</a>). Work done by the Force Generator is equal to weight of the object (i.e. <span class="math inline">\(mg\)</span>), multiplied by total distance, or sum of push-off distance and height reached (i.e. <span class="math inline">\(h_{po}+h\)</span>):</p>
+<p><span class="math display">\[
+W = mg(h_{po}+h)
+\]</span></p>
+<p>The above equation uses <em>potential energy</em>. We can also use potential plus kinetic energy form, where we sum the potential energy acquired by lifting the object for <span class="math inline">\(h_{po}\)</span> and kinetic energy using <span class="math inline">\(v_{to}\)</span>. These two equations are identical (actually this is how ballistic equation to get height from <span class="math inline">\(v_{to}\)</span> and <em>vice versa</em> is derived in the first place).</p>
+<p><span class="math display">\[
+W = mgh + \frac{mv_{to}^2}{2}
+\]</span></p>
+<p>Since work is equal <span class="math inline">\(F \times d\)</span>, and Force Generator acts only over the <span class="math inline">\(h_{po}\)</span>, we get the following equation for mean force <span class="math inline">\(\bar{F}\)</span>:</p>
+<p><span class="math display">\[
+\begin{aligned}
+W &amp;= \bar{F}\times h_{po} \\
+\bar{F} &amp;= \frac{W}{h_{po}} \\
+\bar{F} &amp;= \frac{mg(h_{po}+h)}{h_{po}} \\
+\bar{F} &amp;= mg(\frac{h}{h_{po}}+1)
+\end{aligned}
+\]</span></p>
+<p>Now we have the mean force acting over <span class="math inline">\(h_{po}\)</span>. But, how do we get the mean velocity <span class="math inline">\(\bar{v}\)</span> over <span class="math inline">\(h_{po}\)</span> (which is needed for FV profiling)?</p>
+<p>The mean velocity over <span class="math inline">\(h_{po}\)</span> is equal to <span class="math inline">\(h_{po}\)</span> divided by the time it takes to cover it, or <span class="math inline">\(t_{po}\)</span>:</p>
+<p><span class="math display">\[
+\bar{v} = \frac{h_{po}}{t_{po}}
+\]</span></p>
+<p>Unfortunatelly, we do not know <span class="math inline">\(t_{po}\)</span> (using this simple field approach). What <span class="citation">Samozino et al. (<a href="#ref-samozinoSimpleMethodMeasuring2008" role="doc-biblioref">2008</a>)</span> and <span class="citation">Samozino et al. (<a href="#ref-samozinoJumpingAbilityTheoretical2010" role="doc-biblioref">2010</a>)</span> have done (see <span class="citation">Samozino et al. (<a href="#ref-samozinoSimpleMethodMeasuring2008" role="doc-biblioref">2008</a>)</span> page 2941, equation 6) is to use impulse-momentum equation, which states that impulse (<span class="math inline">\(I = (\bar{F} - mg) \times t_{po}\)</span>) is equal to the momentum (<span class="math inline">\(M = m \times v_{to}\)</span>). We thus get the following equation, from which we can extract <span class="math inline">\(t_{po}\)</span>:</p>
+<p><span class="math display">\[
+\begin{aligned}
+  I &amp;= M \\
+  (\bar{F} - mg) \times t_{po} &amp;= m \times v_{to} \\
+  t_{po} &amp;= \frac{m \times v_{to}}{\bar{F} - mg}
+\end{aligned}
+\]</span></p>
+<p>If we use the equation that <span class="math inline">\(v_{to} = \sqrt{2gh}\)</span>, we get the following equation for <span class="math inline">\(\bar{v}\)</span>:</p>
+<p><span class="math display">\[
+\begin{aligned}
+  \bar{v} &amp;= \frac{h_{po}}{t_{po}} \\
+  \bar{v} &amp;= \frac{h_{po}}{\frac{m \times v_{to}}{\bar{F} - mg}} \\
+  \bar{v} &amp;= \frac{h_{po}}{\frac{m \times v_{to}}{mg(\frac{h}{h_{po}}+1) - mg}} \\
+  \bar{v} &amp;= \frac{h_{po}}{\frac{m \times v_{to}}{\frac{mgh}{h_{po}}}} \\
+  \bar{v} &amp;= \frac{gh}{v_{to}} \\
+\end{aligned}
+\]</span></p>
+<p>We can now use <span class="math inline">\(v_{to} = \sqrt{2gh}\)</span> to solve this equation:</p>
+<p><span class="math display">\[
+\begin{aligned}
+  \bar{v} &amp;= \frac{gh}{v_{to}} \\
+   \bar{v} &amp;= \frac{gh}{\sqrt{2gh}} \\
+   \bar{v} &amp;= \sqrt{\frac{gh}{2}}
+\end{aligned}
+\]</span></p>
+<p>This also implies that <span class="math inline">\(\frac{v_{to}}{\bar{v}}\)</span> is equal to:</p>
+<p><span class="math display">\[
+\begin{aligned}
+  \frac{v_{to}}{\bar{v}} &amp;= \\
+  \frac{\sqrt{2gh}}{\sqrt{\frac{gh}{2}}} &amp;= \\
+  &amp;= 2
+\end{aligned}
+\]</span></p>
+<p>Why is this? Because, equations used by <span class="citation">Samozino et al. (<a href="#ref-samozinoSimpleMethodMeasuring2008" role="doc-biblioref">2008</a>)</span> and <span class="citation">Samozino et al. (<a href="#ref-samozinoJumpingAbilityTheoretical2010" role="doc-biblioref">2010</a>)</span> assumes same <span class="math inline">\(\bar{F}\)</span> over distance (estimated using Work/Energy equations) and <span class="math inline">\(\bar{F}\)</span> over time (estimated using Impulse - Momentum equations). This assumption is only valid when there is constant force applied and there is uniform acceleration. In that case (assuming starting velocity to be equal to 0 m/s), <span class="math inline">\(v_{to}\)</span> is twice as big as <span class="math inline">\(\bar{v}\)</span>.</p>
+<p>In short, field method proposed by <span class="citation">Samozino et al. (<a href="#ref-samozinoSimpleMethodMeasuring2008" role="doc-biblioref">2008</a>)</span> and <span class="citation">Samozino et al. (<a href="#ref-samozinoJumpingAbilityTheoretical2010" role="doc-biblioref">2010</a>)</span> approximates <span class="math inline">\(\bar{F}\)</span> and <span class="math inline">\(\bar{v}\)</span> assuming constant force and is uniform acceleration across <span class="math inline">\(h_{po}\)</span>. Although wrong, the error introduced by this assumption is estimated in the aforementioned studies when compared with laboratory measurement and it doesn’t seem to be practically significant. But this error (or assumption) simplifies the estimation of <span class="math inline">\(\bar{F}\)</span> and <span class="math inline">\(\bar{v}\)</span> in the field settings.</p>
+<p>In <code>vjsim</code> this method of profiling is implemented using <em>true</em> <span class="math inline">\(\bar{v}\)</span> and mean GRF over distance (<span class="math inline">\(\bar{F}\)</span>), which I called <em>theoretical</em> (and thus represent Mean Force ~ Mean Velocity profile) and using <span class="math inline">\(\frac{1}{2}v_{to}\)</span> as <span class="math inline">\(\bar{v}\)</span>, which I called <em>practical</em>. We will explore their similarities and differences in this and the next vignette. Here is how these are calculated in <code>vjsim</code> (forcus on <span class="math inline">\(F_0\)</span> and <span class="math inline">\(V_0\)</span> and disregard <em>optimal</em> metrics for now - they will soon be explained):</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>samozino_profiles &lt;-<span class="st"> </span>vjsim<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/get_all_samozino_profiles.html">get_all_samozino_profiles</a></span>(profile_data)</span>
+<span id="cb4-2"><a href="#cb4-2"></a></span>
+<span id="cb4-3"><a href="#cb4-3"></a></span>
+<span id="cb4-4"><a href="#cb4-4"></a><span class="kw"><a href="https://rdrr.io/pkg/DT/man/datatable.html">datatable</a></span>(samozino_profiles<span class="op">$</span>data_frame, <span class="dt">rownames =</span> <span class="ot">FALSE</span>) <span class="op">%&gt;%</span></span>
+<span id="cb4-5"><a href="#cb4-5"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/DT/man/formatCurrency.html">formatRound</a></span>(<span class="dt">columns =</span> <span class="dv">1</span><span class="op">:</span><span class="kw"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span>(samozino_profiles<span class="op">$</span>data_frame), <span class="dt">digits =</span> <span class="dv">2</span>)</span></code></pre></div>
+<div id="htmlwidget-380bdcf7af6377a501cd" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-380bdcf7af6377a501cd">{"x":{"filter":"none","data":[["Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile"],["F0","F0_rel","V0","Pmax","Pmax_rel","Sfv","take_off_velocity","height","optimal_F0","optimal_F0_rel","optimal_V0","optimal_height","optimal_height_diff","optimal_height_ratio","optimal_Pmax","optimal_Pmax_rel","optimal_take_off_velocity","optimal_take_off_velocity_diff","optimal_take_off_velocity_ratio","optimal_Sfv","Sfv_perc","FV_imbalance","probe_IMB","F0","F0_rel","V0","Pmax","Pmax_rel","Sfv","take_off_velocity","height","optimal_F0","optimal_F0_rel","optimal_V0","optimal_height","optimal_height_diff","optimal_height_ratio","optimal_Pmax","optimal_Pmax_rel","optimal_take_off_velocity","optimal_take_off_velocity_diff","optimal_take_off_velocity_ratio","optimal_Sfv","Sfv_perc","FV_imbalance","probe_IMB"],[2690.724579738,35.8763277298399,2.52862445537967,1700.95799375417,22.6794399167223,-1064.10604944259,2.53873276825153,0.328499697685733,2679.98861369844,35.7331815159792,2.5387540604612,0.328505218243426,5.52055769265092e-06,1.00001680536613,1700.95799375417,22.6794399167223,2.53875410032875,2.13320772131098e-05,1.00000840264776,-1055.63144356393,100.802799682629,0.802799682628996,101.206225038384,3254.31395034112,43.3908526712149,2.02110478027624,1644.32737038852,21.9243649385136,-1610.16587665303,2.43684032231585,0.3026600793305,2637.520435744,35.1669391432534,2.49374730615072,0.31696104185445,0.0143009625239501,1.04725090456457,1644.32737038852,21.9243649385136,2.49374730900793,0.0569069866920846,1.02335277620407,-1057.65344758014,152.239458050934,52.2394580509341,155.062046401594]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>profile<\/th>\n      <th>metric<\/th>\n      <th>value<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":2}],"order":[],"autoWidth":false,"orderClasses":false,"rowCallback":"function(row, data) {\nDTWidget.formatRound(this, row, data, 0, 2, 3, \",\", \".\");\nDTWidget.formatRound(this, row, data, 1, 2, 3, \",\", \".\");\nDTWidget.formatRound(this, row, data, 2, 2, 3, \",\", \".\");\n}"}},"evals":["options.rowCallback"],"jsHooks":[]}</script><p>Here is the plot of these two profiles:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>plot_data &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(</span>
+<span id="cb5-2"><a href="#cb5-2"></a>  <span class="dt">profile =</span> <span class="kw"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Theoretical"</span>, <span class="st">"Practical"</span>), <span class="dt">each =</span> <span class="dv">2</span>),</span>
+<span id="cb5-3"><a href="#cb5-3"></a>  <span class="dt">group =</span> <span class="kw"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>, <span class="dt">each =</span> <span class="dv">2</span>),</span>
+<span id="cb5-4"><a href="#cb5-4"></a>  <span class="dt">x =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(samozino_profiles<span class="op">$</span>list<span class="op">$</span>samozino_theoretical_profile<span class="op">$</span>F0, <span class="dv">0</span>, samozino_profiles<span class="op">$</span>list<span class="op">$</span>samozino_practical_profile<span class="op">$</span>F0, <span class="dv">0</span>),</span>
+<span id="cb5-5"><a href="#cb5-5"></a>  <span class="dt">y =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">0</span>, samozino_profiles<span class="op">$</span>list<span class="op">$</span>samozino_theoretical_profile<span class="op">$</span>V0, <span class="dv">0</span>, samozino_profiles<span class="op">$</span>list<span class="op">$</span>samozino_practical_profile<span class="op">$</span>V0)</span>
+<span id="cb5-6"><a href="#cb5-6"></a>)</span>
+<span id="cb5-7"><a href="#cb5-7"></a></span>
+<span id="cb5-8"><a href="#cb5-8"></a>plot_data_points &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(</span>
+<span id="cb5-9"><a href="#cb5-9"></a>  <span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(</span>
+<span id="cb5-10"><a href="#cb5-10"></a>    <span class="dt">profile =</span> <span class="st">"Theoretical"</span>,</span>
+<span id="cb5-11"><a href="#cb5-11"></a>    <span class="dt">group =</span> <span class="dv">1</span>,</span>
+<span id="cb5-12"><a href="#cb5-12"></a>    <span class="dt">x =</span> profile_data<span class="op">$</span>mean_GRF_over_distance,</span>
+<span id="cb5-13"><a href="#cb5-13"></a>    <span class="dt">y =</span> profile_data<span class="op">$</span>mean_velocity</span>
+<span id="cb5-14"><a href="#cb5-14"></a>  ),</span>
+<span id="cb5-15"><a href="#cb5-15"></a>  <span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(</span>
+<span id="cb5-16"><a href="#cb5-16"></a>    <span class="dt">profile =</span> <span class="st">"Practical"</span>,</span>
+<span id="cb5-17"><a href="#cb5-17"></a>    <span class="dt">group =</span> <span class="dv">2</span>,</span>
+<span id="cb5-18"><a href="#cb5-18"></a>    <span class="dt">x =</span> profile_data<span class="op">$</span>mean_GRF_over_distance,</span>
+<span id="cb5-19"><a href="#cb5-19"></a>    <span class="dt">y =</span> profile_data<span class="op">$</span>mean_velocity_as_TOV_half</span>
+<span id="cb5-20"><a href="#cb5-20"></a>  )</span>
+<span id="cb5-21"><a href="#cb5-21"></a>)</span>
+<span id="cb5-22"><a href="#cb5-22"></a></span>
+<span id="cb5-23"><a href="#cb5-23"></a><span class="kw">ggplot</span>(plot_data, <span class="kw">aes</span>(<span class="dt">x =</span> x, <span class="dt">y =</span> y, <span class="dt">group =</span> group, <span class="dt">color =</span> profile)) <span class="op">+</span></span>
+<span id="cb5-24"><a href="#cb5-24"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="dv">8</span>) <span class="op">+</span></span>
+<span id="cb5-25"><a href="#cb5-25"></a><span class="st">  </span><span class="kw">geom_line</span>(<span class="dt">alpha =</span> <span class="fl">0.8</span>) <span class="op">+</span></span>
+<span id="cb5-26"><a href="#cb5-26"></a><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">data =</span> plot_data_points, <span class="dt">alpha =</span> <span class="fl">0.8</span>) <span class="op">+</span></span>
+<span id="cb5-27"><a href="#cb5-27"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">"Mean GRF over distance (N)"</span>, <span class="dt">y =</span> <span class="st">"Mean Velocity (m/s)"</span>)</span></code></pre></div>
+<p><img src="optimization-vjsim_files/figure-html/unnamed-chunk-5-1.png" width="90%" style="display: block; margin: auto;"></p>
+</div>
+<div id="effect-of-barf-on-jump-height" class="section level1">
+<h1 class="hasAnchor">
+<a href="#effect-of-barf-on-jump-height" class="anchor"></a>Effect of <span class="math inline">\(\bar{F}\)</span> on jump height</h1>
+<p>If mean force <span class="math inline">\(\bar{F}\)</span> acts on the body of mass <span class="math inline">\(m\)</span>, weight <span class="math inline">\(w=mg\)</span> over a push-off distance <span class="math inline">\(h_{po}\)</span>, starting with initial velocity <span class="math inline">\(v=0\)</span>, then the final take-off velocity reached <span class="math inline">\(v_{to}\)</span> is equal to:</p>
+<p><span class="math display">\[
+\begin{aligned}
+  (\bar{F} - mg)\times h_{po} &amp;= \frac{v_{to}^2}{2} \\
+  v_{to} &amp;= \sqrt{\frac{2h_{po}(\bar{F} - mg)}{m}}
+\end{aligned}
+\]</span></p>
+<p>Assuming athlete weights 75kg, we get the following graph for varying <span class="math inline">\(h_{po}\)</span> and <span class="math inline">\(\bar{F}\)</span></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="co"># Need this package to label the lines</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="co"># install.packages("directlabels")</span></span>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span>(directlabels)</span>
+<span id="cb6-4"><a href="#cb6-4"></a></span>
+<span id="cb6-5"><a href="#cb6-5"></a><span class="co"># Function to calculate TOV</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a>get_tov &lt;-<span class="st"> </span><span class="cf">function</span>(mass, gravity_const, mean_force, push_off_distance) {</span>
+<span id="cb6-7"><a href="#cb6-7"></a>  <span class="kw"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span>((<span class="dv">2</span> <span class="op">*</span><span class="st"> </span>push_off_distance <span class="op">*</span><span class="st"> </span>(mean_force <span class="op">-</span><span class="st"> </span>mass <span class="op">*</span><span class="st"> </span>gravity_const)) <span class="op">/</span><span class="st"> </span>mass)</span>
+<span id="cb6-8"><a href="#cb6-8"></a>}</span>
+<span id="cb6-9"><a href="#cb6-9"></a></span>
+<span id="cb6-10"><a href="#cb6-10"></a>params &lt;-<span class="st"> </span><span class="kw">expand_grid</span>(</span>
+<span id="cb6-11"><a href="#cb6-11"></a>  <span class="dt">mass =</span> <span class="dv">75</span>,</span>
+<span id="cb6-12"><a href="#cb6-12"></a>  <span class="dt">gravity_const =</span> <span class="fl">9.81</span>,</span>
+<span id="cb6-13"><a href="#cb6-13"></a>  <span class="dt">push_off_distance =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.2</span>, <span class="fl">0.3</span>, <span class="fl">0.4</span>, <span class="fl">0.5</span>, <span class="fl">0.6</span>),</span>
+<span id="cb6-14"><a href="#cb6-14"></a>  <span class="dt">mean_GRF_over_distance =</span> <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="dv">0</span>, <span class="dv">3000</span>)</span>
+<span id="cb6-15"><a href="#cb6-15"></a>)</span>
+<span id="cb6-16"><a href="#cb6-16"></a></span>
+<span id="cb6-17"><a href="#cb6-17"></a>params<span class="op">$</span>take_off_velocity &lt;-<span class="st"> </span><span class="kw">get_tov</span>(</span>
+<span id="cb6-18"><a href="#cb6-18"></a>  <span class="dt">mass =</span> params<span class="op">$</span>mass,</span>
+<span id="cb6-19"><a href="#cb6-19"></a>  <span class="dt">gravity_const =</span> params<span class="op">$</span>gravity_const,</span>
+<span id="cb6-20"><a href="#cb6-20"></a>  <span class="dt">mean_force =</span> params<span class="op">$</span>mean_GRF_over_distance,</span>
+<span id="cb6-21"><a href="#cb6-21"></a>  <span class="dt">push_off_distance =</span> params<span class="op">$</span>push_off_distance</span>
+<span id="cb6-22"><a href="#cb6-22"></a>)</span>
+<span id="cb6-23"><a href="#cb6-23"></a></span>
+<span id="cb6-24"><a href="#cb6-24"></a>gg &lt;-<span class="st"> </span><span class="kw">ggplot</span>(params,</span>
+<span id="cb6-25"><a href="#cb6-25"></a>  <span class="kw">aes</span>(<span class="dt">x =</span> mean_GRF_over_distance, <span class="dt">y =</span> take_off_velocity, <span class="dt">group =</span> push_off_distance, <span class="dt">color =</span> push_off_distance)</span>
+<span id="cb6-26"><a href="#cb6-26"></a>  ) <span class="op">+</span></span>
+<span id="cb6-27"><a href="#cb6-27"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="dv">8</span>) <span class="op">+</span></span>
+<span id="cb6-28"><a href="#cb6-28"></a><span class="st">  </span><span class="kw">geom_line</span>(<span class="dt">color =</span> <span class="st">"black"</span>) <span class="op">+</span></span>
+<span id="cb6-29"><a href="#cb6-29"></a><span class="st">  </span><span class="kw">scale_color_gradient</span>(<span class="dt">low =</span> <span class="st">"black"</span>, <span class="dt">high =</span> <span class="st">"black"</span>)</span>
+<span id="cb6-30"><a href="#cb6-30"></a></span>
+<span id="cb6-31"><a href="#cb6-31"></a><span class="kw"><a href="https://rdrr.io/pkg/directlabels/man/direct.label.html">direct.label</a></span>(gg, <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="st">"last.bumpup"</span>, <span class="dt">cex =</span> <span class="fl">0.6</span>))</span></code></pre></div>
+<p><img src="optimization-vjsim_files/figure-html/unnamed-chunk-6-1.png" width="90%" style="display: block; margin: auto;"></p>
+<p>As can be seen from this graph, higher the <span class="math inline">\(\bar{F}\)</span>, the higher the <span class="math inline">\(v_{to}\)</span> reached. The same thing with <span class="math inline">\(h_{po}\)</span>. If the <span class="math inline">\(\bar{F}\)</span> is below <span class="math inline">\(mg\)</span> (in this case 735.75N), then there will be no jump at all, since force acting on the object is lower than object’s weight. We can also do this for the jeump height, rather than <span class="math inline">\(v_{to}\)</span>:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>params<span class="op">$</span>height &lt;-<span class="st"> </span>vjsim<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/get_height.html">get_height</a></span>(params<span class="op">$</span>take_off_velocity, params<span class="op">$</span>gravity_const)</span>
+<span id="cb7-2"><a href="#cb7-2"></a></span>
+<span id="cb7-3"><a href="#cb7-3"></a>gg &lt;-<span class="st"> </span><span class="kw">ggplot</span>(params, <span class="kw">aes</span>(<span class="dt">x =</span> mean_GRF_over_distance, <span class="dt">y =</span> height, <span class="dt">group =</span> push_off_distance, <span class="dt">color =</span> push_off_distance)) <span class="op">+</span></span>
+<span id="cb7-4"><a href="#cb7-4"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="dv">8</span>) <span class="op">+</span></span>
+<span id="cb7-5"><a href="#cb7-5"></a><span class="st">  </span><span class="kw">geom_line</span>(<span class="dt">color =</span> <span class="st">"black"</span>) <span class="op">+</span></span>
+<span id="cb7-6"><a href="#cb7-6"></a><span class="st">  </span><span class="kw">scale_color_gradient</span>(<span class="dt">low =</span> <span class="st">"black"</span>, <span class="dt">high =</span> <span class="st">"black"</span>)</span>
+<span id="cb7-7"><a href="#cb7-7"></a></span>
+<span id="cb7-8"><a href="#cb7-8"></a><span class="kw"><a href="https://rdrr.io/pkg/directlabels/man/direct.label.html">direct.label</a></span>(gg, <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="st">"last.bumpup"</span>, <span class="dt">cex =</span> <span class="fl">0.6</span>))</span></code></pre></div>
+<p><img src="optimization-vjsim_files/figure-html/unnamed-chunk-7-1.png" width="90%" style="display: block; margin: auto;"></p>
+<p>Long story short, assuming <span class="math inline">\(h_{po}\)</span> is fixed, the more force one applies (particularyl relative force, i.e. <span class="math inline">\(\frac{\bar{F}}{m}\)</span>), the higher the jump. Rocket science!</p>
+</div>
+<div id="adding-force-generator-constraints" class="section level1">
+<h1 class="hasAnchor">
+<a href="#adding-force-generator-constraints" class="anchor"></a>Adding Force Generator ‘constraints’</h1>
+<p>One of the premise of Samozino’s model is that the previous mechanical constraints (<span class="math inline">\(v_{to}\)</span> increasing with <span class="math inline">\(\bar{F}\)</span>) can be combined with FV relationship of the Force Generator (i.e. <span class="math inline">\(F_0\)</span> and <span class="math inline">\(V_0\)</span>). As previously explained, Samozino’s model assumes that <span class="math inline">\(\bar{v}\)</span> is equal to <span class="math inline">\(\frac{v_{to}}{2}\)</span>. Thus we get the following figure (using 75kg bodyweight and <span class="math inline">\(h_{po}\)</span> of 0.4m:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>params<span class="op">$</span>mean_velocity_as_TOV_half &lt;-<span class="st"> </span>params<span class="op">$</span>take_off_velocity <span class="op">/</span><span class="st"> </span><span class="dv">2</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a></span>
+<span id="cb8-3"><a href="#cb8-3"></a><span class="kw">ggplot</span>(</span>
+<span id="cb8-4"><a href="#cb8-4"></a>  <span class="kw"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span>(plot_data, profile <span class="op">==</span><span class="st"> "Practical"</span>),</span>
+<span id="cb8-5"><a href="#cb8-5"></a>  <span class="kw">aes</span>(<span class="dt">x =</span> x, <span class="dt">y =</span> y, <span class="dt">group =</span> group, <span class="dt">color =</span> profile)</span>
+<span id="cb8-6"><a href="#cb8-6"></a>) <span class="op">+</span></span>
+<span id="cb8-7"><a href="#cb8-7"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="dv">8</span>) <span class="op">+</span></span>
+<span id="cb8-8"><a href="#cb8-8"></a><span class="st">  </span><span class="kw">geom_line</span>(<span class="dt">alpha =</span> <span class="fl">0.8</span>) <span class="op">+</span></span>
+<span id="cb8-9"><a href="#cb8-9"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">"Mean GRF over distance (N)"</span>, <span class="dt">y =</span> <span class="st">"Mean Velocity (m/s)"</span>) <span class="op">+</span></span>
+<span id="cb8-10"><a href="#cb8-10"></a><span class="st">  </span><span class="kw">geom_line</span>(</span>
+<span id="cb8-11"><a href="#cb8-11"></a>    <span class="dt">data =</span> <span class="kw"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span>(params, push_off_distance <span class="op">==</span><span class="st"> </span><span class="fl">0.4</span>),</span>
+<span id="cb8-12"><a href="#cb8-12"></a>    <span class="kw">aes</span>(<span class="dt">x =</span> mean_GRF_over_distance, <span class="dt">y =</span> mean_velocity_as_TOV_half), <span class="dt">group =</span> <span class="dv">1</span>, <span class="dt">color =</span> <span class="st">"black"</span>, <span class="dt">alpha =</span> <span class="fl">0.8</span></span>
+<span id="cb8-13"><a href="#cb8-13"></a>  )</span></code></pre></div>
+<p><img src="optimization-vjsim_files/figure-html/unnamed-chunk-8-1.png" width="90%" style="display: block; margin: auto;"></p>
+<p>The predicted <span class="math inline">\(\hat{v_{to}}\)</span> (referenced papers refer to this as <em>maximal <span class="math inline">\(v_{to}\)</span></em>, but I do not like the name, so I just refer to it as take-off velocity) is the point where two profiles intersect. This point can mathematically be expressed as:</p>
+<p><span class="math display">\[
+\hat{v_{to}} = \frac{h_{po}\left(\sqrt{\left(\frac{F_0^2}{4 V_0^2}-\frac{2 m (g
+   m-F_0)}{h_{po}}\right)}-\frac{F_0}{2 V_0}\right)}{m}
+\]</span></p>
+<p>This equation is implementd in <code><a href="../reference/get_samozino_take_off_velocity.html">vjsim::get_samozino_take_off_velocity</a></code> function, that we will shortly use.</p>
+<p>Look at <span class="math inline">\(\hat{v_{to}}\)</span> this way - given the FV characteristic of the individual (as well as his/her bodyweight, <span class="math inline">\(h_{po}\)</span> and of course gravity constant) we can <em>predict</em> take-off velocity and height. Thus, this is a model predicton.</p>
+<p>As already explained, in <code>vjsim</code> we can implement practical Samozino profile (approximating mean velocity with half of TOV) and theoretical profile (using <em>true</em> mean velocity over <span class="math inline">\(h_{po}\)</span>). We can plot these and see that the model <span class="math inline">\(v_{to}\)</span> predictions differ, but they are both quite close to the first data point (i.e. bodyweight jump performance):</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw">ggplot</span>(plot_data, <span class="kw">aes</span>(<span class="dt">x =</span> x, <span class="dt">y =</span> y, <span class="dt">group =</span> group, <span class="dt">color =</span> profile)) <span class="op">+</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="dv">8</span>) <span class="op">+</span></span>
+<span id="cb9-3"><a href="#cb9-3"></a><span class="st">  </span><span class="kw">geom_line</span>(<span class="dt">alpha =</span> <span class="fl">0.8</span>) <span class="op">+</span></span>
+<span id="cb9-4"><a href="#cb9-4"></a><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">data =</span> plot_data_points, <span class="dt">alpha =</span> <span class="fl">0.8</span>) <span class="op">+</span></span>
+<span id="cb9-5"><a href="#cb9-5"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">"Mean GRF over distance (N)"</span>, <span class="dt">y =</span> <span class="st">"Mean Velocity (m/s)"</span>) <span class="op">+</span></span>
+<span id="cb9-6"><a href="#cb9-6"></a><span class="st">  </span><span class="kw">geom_line</span>(</span>
+<span id="cb9-7"><a href="#cb9-7"></a>    <span class="dt">data =</span> <span class="kw"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span>(params, push_off_distance <span class="op">==</span><span class="st"> </span><span class="fl">0.4</span>),</span>
+<span id="cb9-8"><a href="#cb9-8"></a>    <span class="kw">aes</span>(<span class="dt">x =</span> mean_GRF_over_distance, <span class="dt">y =</span> mean_velocity_as_TOV_half), <span class="dt">group =</span> <span class="dv">1</span>, <span class="dt">color =</span> <span class="st">"black"</span>, <span class="dt">alpha =</span> <span class="fl">0.8</span></span>
+<span id="cb9-9"><a href="#cb9-9"></a>  )</span></code></pre></div>
+<p><img src="optimization-vjsim_files/figure-html/unnamed-chunk-9-1.png" width="90%" style="display: block; margin: auto;"></p>
+<p>The differences between true jump height or true take-off velocity and model predicted can be traced back to the ratio between take-off velocity and mean velocity (since Samozino’s model asssumes uniform acceleration and 2:1 ratio between these two). This is something we will explore in the next vignette.</p>
+<p>This model might seems a bit <em>circular</em>, and that is one of my arguments against it. We use load and jump height performance to infer <span class="math inline">\(F_0\)</span> and <span class="math inline">\(V_0\)</span>, from which we predict jump height. Besides, we estimate Force Generator constraints or determinants of performance (in this case jump height) from the performance itself. Then we claim that <span class="math inline">\(F_0\)</span> and <span class="math inline">\(V_0\)</span> determine jump performance (which we estimated from performance itself in the first place)?!</p>
+<p>As seen in this and previous vignette, these parameters doesn’t recover true Force Generator characteristic. Here I highly agree with the comment by <span class="citation">Cleather (<a href="#ref-cleatherForcevelocityProfilingMisnomer2019" role="doc-biblioref">2019</a>)</span> that we need to refer to this as “Load-jump height profile”. I will come back to further critique in the next vignette, so let’s continue exploring this model.</p>
+</div>
+<div id="optimization" class="section level1">
+<h1 class="hasAnchor">
+<a href="#optimization" class="anchor"></a>Optimization</h1>
+<p>“What should I be working on to increase my jump height?” is the question we as coaches often get. From the ballistic equation, the answer is simple - increase the force applied to the ground (or force impulse). But how should this be done? Should athlete focus on high-loads and high-force activities or low-load high-speed activities?</p>
+<p>Samozino’s model approach answering this question by making few assumptions. First, model assumes that <span class="math inline">\(F_0\)</span> and <span class="math inline">\(V_0\)</span> represent true Force Generator profile (mechanical) characteristics (but as seen they represent <em>manifested</em> and extrapolated characteristics given <span class="math inline">\(h_{po}\)</span> and bodyweight, rather than <em>ontological truth</em>). Second, they make assumption that max power <span class="math inline">\(P_{max}\)</span>, which is equal to <span class="math inline">\(\frac{F_0 \times V_0}{4}\)</span> represent some <em>ontological</em> characteristic of the Force Generator (again, rather than manifested performance metric for a given conditions). Third, model assumes that there are “force” and “velocity” capabilities of the entire lower extremities, and thus that there are training methods to <em>hit</em> those qualities. For example, one might improve <em>force</em> characteristics or <em>velocity</em> characteristics of the Force Generator.</p>
+<p>Philosophically, these represent <em>realist</em> positions, where these metrics (i.e., <span class="math inline">\(F_0\)</span>, <span class="math inline">\(V_0\)</span>, and <span class="math inline">\(P_{max}\)</span>) are treated as <em>real</em> mechanical characteristics of the Force Generator and thus represent <em>determinants</em> of performance that can be directly affected with specific training interventions. These implications will be explained and critiqued thorough this and next vignette. For now, let’s maintain this assumption.</p>
+<p>According to Samozino <em>et al.</em>, <span class="math inline">\(P_{max}\)</span> is the determinant mechanical characteristic of the Force Generator. Additional, and assumed to be independent determinant, is the slope of the FV curve <span class="math inline">\(S_{FV}\)</span>:</p>
+<p><span class="math display">\[
+S_{FV} = -\frac{F_0}{V_0}
+\]</span></p>
+<p>Thus, one can either use <span class="math inline">\(F_0\)</span> and <span class="math inline">\(V_0\)</span>, or <span class="math inline">\(P_{max}\)</span> and <span class="math inline">\(S_{FV}\)</span> to represent mechanical characteristics of the Force Generator.</p>
+<p>Similarly to the probing we did in the previous vignettes (e.g., how does increasing max force, max velocity or time to max activation affects the jump performance or the profile, <em>while keeping everything else the same</em>), we can ask ourselves the following question: “Assuming the <span class="math inline">\(P_{max}\)</span> stays the same, but we change the <span class="math inline">\(S_{FV}\)</span>, can we increase the predicted jump height or take-off velocity?”</p>
+<p>What does this mean? It is easier to understand it graphically. Let’s use the hypothetical profile where <span class="math inline">\(F_0\)</span> is equal to 3,000N and <span class="math inline">\(V_0\)</span> is equal to 2m/s. Push-off distance <span class="math inline">\(h_{po}\)</span> is equal to 0.4m and bodyweight is equal to 75kg (gravity constants is of course, <span class="math inline">\(9.81ms^-2\)</span>).</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>plot_data &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(</span>
+<span id="cb10-2"><a href="#cb10-2"></a>  <span class="dt">x =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">3000</span>, <span class="dv">0</span>),</span>
+<span id="cb10-3"><a href="#cb10-3"></a>  <span class="dt">y =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">0</span>, <span class="dv">2</span>)</span>
+<span id="cb10-4"><a href="#cb10-4"></a>)</span>
+<span id="cb10-5"><a href="#cb10-5"></a></span>
+<span id="cb10-6"><a href="#cb10-6"></a>gg &lt;-<span class="st"> </span><span class="kw">ggplot</span>(plot_data, <span class="kw">aes</span>(<span class="dt">x =</span> x, <span class="dt">y =</span> y)) <span class="op">+</span></span>
+<span id="cb10-7"><a href="#cb10-7"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="dv">8</span>) <span class="op">+</span></span>
+<span id="cb10-8"><a href="#cb10-8"></a><span class="st">  </span><span class="kw">geom_line</span>(<span class="dt">color =</span> <span class="st">"blue"</span>, <span class="dt">alpha =</span> <span class="fl">0.8</span>) <span class="op">+</span></span>
+<span id="cb10-9"><a href="#cb10-9"></a><span class="st">  </span><span class="kw">geom_line</span>(</span>
+<span id="cb10-10"><a href="#cb10-10"></a>    <span class="dt">data =</span> <span class="kw"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span>(params, push_off_distance <span class="op">==</span><span class="st"> </span><span class="fl">0.4</span>),</span>
+<span id="cb10-11"><a href="#cb10-11"></a>    <span class="kw">aes</span>(<span class="dt">x =</span> mean_GRF_over_distance, <span class="dt">y =</span> mean_velocity_as_TOV_half),</span>
+<span id="cb10-12"><a href="#cb10-12"></a>    <span class="dt">alpha =</span> <span class="fl">0.8</span></span>
+<span id="cb10-13"><a href="#cb10-13"></a>  ) <span class="op">+</span></span>
+<span id="cb10-14"><a href="#cb10-14"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">"Mean GRF over distance (N)"</span>, <span class="dt">y =</span> <span class="st">"Mean Velocity (m/s)"</span>)</span>
+<span id="cb10-15"><a href="#cb10-15"></a></span>
+<span id="cb10-16"><a href="#cb10-16"></a>gg</span></code></pre></div>
+<p><img src="optimization-vjsim_files/figure-html/unnamed-chunk-10-1.png" width="90%" style="display: block; margin: auto;"></p>
+<p>Max power and slope of this profile are equal to:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>vjsim<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/get_max_power.html">get_max_power</a></span>(<span class="dv">3000</span>, <span class="dv">2</span>)</span>
+<span id="cb11-2"><a href="#cb11-2"></a><span class="co">#&gt; [1] 1500</span></span>
+<span id="cb11-3"><a href="#cb11-3"></a>vjsim<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/get_slope.html">get_slope</a></span>(<span class="dv">3000</span>, <span class="dv">2</span>)</span>
+<span id="cb11-4"><a href="#cb11-4"></a><span class="co">#&gt; [1] -1500</span></span></code></pre></div>
+<p>Predicted <span class="math inline">\(v_{to}\)</span> is equal to:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>vjsim<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/get_samozino_take_off_velocity.html">get_samozino_take_off_velocity</a></span>(</span>
+<span id="cb12-2"><a href="#cb12-2"></a>  <span class="dt">F0 =</span> <span class="dv">3000</span>, <span class="dt">V0 =</span> <span class="dv">2</span>,</span>
+<span id="cb12-3"><a href="#cb12-3"></a>  <span class="dt">bodyweight =</span> <span class="dv">75</span>,</span>
+<span id="cb12-4"><a href="#cb12-4"></a>  <span class="dt">push_off_distance =</span> <span class="fl">0.4</span>,</span>
+<span id="cb12-5"><a href="#cb12-5"></a>  <span class="dt">gravity_const =</span> <span class="fl">9.81</span></span>
+<span id="cb12-6"><a href="#cb12-6"></a>  )</span>
+<span id="cb12-7"><a href="#cb12-7"></a><span class="co">#&gt; [1] 2.336561</span></span></code></pre></div>
+<p>Here comes the <em>probing</em> question: “If we assume <span class="math inline">\(P_{max}\)</span> stays the same, can we <em>tilt</em> the FV profile so that take-off velocity is maximized (for a given <span class="math inline">\(P_{max}\)</span>)?”.</p>
+<p>But how do we <em>tilt</em> the FV curve without affecting <span class="math inline">\(P_{max}\)</span>? If you look at the equation for <span class="math inline">\(P_{max}\)</span>, which is <span class="math inline">\(\frac{F_0 \times V_0}{4}\)</span>, we tils the slope by multiplying <span class="math inline">\(F_0\)</span> by a specific factor <span class="math inline">\(k\)</span>, while simultaneously dividing <span class="math inline">\(V_0\)</span> by the same factor. This way <span class="math inline">\(P_{max}\)</span> stays the same, while we tilt the FV curve.</p>
+<p>Here is the code and graphical representation using <span class="math inline">\(k\)</span> of 0.8, 0.9, 1, 1.1, 1.2:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>k &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.8</span>, <span class="fl">0.9</span>, <span class="dv">1</span>, <span class="fl">1.1</span>, <span class="fl">1.2</span>)</span>
+<span id="cb13-2"><a href="#cb13-2"></a></span>
+<span id="cb13-3"><a href="#cb13-3"></a>plot_data &lt;-<span class="st"> </span><span class="kw">tibble</span>(</span>
+<span id="cb13-4"><a href="#cb13-4"></a>  <span class="dt">k =</span> k,</span>
+<span id="cb13-5"><a href="#cb13-5"></a>  <span class="dt">F0 =</span> <span class="dv">3000</span> <span class="op">*</span><span class="st"> </span>k,</span>
+<span id="cb13-6"><a href="#cb13-6"></a>  <span class="dt">V0 =</span> <span class="dv">2</span> <span class="op">/</span><span class="st"> </span>k,</span>
+<span id="cb13-7"><a href="#cb13-7"></a>  <span class="dt">max_power =</span> vjsim<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/get_max_power.html">get_max_power</a></span>(F0, V0),</span>
+<span id="cb13-8"><a href="#cb13-8"></a>  <span class="dt">slope =</span> vjsim<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/get_slope.html">get_slope</a></span>(F0, V0),</span>
+<span id="cb13-9"><a href="#cb13-9"></a>  <span class="dt">predicted_TOV =</span> vjsim<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/get_samozino_take_off_velocity.html">get_samozino_take_off_velocity</a></span>(F0, V0, <span class="dv">75</span>, <span class="fl">0.4</span>, <span class="fl">9.81</span>),</span>
+<span id="cb13-10"><a href="#cb13-10"></a>  <span class="dt">group =</span> <span class="dv">1</span>,</span>
+<span id="cb13-11"><a href="#cb13-11"></a>  <span class="dt">x =</span> F0,</span>
+<span id="cb13-12"><a href="#cb13-12"></a>  <span class="dt">y =</span> <span class="dv">0</span>,</span>
+<span id="cb13-13"><a href="#cb13-13"></a>)</span>
+<span id="cb13-14"><a href="#cb13-14"></a></span>
+<span id="cb13-15"><a href="#cb13-15"></a>plot_data_<span class="dv">2</span> &lt;-<span class="st"> </span>plot_data</span>
+<span id="cb13-16"><a href="#cb13-16"></a>plot_data_<span class="dv">2</span><span class="op">$</span>group &lt;-<span class="st"> </span><span class="dv">2</span></span>
+<span id="cb13-17"><a href="#cb13-17"></a>plot_data_<span class="dv">2</span><span class="op">$</span>x &lt;-<span class="st"> </span><span class="dv">0</span></span>
+<span id="cb13-18"><a href="#cb13-18"></a>plot_data_<span class="dv">2</span><span class="op">$</span>y &lt;-<span class="st"> </span>plot_data_<span class="dv">2</span><span class="op">$</span>V0</span>
+<span id="cb13-19"><a href="#cb13-19"></a></span>
+<span id="cb13-20"><a href="#cb13-20"></a>plot_data &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(</span>
+<span id="cb13-21"><a href="#cb13-21"></a>  plot_data,</span>
+<span id="cb13-22"><a href="#cb13-22"></a>  plot_data_<span class="dv">2</span></span>
+<span id="cb13-23"><a href="#cb13-23"></a>)</span>
+<span id="cb13-24"><a href="#cb13-24"></a></span>
+<span id="cb13-25"><a href="#cb13-25"></a>plot_data &lt;-<span class="st"> </span>plot_data <span class="op">%&gt;%</span></span>
+<span id="cb13-26"><a href="#cb13-26"></a><span class="st">  </span><span class="kw">mutate</span>(</span>
+<span id="cb13-27"><a href="#cb13-27"></a>    <span class="dt">k =</span> <span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(k)</span>
+<span id="cb13-28"><a href="#cb13-28"></a>  )</span>
+<span id="cb13-29"><a href="#cb13-29"></a></span>
+<span id="cb13-30"><a href="#cb13-30"></a>gg &lt;-<span class="st"> </span><span class="kw">ggplot</span>(plot_data, <span class="kw">aes</span>(<span class="dt">x =</span> x, <span class="dt">y =</span> y, <span class="dt">group =</span> k, <span class="dt">color =</span> slope)) <span class="op">+</span></span>
+<span id="cb13-31"><a href="#cb13-31"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="dv">8</span>) <span class="op">+</span></span>
+<span id="cb13-32"><a href="#cb13-32"></a><span class="st">  </span><span class="kw">geom_line</span>(<span class="dt">alpha =</span> <span class="fl">0.8</span>, <span class="dt">color =</span> <span class="st">"blue"</span>) <span class="op">+</span></span>
+<span id="cb13-33"><a href="#cb13-33"></a><span class="st">  </span><span class="kw">geom_line</span>(</span>
+<span id="cb13-34"><a href="#cb13-34"></a>    <span class="dt">data =</span> <span class="kw"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span>(params, push_off_distance <span class="op">==</span><span class="st"> </span><span class="fl">0.4</span>),</span>
+<span id="cb13-35"><a href="#cb13-35"></a>    <span class="kw">aes</span>(<span class="dt">x =</span> mean_GRF_over_distance, <span class="dt">y =</span> mean_velocity_as_TOV_half),</span>
+<span id="cb13-36"><a href="#cb13-36"></a>    <span class="dt">alpha =</span> <span class="fl">0.8</span>, <span class="dt">group =</span> <span class="dv">1</span>, <span class="dt">color =</span> <span class="st">"black"</span></span>
+<span id="cb13-37"><a href="#cb13-37"></a>  ) <span class="op">+</span></span>
+<span id="cb13-38"><a href="#cb13-38"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">"Mean GRF over distance (N)"</span>, <span class="dt">y =</span> <span class="st">"Mean Velocity (m/s)"</span>) <span class="op">+</span></span>
+<span id="cb13-39"><a href="#cb13-39"></a><span class="st">  </span><span class="kw">scale_color_gradient</span>(<span class="dt">low =</span> <span class="st">"black"</span>, <span class="dt">high =</span> <span class="st">"black"</span>)</span>
+<span id="cb13-40"><a href="#cb13-40"></a></span>
+<span id="cb13-41"><a href="#cb13-41"></a><span class="kw"><a href="https://rdrr.io/pkg/directlabels/man/direct.label.html">direct.label</a></span>(gg, <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="st">"last.points"</span>, <span class="dt">cex =</span> <span class="fl">0.5</span>))</span></code></pre></div>
+<p><img src="optimization-vjsim_files/figure-html/unnamed-chunk-13-1.png" width="90%" style="display: block; margin: auto;"></p>
+<p>Each profile line on the previous figure has the same <span class="math inline">\(P_{max}\)</span>, but different slope. The original slope is equal to -1500, but as can be seen from the figure, according to this model, take-off velocity would be maximized wheen slope is -960. According to this model, this implies improving “velocity” characteristics of the Force Generator (whatever that might be). In coaches language, this individual should improve his “velocity” characteristics to improve take-off velocity and jump height.</p>
+<p>There is algebraic solution to this problem of finding <span class="math inline">\(S_{fv}{opt}\)</span>, but in <code><a href="../reference/get_samozino_optimal_profile.html">vjsim::get_samozino_optimal_profile</a></code> function I have used the <code>optim</code> function to find the slope that maximizes the take-off velocity while maintaing the <span class="math inline">\(P_{max}\)</span>:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>vjsim<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/get_samozino_optimal_profile.html">get_samozino_optimal_profile</a></span>(</span>
+<span id="cb14-2"><a href="#cb14-2"></a>  <span class="dt">F0 =</span> <span class="dv">3000</span>,</span>
+<span id="cb14-3"><a href="#cb14-3"></a>  <span class="dt">V0 =</span> <span class="dv">2</span>,</span>
+<span id="cb14-4"><a href="#cb14-4"></a>  <span class="dt">bodyweight =</span> <span class="dv">75</span>,</span>
+<span id="cb14-5"><a href="#cb14-5"></a>  <span class="dt">push_off_distance =</span> <span class="fl">0.4</span>,</span>
+<span id="cb14-6"><a href="#cb14-6"></a>  <span class="dt">gravity_const =</span> <span class="fl">9.81</span></span>
+<span id="cb14-7"><a href="#cb14-7"></a>  )</span>
+<span id="cb14-8"><a href="#cb14-8"></a><span class="co">#&gt; $F0</span></span>
+<span id="cb14-9"><a href="#cb14-9"></a><span class="co">#&gt; [1] 3000</span></span>
+<span id="cb14-10"><a href="#cb14-10"></a><span class="co">#&gt; </span></span>
+<span id="cb14-11"><a href="#cb14-11"></a><span class="co">#&gt; $F0_rel</span></span>
+<span id="cb14-12"><a href="#cb14-12"></a><span class="co">#&gt; [1] 40</span></span>
+<span id="cb14-13"><a href="#cb14-13"></a><span class="co">#&gt; </span></span>
+<span id="cb14-14"><a href="#cb14-14"></a><span class="co">#&gt; $V0</span></span>
+<span id="cb14-15"><a href="#cb14-15"></a><span class="co">#&gt; [1] 2</span></span>
+<span id="cb14-16"><a href="#cb14-16"></a><span class="co">#&gt; </span></span>
+<span id="cb14-17"><a href="#cb14-17"></a><span class="co">#&gt; $Pmax</span></span>
+<span id="cb14-18"><a href="#cb14-18"></a><span class="co">#&gt; [1] 1500</span></span>
+<span id="cb14-19"><a href="#cb14-19"></a><span class="co">#&gt; </span></span>
+<span id="cb14-20"><a href="#cb14-20"></a><span class="co">#&gt; $Pmax_rel</span></span>
+<span id="cb14-21"><a href="#cb14-21"></a><span class="co">#&gt; [1] 20</span></span>
+<span id="cb14-22"><a href="#cb14-22"></a><span class="co">#&gt; </span></span>
+<span id="cb14-23"><a href="#cb14-23"></a><span class="co">#&gt; $Sfv</span></span>
+<span id="cb14-24"><a href="#cb14-24"></a><span class="co">#&gt; [1] -1500</span></span>
+<span id="cb14-25"><a href="#cb14-25"></a><span class="co">#&gt; </span></span>
+<span id="cb14-26"><a href="#cb14-26"></a><span class="co">#&gt; $take_off_velocity</span></span>
+<span id="cb14-27"><a href="#cb14-27"></a><span class="co">#&gt; [1] 2.336561</span></span>
+<span id="cb14-28"><a href="#cb14-28"></a><span class="co">#&gt; </span></span>
+<span id="cb14-29"><a href="#cb14-29"></a><span class="co">#&gt; $height</span></span>
+<span id="cb14-30"><a href="#cb14-30"></a><span class="co">#&gt; [1] 0.2782628</span></span>
+<span id="cb14-31"><a href="#cb14-31"></a><span class="co">#&gt; </span></span>
+<span id="cb14-32"><a href="#cb14-32"></a><span class="co">#&gt; $optimal_F0</span></span>
+<span id="cb14-33"><a href="#cb14-33"></a><span class="co">#&gt; [1] 2527.841</span></span>
+<span id="cb14-34"><a href="#cb14-34"></a><span class="co">#&gt; </span></span>
+<span id="cb14-35"><a href="#cb14-35"></a><span class="co">#&gt; $optimal_F0_rel</span></span>
+<span id="cb14-36"><a href="#cb14-36"></a><span class="co">#&gt; [1] 33.70455</span></span>
+<span id="cb14-37"><a href="#cb14-37"></a><span class="co">#&gt; </span></span>
+<span id="cb14-38"><a href="#cb14-38"></a><span class="co">#&gt; $optimal_V0</span></span>
+<span id="cb14-39"><a href="#cb14-39"></a><span class="co">#&gt; [1] 2.373567</span></span>
+<span id="cb14-40"><a href="#cb14-40"></a><span class="co">#&gt; </span></span>
+<span id="cb14-41"><a href="#cb14-41"></a><span class="co">#&gt; $optimal_height</span></span>
+<span id="cb14-42"><a href="#cb14-42"></a><span class="co">#&gt; [1] 0.2871468</span></span>
+<span id="cb14-43"><a href="#cb14-43"></a><span class="co">#&gt; </span></span>
+<span id="cb14-44"><a href="#cb14-44"></a><span class="co">#&gt; $optimal_height_diff</span></span>
+<span id="cb14-45"><a href="#cb14-45"></a><span class="co">#&gt; [1] 0.008884008</span></span>
+<span id="cb14-46"><a href="#cb14-46"></a><span class="co">#&gt; </span></span>
+<span id="cb14-47"><a href="#cb14-47"></a><span class="co">#&gt; $optimal_height_ratio</span></span>
+<span id="cb14-48"><a href="#cb14-48"></a><span class="co">#&gt; [1] 1.031927</span></span>
+<span id="cb14-49"><a href="#cb14-49"></a><span class="co">#&gt; </span></span>
+<span id="cb14-50"><a href="#cb14-50"></a><span class="co">#&gt; $optimal_Pmax</span></span>
+<span id="cb14-51"><a href="#cb14-51"></a><span class="co">#&gt; [1] 1500</span></span>
+<span id="cb14-52"><a href="#cb14-52"></a><span class="co">#&gt; </span></span>
+<span id="cb14-53"><a href="#cb14-53"></a><span class="co">#&gt; $optimal_Pmax_rel</span></span>
+<span id="cb14-54"><a href="#cb14-54"></a><span class="co">#&gt; [1] 20</span></span>
+<span id="cb14-55"><a href="#cb14-55"></a><span class="co">#&gt; </span></span>
+<span id="cb14-56"><a href="#cb14-56"></a><span class="co">#&gt; $optimal_take_off_velocity</span></span>
+<span id="cb14-57"><a href="#cb14-57"></a><span class="co">#&gt; [1] 2.373567</span></span>
+<span id="cb14-58"><a href="#cb14-58"></a><span class="co">#&gt; </span></span>
+<span id="cb14-59"><a href="#cb14-59"></a><span class="co">#&gt; $optimal_take_off_velocity_diff</span></span>
+<span id="cb14-60"><a href="#cb14-60"></a><span class="co">#&gt; [1] 0.03700627</span></span>
+<span id="cb14-61"><a href="#cb14-61"></a><span class="co">#&gt; </span></span>
+<span id="cb14-62"><a href="#cb14-62"></a><span class="co">#&gt; $optimal_take_off_velocity_ratio</span></span>
+<span id="cb14-63"><a href="#cb14-63"></a><span class="co">#&gt; [1] 1.015838</span></span>
+<span id="cb14-64"><a href="#cb14-64"></a><span class="co">#&gt; </span></span>
+<span id="cb14-65"><a href="#cb14-65"></a><span class="co">#&gt; $optimal_Sfv</span></span>
+<span id="cb14-66"><a href="#cb14-66"></a><span class="co">#&gt; [1] -1064.997</span></span>
+<span id="cb14-67"><a href="#cb14-67"></a><span class="co">#&gt; </span></span>
+<span id="cb14-68"><a href="#cb14-68"></a><span class="co">#&gt; $Sfv_perc</span></span>
+<span id="cb14-69"><a href="#cb14-69"></a><span class="co">#&gt; [1] 140.8455</span></span>
+<span id="cb14-70"><a href="#cb14-70"></a><span class="co">#&gt; </span></span>
+<span id="cb14-71"><a href="#cb14-71"></a><span class="co">#&gt; $FV_imbalance</span></span>
+<span id="cb14-72"><a href="#cb14-72"></a><span class="co">#&gt; [1] 40.84549</span></span>
+<span id="cb14-73"><a href="#cb14-73"></a><span class="co">#&gt; </span></span>
+<span id="cb14-74"><a href="#cb14-74"></a><span class="co">#&gt; $probe_IMB</span></span>
+<span id="cb14-75"><a href="#cb14-75"></a><span class="co">#&gt; [1] 143.3826</span></span></code></pre></div>
+<p><code><a href="../reference/get_samozino_optimal_profile.html">vjsim::get_samozino_optimal_profile</a></code> spits out mutiple summarise, both original and <em>optimized</em>. To compare <span class="math inline">\(S_{fv}\)</span> and <span class="math inline">\(S_{fv}^{optimal}\)</span>, Samozino suggested used two metrics, <span class="math inline">\(S_{FV}\%\)</span> and <span class="math inline">\(FV_{IMB}\)</span>:</p>
+<p><span class="math display">\[
+\begin{aligned}
+  S_{FV}\% &amp;= 100 \times \frac{S_{FV}}{S_{fv}{opt}} \\
+  FV_{IMB} &amp;= 100\times |1 - \frac{S_{FV}}{S_{fv}{opt}}|
+\end{aligned}
+\]</span></p>
+<p>Acording to Samozino <em>et al.</em>, <span class="math inline">\(S_{FV}\%\)</span> over 100% represents FV profile too much oriented towards “force”, which implies “velocity” deficit (and the individual should spend more time fixing “velocity” deficit by performing low-load high-speed activities). When <span class="math inline">\(S_{FV}\%\)</span> is under 100%, it represents FV profile that is too much oriented towards “velocity”, which implies “force” deficit (and the individual should spend more time fixing “force” deficit by performing high-load low-speed activities).</p>
+<p><span class="math inline">\(FV_{IMB}\)</span> represents an absolute measure of this <em>imbalance</em> without a direction, where 0 represents optimal profile.</p>
+<p>These summaries are automatically computed using <code><a href="../reference/get_all_samozino_profiles.html">vjsim::get_all_samozino_profiles</a></code> for both practical and theoretical profiles.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>samozino_profiles &lt;-<span class="st"> </span>vjsim<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/get_all_samozino_profiles.html">get_all_samozino_profiles</a></span>(profile_data)</span>
+<span id="cb15-2"><a href="#cb15-2"></a></span>
+<span id="cb15-3"><a href="#cb15-3"></a></span>
+<span id="cb15-4"><a href="#cb15-4"></a><span class="kw"><a href="https://rdrr.io/pkg/DT/man/datatable.html">datatable</a></span>(samozino_profiles<span class="op">$</span>data_frame, <span class="dt">rownames =</span> <span class="ot">FALSE</span>) <span class="op">%&gt;%</span></span>
+<span id="cb15-5"><a href="#cb15-5"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/DT/man/formatCurrency.html">formatRound</a></span>(<span class="dt">columns =</span> <span class="dv">1</span><span class="op">:</span><span class="kw"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span>(samozino_profiles<span class="op">$</span>data_frame), <span class="dt">digits =</span> <span class="dv">2</span>)</span></code></pre></div>
+<div id="htmlwidget-9501058b06b402641627" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-9501058b06b402641627">{"x":{"filter":"none","data":[["Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino practical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile","Samozino theoretical profile"],["F0","F0_rel","V0","Pmax","Pmax_rel","Sfv","take_off_velocity","height","optimal_F0","optimal_F0_rel","optimal_V0","optimal_height","optimal_height_diff","optimal_height_ratio","optimal_Pmax","optimal_Pmax_rel","optimal_take_off_velocity","optimal_take_off_velocity_diff","optimal_take_off_velocity_ratio","optimal_Sfv","Sfv_perc","FV_imbalance","probe_IMB","F0","F0_rel","V0","Pmax","Pmax_rel","Sfv","take_off_velocity","height","optimal_F0","optimal_F0_rel","optimal_V0","optimal_height","optimal_height_diff","optimal_height_ratio","optimal_Pmax","optimal_Pmax_rel","optimal_take_off_velocity","optimal_take_off_velocity_diff","optimal_take_off_velocity_ratio","optimal_Sfv","Sfv_perc","FV_imbalance","probe_IMB"],[2690.724579738,35.8763277298399,2.52862445537967,1700.95799375417,22.6794399167223,-1064.10604944259,2.53873276825153,0.328499697685733,2679.98861369844,35.7331815159792,2.5387540604612,0.328505218243426,5.52055769265092e-06,1.00001680536613,1700.95799375417,22.6794399167223,2.53875410032875,2.13320772131098e-05,1.00000840264776,-1055.63144356393,100.802799682629,0.802799682628996,101.206225038384,3254.31395034112,43.3908526712149,2.02110478027624,1644.32737038852,21.9243649385136,-1610.16587665303,2.43684032231585,0.3026600793305,2637.520435744,35.1669391432534,2.49374730615072,0.31696104185445,0.0143009625239501,1.04725090456457,1644.32737038852,21.9243649385136,2.49374730900793,0.0569069866920846,1.02335277620407,-1057.65344758014,152.239458050934,52.2394580509341,155.062046401594]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>profile<\/th>\n      <th>metric<\/th>\n      <th>value<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":2}],"order":[],"autoWidth":false,"orderClasses":false,"rowCallback":"function(row, data) {\nDTWidget.formatRound(this, row, data, 0, 2, 3, \",\", \".\");\nDTWidget.formatRound(this, row, data, 1, 2, 3, \",\", \".\");\nDTWidget.formatRound(this, row, data, 2, 2, 3, \",\", \".\");\n}"}},"evals":["options.rowCallback"],"jsHooks":[]}</script><p>Rather than maintaining <span class="math inline">\(P_{max}\)</span> we can probe this by alternating increasing <span class="math inline">\(F_0\)</span> or <span class="math inline">\(V_0\)</span> by 10% to check which one provides more increasing take-off velocity:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>tov &lt;-<span class="st"> </span>vjsim<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/get_samozino_take_off_velocity.html">get_samozino_take_off_velocity</a></span>(</span>
+<span id="cb16-2"><a href="#cb16-2"></a>  <span class="dt">F0 =</span> <span class="dv">3000</span>,</span>
+<span id="cb16-3"><a href="#cb16-3"></a>  <span class="dt">V0 =</span> <span class="dv">2</span>,</span>
+<span id="cb16-4"><a href="#cb16-4"></a>  <span class="dt">bodyweight =</span> <span class="dv">75</span>,</span>
+<span id="cb16-5"><a href="#cb16-5"></a>  <span class="dt">push_off_distance =</span> <span class="fl">0.4</span>,</span>
+<span id="cb16-6"><a href="#cb16-6"></a>  <span class="dt">gravity_const =</span> <span class="fl">9.81</span></span>
+<span id="cb16-7"><a href="#cb16-7"></a>  )</span>
+<span id="cb16-8"><a href="#cb16-8"></a>tov</span>
+<span id="cb16-9"><a href="#cb16-9"></a><span class="co">#&gt; [1] 2.336561</span></span>
+<span id="cb16-10"><a href="#cb16-10"></a></span>
+<span id="cb16-11"><a href="#cb16-11"></a>tov_velocity &lt;-<span class="st"> </span>vjsim<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/get_samozino_take_off_velocity.html">get_samozino_take_off_velocity</a></span>(</span>
+<span id="cb16-12"><a href="#cb16-12"></a>  <span class="dt">F0 =</span> <span class="dv">3000</span>,</span>
+<span id="cb16-13"><a href="#cb16-13"></a>  <span class="dt">V0 =</span> <span class="dv">2</span> <span class="op">*</span><span class="st"> </span><span class="fl">1.1</span>,</span>
+<span id="cb16-14"><a href="#cb16-14"></a>  <span class="dt">bodyweight =</span> <span class="dv">75</span>,</span>
+<span id="cb16-15"><a href="#cb16-15"></a>  <span class="dt">push_off_distance =</span> <span class="fl">0.4</span>,</span>
+<span id="cb16-16"><a href="#cb16-16"></a>  <span class="dt">gravity_const =</span> <span class="fl">9.81</span></span>
+<span id="cb16-17"><a href="#cb16-17"></a>  )</span>
+<span id="cb16-18"><a href="#cb16-18"></a>tov_velocity</span>
+<span id="cb16-19"><a href="#cb16-19"></a><span class="co">#&gt; [1] 2.477157</span></span>
+<span id="cb16-20"><a href="#cb16-20"></a></span>
+<span id="cb16-21"><a href="#cb16-21"></a>tov_force &lt;-<span class="st"> </span>vjsim<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/get_samozino_take_off_velocity.html">get_samozino_take_off_velocity</a></span>(</span>
+<span id="cb16-22"><a href="#cb16-22"></a>  <span class="dt">F0 =</span> <span class="dv">3000</span> <span class="op">*</span><span class="st"> </span><span class="fl">1.1</span>,</span>
+<span id="cb16-23"><a href="#cb16-23"></a>  <span class="dt">V0 =</span> <span class="dv">2</span>,</span>
+<span id="cb16-24"><a href="#cb16-24"></a>  <span class="dt">bodyweight =</span> <span class="dv">75</span>,</span>
+<span id="cb16-25"><a href="#cb16-25"></a>  <span class="dt">push_off_distance =</span> <span class="fl">0.4</span>, </span>
+<span id="cb16-26"><a href="#cb16-26"></a>  <span class="dt">gravity_const =</span> <span class="fl">9.81</span></span>
+<span id="cb16-27"><a href="#cb16-27"></a>  )</span>
+<span id="cb16-28"><a href="#cb16-28"></a>tov_force</span>
+<span id="cb16-29"><a href="#cb16-29"></a><span class="co">#&gt; [1] 2.434618</span></span></code></pre></div>
+<p>If <span class="math inline">\(V_0\)</span> increases for 10% (to 2.2m/s), take-off velocity will increase for 6.02%. If <span class="math inline">\(F0\)</span> increases for 10% (to 3300N), take-off velocity will increase for 4.2%. Thus, increasing “velocity” seems better investment (assuming same effort to improve parameters for 10%), which is same conclusion with the previous optimal slope approach. We can use another metric using these two probing values:</p>
+<p><span class="math display">\[
+probe_{IMB} = \frac{v_{to}^{10\%velocity} - v_{to}}{v_{to}^{10\%force} - v_{to}} \times 100
+\]</span></p>
+<p>Using the above values, <span class="math inline">\(probe_{IMB}\)</span> is equal to 143.38%, which is similar to <span class="math inline">\(S_{FV}\%\)</span>, just created different way.</p>
+<p>We can also plot this probe (use the code below of <code><a href="../reference/probe_samozino_take_off_velocity.html">vjsim::probe_samozino_take_off_velocity</a></code> function):</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>probe_data &lt;-<span class="st"> </span>vjsim<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/get_probing_data.html">get_probing_data</a></span>(</span>
+<span id="cb17-2"><a href="#cb17-2"></a>  <span class="dt">args_list =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">F0 =</span> <span class="dv">3000</span>, <span class="dt">V0 =</span> <span class="dv">2</span>),</span>
+<span id="cb17-3"><a href="#cb17-3"></a>  <span class="dt">probe_func =</span> <span class="cf">function</span>(...) <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">take_off_velocity =</span> vjsim<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/get_samozino_take_off_velocity.html">get_samozino_take_off_velocity</a></span>(...)),</span>
+<span id="cb17-4"><a href="#cb17-4"></a>  <span class="dt">change_ratio =</span> <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="fl">0.5</span>, <span class="fl">1.5</span>, <span class="dt">length.out =</span> <span class="dv">100</span>),</span>
+<span id="cb17-5"><a href="#cb17-5"></a>  <span class="dt">bodyweight =</span> <span class="dv">75</span>,</span>
+<span id="cb17-6"><a href="#cb17-6"></a>  <span class="dt">push_off_distance =</span> <span class="fl">0.4</span>,</span>
+<span id="cb17-7"><a href="#cb17-7"></a>  <span class="dt">gravity_const =</span> <span class="fl">9.81</span></span>
+<span id="cb17-8"><a href="#cb17-8"></a>)</span>
+<span id="cb17-9"><a href="#cb17-9"></a></span>
+<span id="cb17-10"><a href="#cb17-10"></a></span>
+<span id="cb17-11"><a href="#cb17-11"></a>gg &lt;-<span class="st"> </span><span class="kw">ggplot</span>(</span>
+<span id="cb17-12"><a href="#cb17-12"></a>  probe_data,</span>
+<span id="cb17-13"><a href="#cb17-13"></a>  <span class="kw">aes</span>(<span class="dt">x =</span> change_ratio, <span class="dt">y =</span> take_off_velocity, <span class="dt">color =</span> probing)</span>
+<span id="cb17-14"><a href="#cb17-14"></a>) <span class="op">+</span></span>
+<span id="cb17-15"><a href="#cb17-15"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="dv">6</span>) <span class="op">+</span></span>
+<span id="cb17-16"><a href="#cb17-16"></a><span class="st">  </span><span class="kw">geom_line</span>() <span class="op">+</span></span>
+<span id="cb17-17"><a href="#cb17-17"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Normalized parameter change"</span>) <span class="op">+</span></span>
+<span id="cb17-18"><a href="#cb17-18"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">"Take-off velocity"</span>) <span class="op">+</span></span>
+<span id="cb17-19"><a href="#cb17-19"></a><span class="st">  </span><span class="kw">scale_color_manual</span>(<span class="dt">values =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(</span>
+<span id="cb17-20"><a href="#cb17-20"></a>    <span class="st">"F0"</span> =<span class="st"> "#4D4D4D"</span>,</span>
+<span id="cb17-21"><a href="#cb17-21"></a>    <span class="st">"V0"</span> =<span class="st"> "#5DA5DA"</span></span>
+<span id="cb17-22"><a href="#cb17-22"></a>  )) <span class="op">+</span></span>
+<span id="cb17-23"><a href="#cb17-23"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/r/graphics/plot.window.html">xlim</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.5</span>, <span class="fl">1.6</span>)) <span class="op">+</span></span>
+<span id="cb17-24"><a href="#cb17-24"></a><span class="st">  </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> <span class="dv">1</span>, <span class="dt">linetype =</span> <span class="st">"dashed"</span>, <span class="dt">color =</span> <span class="st">"grey"</span>) <span class="op">+</span></span>
+<span id="cb17-25"><a href="#cb17-25"></a><span class="st">  </span><span class="kw">geom_hline</span>(<span class="dt">yintercept =</span> tov, <span class="dt">linetype =</span> <span class="st">"dashed"</span>, <span class="dt">color =</span> <span class="st">"grey"</span>)</span>
+<span id="cb17-26"><a href="#cb17-26"></a></span>
+<span id="cb17-27"><a href="#cb17-27"></a></span>
+<span id="cb17-28"><a href="#cb17-28"></a><span class="kw"><a href="https://rdrr.io/pkg/directlabels/man/direct.label.html">direct.label</a></span>(gg, <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="st">"last.bumpup"</span>, <span class="dt">cex =</span> <span class="fl">0.6</span>))</span></code></pre></div>
+<p><img src="optimization-vjsim_files/figure-html/unnamed-chunk-17-1.png" width="90%" style="display: block; margin: auto;"></p>
+<p>As can be seen from the above probing experiment, increasing <span class="math inline">\(V_0\)</span> in this profile creates higher improvements in take-off velocity, reaching the same conclusion as with optimal slope concept.</p>
+</div>
+<div id="probing-force-generator-characteristics" class="section level1">
+<h1 class="hasAnchor">
+<a href="#probing-force-generator-characteristics" class="anchor"></a>Probing Force Generator characteristics</h1>
+<p>(to be continued)</p>
+</div>
+<div id="alternatives" class="section level1">
+<h1 class="hasAnchor">
+<a href="#alternatives" class="anchor"></a>Alternatives</h1>
+</div>
 <div id="references" class="section level1 unnumbered">
 <h1 class="hasAnchor">
 <a href="#references" class="anchor"></a>References</h1>
 <div id="refs" class="references hanging-indent">
+<div id="ref-cleatherForcevelocityProfilingMisnomer2019">
+<p>Cleather, Daniel. 2019. “Force-Velocity Profiling Is a Misnomer: Load-Jump Height Profiling Would Be a Better Name.” Preprint. SportRxiv. <a href="https://doi.org/10.31236/osf.io/58fu3">https://doi.org/10.31236/osf.io/58fu3</a>.</p>
+</div>
+<div id="ref-jimenez-reyesEffectivenessIndividualizedTraining2017">
+<p>Jiménez-Reyes, Pedro, Pierre Samozino, Matt Brughelli, and Jean-Benoît Morin. 2017. “Effectiveness of an Individualized Training Based on Force-Velocity Profiling During Jumping.” <em>Frontiers in Physiology</em> 7 (January). <a href="https://doi.org/10.3389/fphys.2016.00677">https://doi.org/10.3389/fphys.2016.00677</a>.</p>
+</div>
+<div id="ref-jimenez-reyesOptimizedTrainingJumping2019">
+<p>Jiménez-Reyes, Pedro, Pierre Samozino, and Jean-Benoît Morin. 2019. “Optimized Training for Jumping Performance Using the Force-Velocity Imbalance: Individual Adaptation Kinetics.” Edited by Daniel Boullosa. <em>PLOS ONE</em> 14 (5): e0216681. <a href="https://doi.org/10.1371/journal.pone.0216681">https://doi.org/10.1371/journal.pone.0216681</a>.</p>
+</div>
+<div id="ref-samozinoForceVelocityProfileImbalance2013">
+<p>Samozino, P., P. Edouard, S. Sangnier, M. Brughelli, P. Gimenez, and J.-B. Morin. 2013. “Force-Velocity Profile: Imbalance Determination and Effect on Lower Limb Ballistic Performance.” <em>International Journal of Sports Medicine</em> 35 (06): 505–10. <a href="https://doi.org/10.1055/s-0033-1354382">https://doi.org/10.1055/s-0033-1354382</a>.</p>
+</div>
 <div id="ref-samozinoSimpleMethodMeasuring2018">
-<p>Samozino, Pierre. 2018. “A Simple Method for Measuring Lower Limb Force, Velocity and Power Capabilities During Jumping.” In <em>Biomechanics of Training and Testing</em>, edited by Jean-Benoit Morin and Pierre Samozino, 65–96. Cham: Springer International Publishing. <a href="https://doi.org/10.1007/978-3-319-05633-3_4">https://doi.org/10.1007/978-3-319-05633-3_4</a>.</p>
+<p>Samozino, Pierre. 2018a. “A Simple Method for Measuring Lower Limb Force, Velocity and Power Capabilities During Jumping.” In <em>Biomechanics of Training and Testing</em>, edited by Jean-Benoit Morin and Pierre Samozino, 65–96. Cham: Springer International Publishing. <a href="https://doi.org/10.1007/978-3-319-05633-3_4">https://doi.org/10.1007/978-3-319-05633-3_4</a>.</p>
+</div>
+<div id="ref-samozinoOptimalForceVelocityProfile2018">
+<p>———. 2018b. “Optimal Force-Velocity Profile in Ballistic Push-Off: Measurement and Relationship with Performance.” In <em>Biomechanics of Training and Testing</em>, edited by Jean-Benoit Morin and Pierre Samozino, 97–119. Cham: Springer International Publishing. <a href="https://doi.org/10.1007/978-3-319-05633-3_5">https://doi.org/10.1007/978-3-319-05633-3_5</a>.</p>
+</div>
+<div id="ref-samozinoSimpleMethodMeasuring2008">
+<p>Samozino, Pierre, Jean-Benoît Morin, Frédérique Hintzy, and Alain Belli. 2008. “A Simple Method for Measuring Force, Velocity and Power Output During Squat Jump.” <em>Journal of Biomechanics</em> 41 (14): 2940–5. <a href="https://doi.org/10.1016/j.jbiomech.2008.07.028">https://doi.org/10.1016/j.jbiomech.2008.07.028</a>.</p>
+</div>
+<div id="ref-samozinoJumpingAbilityTheoretical2010">
+<p>Samozino, Pierre, Jean-Benoît Morin, Frédérique Hintzy, and Alain Belli. 2010. “Jumping Ability: A Theoretical Integrative Approach.” <em>Journal of Theoretical Biology</em> 264 (1): 11–18. <a href="https://doi.org/10.1016/j.jtbi.2010.01.021">https://doi.org/10.1016/j.jtbi.2010.01.021</a>.</p>
+</div>
+<div id="ref-samozinoOptimalForceVelocity2012">
+<p>Samozino, Pierre, Enrico Rejc, Pietro Enrico Di Prampero, Alain Belli, and Jean-Benoît Morin. 2012. “Optimal Force–Velocity Profile in Ballistic Movements—Altius: Citius or Fortius?” <em>Medicine &amp; Science in Sports &amp; Exercise</em> 44 (2): 313–22. <a href="https://doi.org/10.1249/MSS.0b013e31822d757a">https://doi.org/10.1249/MSS.0b013e31822d757a</a>.</p>
 </div>
 </div>
 </div>
@@ -130,7 +644,13 @@
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li><a href="#references">References</a></li>
+<li><a href="#introduction-to-samozino-et-al--method">Introduction to Samozino <em>et al.</em> method</a></li>
+      <li><a href="#effect-of-barf-on-jump-height">Effect of <span class="math inline">\(\bar{F}\)</span> on jump height</a></li>
+      <li><a href="#adding-force-generator-constraints">Adding Force Generator ‘constraints’</a></li>
+      <li><a href="#optimization">Optimization</a></li>
+      <li><a href="#probing-force-generator-characteristics">Probing Force Generator characteristics</a></li>
+      <li><a href="#alternatives">Alternatives</a></li>
+      <li><a href="#references">References</a></li>
       </ul>
 </div>
       </div>

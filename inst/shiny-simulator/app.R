@@ -175,7 +175,7 @@ samozino_profile_variables <- c(
   "samozino_practical_profile.optimal_Sfv",
   "samozino_practical_profile.Sfv_perc",
   "samozino_practical_profile.FV_imbalance",
-  "samozino_practical_profile.probe_IMB",
+  "samozino_practical_profile.probe_IMB"
 )
 
 vj_probing_change <- seq(0.9, 1.1, length.out = 7)
@@ -598,7 +598,7 @@ ui <- navbarPage(
         plotlyOutput("explore_chart", height = "600px"),
         br(),
         h4("Analysis"),
-        dataTableOutput("explore_table", width = "30%"),
+        dataTableOutput("explore_table"),
         br(),
         h4("Descriptive stats"),
         fixedRow(

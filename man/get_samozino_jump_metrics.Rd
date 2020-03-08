@@ -24,7 +24,7 @@ get_samozino_jump_metrics(
 List with \code{mean_GRF_over_distance}, \code{mean_velocity}, and \code{mean_power}
 }
 \description{
-\code{get_samozino_jump_parameters} return mean force, mean velocity and mean power using simple method explained in
+\code{get_samozino_jump_metrics} return mean force, mean velocity and mean power using simple method explained in
 the references.
 }
 \examples{

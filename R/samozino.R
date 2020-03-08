@@ -1,6 +1,6 @@
-#' Get Maximal Take-off Velocty
+#' Get Samozino Take-Off Velocity
 #'
-#' \code{get_samozino_take_off_velocity} returns maximal take off velocity that could be achieve based on the Samozino \emph{et al.}
+#' \code{get_samozino_take_off_velocity} returns predicted maximal take off velocity that could be achieve based on the Samozino \emph{et al.}
 #'     model which uses vertical jump profile \code{F0} and \code{V0}.
 #' @param F0 Numeric vector. Default 3000
 #' @param V0 Numeric vector. Default 4
@@ -37,7 +37,7 @@ get_samozino_take_off_velocity <- function(F0 = 3000,
 #' @param bodyweight Numeric value. Default 75
 #' @param push_off_distance Numeric value. Default 0.4
 #' @param gravity_const Numeric value. Default 9.81
-#' @return List with list and data frame
+#' @return List
 #' @export
 #' @references
 #'     Samozino, Pierre. ‘A Simple Method for Measuring Lower Limb Force, Velocity and Power Capabilities During Jumping’. In Biomechanics of Training and Testing, edited by Jean-Benoit Morin and Pierre Samozino, 65–96. Cham: Springer International Publishing, 2018. https://doi.org/10.1007/978-3-319-05633-3_4.
@@ -216,7 +216,7 @@ get_all_samozino_profiles <- function(profile_data) {
 
 #' Get Samozino Jump Metrics
 #'
-#' \code{get_samozino_jump_parameters} return mean force, mean velocity and mean power using simple method explained in
+#' \code{get_samozino_jump_metrics} return mean force, mean velocity and mean power using simple method explained in
 #' the references.
 #' @param mass Numeric vector. Default 75
 #' @param push_off_distance Numeric vector. Default 0.4
@@ -251,5 +251,59 @@ get_samozino_jump_metrics <- function(mass = 75,
     mean_velocity = mean_velocity,
     mean_power = mean_power
   ))
+}
+
+
+#' Probe Samozino Take-off Velocity
+#'
+#' \code{probe_samozino_take_off_velocity} probes results of the \code{\link{get_samozino_take_off_velocity}} function by varying
+#' \code{F0}, \code{V0}, and \code{bodyweight} parameters
+#' @param F0 Numeric vector. Default 3000
+#' @param V0 Numeric vector. Default 4
+#' @param bodyweight Numeric vector. Default 75
+#' @param push_off_distance Numeric vector. Default 0.4
+#' @param gravity_const Numeric vector. Default 9.81
+#' @param change_ratio Numeric vector indicating probing change ratios
+#' @param aggregate How should \code{\link{get_samozino_take_off_velocity}} output be aggregated?
+#'     Default is "raw". Other options involve "ratio" and "diff" which use initial
+#'     output values
+#' @return Probing data frame
+#' @export
+#' @examples
+#' require(ggplot2)
+#'
+#'  samozino_probe_data <- probe_samozino_take_off_velocity(
+#'    F0 = 3000,
+#'    V0 = 3.5,
+#'    push_off_distance = 0.4,
+#'    bodyweight = 75,
+#'    change_ratio = seq(0.8, 1.2, length.out = 1001)
+#'  )
+#'
+#'  ggplot(
+#'    samozino_probe_data,
+#'    aes(
+#'      x = change_ratio,
+#'      y = take_off_velocity,
+#'      color = probing
+#'    )
+#'  ) +
+#'    geom_line()
+probe_samozino_take_off_velocity <- function(F0 = 3000,
+                                             V0 = 4,
+                                             bodyweight = 75,
+                                             push_off_distance = 0.4,
+                                             gravity_const = 9.81,
+                                             change_ratio = seq(0.9, 1.1, length.out = 3),
+                                             aggregate = "raw"
+) {
+  get_probing_data(
+    args_list = list(F0 = F0, V0 = V0, bodyweight = bodyweight),
+    probe_func = function(...) list(take_off_velocity = get_samozino_take_off_velocity(...)),
+    change_ratio = change_ratio,
+    aggregate = aggregate,
+    push_off_distance = push_off_distance,
+    gravity_const = gravity_const
+  )
 }
 

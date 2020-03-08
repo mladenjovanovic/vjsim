@@ -24,7 +24,7 @@ get_samozino_optimal_profile(
 \item{gravity_const}{Numeric value. Default 9.81}
 }
 \value{
-List with list and data frame
+List
 }
 \description{
 \code{get_samozino_optimal_profile} finds optimal Force-Velocity profile that maximizes vertical jump height based on the model of

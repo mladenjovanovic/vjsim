@@ -2,7 +2,7 @@
 % Please edit documentation in R/samozino.R
 \name{get_samozino_take_off_velocity}
 \alias{get_samozino_take_off_velocity}
-\title{Get Maximal Take-off Velocty}
+\title{Get Samozino Take-Off Velocity}
 \usage{
 get_samozino_take_off_velocity(
   F0 = 3000,
@@ -27,7 +27,7 @@ get_samozino_take_off_velocity(
 Numeric vector representing maximal take-off velocity
 }
 \description{
-\code{get_samozino_take_off_velocity} returns maximal take off velocity that could be achieve based on the Samozino \emph{et al.}
+\code{get_samozino_take_off_velocity} returns predicted maximal take off velocity that could be achieve based on the Samozino \emph{et al.}
     model which uses vertical jump profile \code{F0} and \code{V0}.
 }
 \examples{

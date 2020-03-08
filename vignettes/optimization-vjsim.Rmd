@@ -322,7 +322,7 @@ As seen in this and previous vignette, these parameters doesn't recover true For
 
 # Optimization
 
-"What should I be working on to increase my jump height?" is the question we as coaches often get. From the ballistic equation, the answer is simple - increase the force applied to the ground (or force impulse). But how should this be done? Should athlete focus on high-loads and high-force activities or low-load high-speed activities? 
+"What should I be working on to increase my jump height?" is the question we as coaches often get. From the ballistic equation, the answer is simple - increase the force applied to the ground (or force impulse). But how should this be done? Should athlete focus on high-loads and low-velocity activities or low-load high-velocity activities? 
 
 Samozino's model approach answering this question by making few assumptions. First, model assumes that $F_0$ and $V_0$ represent true Force Generator profile (mechanical) characteristics (but as seen they represent *manifested* and extrapolated characteristics given $h_{po}$ and bodyweight, rather than *ontological truth*). Second, they make assumption that max power $P_{max}$, which is equal to $\frac{F_0 \times V_0}{4}$ represent some *ontological* characteristic of the Force Generator (again, rather than manifested performance metric for a given conditions). Third, model assumes that there are "force" and "velocity" capabilities of the entire lower extremities, and thus that there are training methods to *hit* those qualities. For example, one might improve *force* characteristics or *velocity* characteristics of the Force Generator. 
 
@@ -430,7 +430,24 @@ direct.label(gg, list("last.points", cex = 0.5))
 
 Each profile line on the previous figure has the same $P_{max}$, but different slope. The original slope is equal to -1500, but as can be seen from the figure, according to this model, take-off velocity would be maximized wheen slope is -960. According to this model, this implies improving "velocity" characteristics of the Force Generator (whatever that might be). In coaches language, this individual should improve his "velocity" characteristics to improve take-off velocity and jump height. 
 
-There is algebraic solution to this problem of finding $S_{fv}{opt}$, but in `vjsim::get_samozino_optimal_profile` function I have used the `optim` function to find the slope that maximizes the take-off velocity while maintaing the $P_{max}$:
+We can represent these FV profiles with different slopes (but same $P_{max}$) with this figure:
+
+```{r}
+plot_data <- tibble(
+  k = seq(0.5, 1.5, length.out = 100),
+  F0 = 3000 * k,
+  V0 = 2 / k,
+  slope = vjsim::get_slope(F0, V0),
+  predicted_TOV = vjsim::get_samozino_take_off_velocity(F0, V0, 75, 0.4, 9.81),
+  predicted_height = vjsim::get_height(predicted_TOV)
+)
+
+ggplot(plot_data, aes(x =  slope, y = predicted_TOV)) +
+  theme_cowplot(8) +
+  geom_line()
+```
+
+There is algebraic solution to this problem of finding $S_{fv}{opt}$ (that maximizes $v_{to}$), but in `vjsim::get_samozino_optimal_profile` function I have used the `optim` function to find the slope that maximizes the take-off velocity while maintaing the $P_{max}$:
 
 ```{r}
 vjsim::get_samozino_optimal_profile(
@@ -504,7 +521,7 @@ $$
 
 Using the above values, $probe_{IMB}$ is equal to `r round((tov_velocity - tov)/(tov_force - tov)*100, 2)`%, which is similar to $S_{FV}\%$, just created different way. 
 
-We can also plot this probe (use the code below of `vjsim::probe_samozino_take_off_velocity` function):
+We can also plot this probe (use the code below or `vjsim::probe_samozino_take_off_velocity` function):
 
 ```{r}
 probe_data <- vjsim::get_probing_data(
@@ -539,11 +556,633 @@ direct.label(gg, list("last.bumpup", cex = 0.6))
 
 As can be seen from the above probing experiment, increasing $V_0$ in this profile creates higher improvements in take-off velocity, reaching the same conclusion as with optimal slope concept.
 
+# Bootstraping optimization estimators
+
+Like we did in the previous [vignette on profiling](https://mladenjovanovic.github.io/vjsim/articles/profiling-vjsim.html), we can use bootstrap and [`bmbstats`](https://mladenjovanovic.github.io/bmbstats-book/)[^bmbstats] package to get estimates of uncertainty around optimization metrics (i.e.  $S_{FV}\%$, $FV_{IMB}$, and $probe_{IMB}$). 
+
+[^bmbstats]: `bmbstats` package and acompanying book are currently in development, but you can access them on GitHub: https://github.com/mladenjovanovic/bmbstats and https://github.com/mladenjovanovic/bmbstats-book. The `bmbstats` book can be read on the GitHub pages: https://mladenjovanovic.github.io/bmbstats-book/
+
+`bmbstats` needs to be installed from the GitHub repository: 
+
+```{r}
+# Install bmbstats if you haven't already by running the following commands
+# install.packages("devtools")
+# devtools::install_github("mladenjovanovic/bmbstats")
+
+library(bmbstats)
+```
+
+The following code (actually a wrapper code), puts optimization estimators inside the bootstrap loop (1000 resamples) and provides 90% confidence intervals (CIs) estimated using the percentile method. 
+
+```{r}
+boot_optimization <- function(profile_data) {
+  
+  optimization_estimators <- function(data, SESOI_lower, SESOI_upper, na.rm, init_boot) {
+    
+    # Get Samozino profile
+    samozino_profile <- vjsim::get_all_samozino_profiles(
+         profile_data = data
+    )
+    
+    # Return chosen optimization estimators
+    
+    return(list(
+      practical.Sfv_perc = samozino_profile$list$samozino_practical_profile$Sfv_perc,
+      practical.FV_imbalance = samozino_profile$list$samozino_practical_profile$FV_imbalance,
+      practical.probe_IMB = samozino_profile$list$samozino_practical_profile$probe_IMB,
+      
+      theoretical.Sfv_perc = samozino_profile$list$samozino_theoretical_profile$Sfv_perc,
+      theoretical.FV_imbalance = samozino_profile$list$samozino_theoretical_profile$FV_imbalance,
+      theoretical.probe_IMB = samozino_profile$list$samozino_theoretical_profile$probe_IMB
+    ))
+  }
+  
+  # Perform bootstrap
+  boot_data <- bmbstats::bmbstats(
+    data = profile_data,
+    estimator_function = optimization_estimators,
+    boot_samples = 1000,
+    boot_type = "perc",
+    seed = 1667
+    )
+  
+  # Add plot
+  boot_data$graphs <- bmbstats::plot_bootstrap_distribution(boot_data$boot)
+  
+  return(boot_data)
+}
+
+boot_data <- boot_optimization(profile_data)
+
+boot_data$estimators
+```
+
+From the 90% CIs above we can see some randomness involved in estimating optimization estimators. Using `bmbstats::plot_bootstrap_distribution` we can plot the bootstrap distribution (I have created this object inside the above function):
+
+```{r}
+boot_data$graphs
+```
+
+One of the main take-away points is the difference between theoretical and practical profiles (and their optimization estimators), as well as uncertaintly involved when estimating them with 6 observations. And this is all without any *measurement error* involved. 
+
 # Probing Force Generator characteristics
 
-(to be continued)
+What happens to Samozino profile estimators when we probe the Force Generator? Let's find out, but let's use more *force dominant profile*:
+
+```{r}
+probe_data <- vjsim::probe_profile(
+  mass = 75,
+  max_force = 3500,
+  max_velocity = 3,
+  time_to_max_activation = 0.3,
+  time_step = 0.001,
+  external_load = c(0, 20, 40, 60, 80, 100),
+  change_ratio = seq(0.8, 1.2, length.out = 7),
+
+  # Profile variables
+  profile_func = vjsim::get_all_samozino_profiles
+)
+
+datatable(probe_data, rownames = FALSE) %>%
+  formatRound(columns = 1:ncol(probe_data), digits = 2)
+```
+
+We can also plot the result of probing. I will split them in two figures of the most interesting estimators.
+
+```{r}
+# Convert to long
+probe_data_1 <- gather(probe_data, key = "variable", value = "value", -(1:8)) %>%
+  filter(variable %in% c(
+    "samozino_practical_profile.F0",
+    "samozino_practical_profile.V0",
+    "samozino_practical_profile.optimal_F0",
+    "samozino_practical_profile.optimal_V0",   
+    "samozino_practical_profile.Pmax",
+  
+    "samozino_theoretical_profile.F0",
+    "samozino_theoretical_profile.V0",
+    "samozino_theoretical_profile.optimal_F0",
+    "samozino_theoretical_profile.optimal_V0",
+    "samozino_theoretical_profile.Pmax" 
+  )) %>%
+  mutate(variable = factor(variable, levels = c(
+      "samozino_practical_profile.F0",
+    "samozino_practical_profile.V0",
+    "samozino_practical_profile.optimal_F0",
+    "samozino_practical_profile.optimal_V0",   
+    "samozino_practical_profile.Pmax",
+  
+    "samozino_theoretical_profile.F0",
+    "samozino_theoretical_profile.V0",
+    "samozino_theoretical_profile.optimal_F0",
+    "samozino_theoretical_profile.optimal_V0",
+    "samozino_theoretical_profile.Pmax"   
+  )))
+
+  gg <- ggplot(probe_data_1,
+    aes(x = change_ratio, y = value, color = probing)
+    ) +
+   theme_cowplot(6) +
+   geom_line() +
+   facet_wrap(~variable, scales = "free_y") +
+   xlab("Normalized parameter change") +
+   ylab("Estimator value") +
+   scale_color_manual(values = c(
+     "mass" = "#4D4D4D",
+     "max_force" = "#5DA5DA",
+     "max_velocity" =  "#FAA43A",
+     "push_off_distance" = "#60BD68",
+     "time_to_max_activation" = "#B276B2")) +
+    xlim(c(0.8, 1.35)) 
+  
+  direct.label(gg, list("last.bumpup", cex = 0.4))
+```
+
+The above figure depicts effects of probing Force Generator characteristics on selected profile estimators. Let's see what happens to selected optimization parameters including predicted jump height:
+
+```{r}
+# Convert to long
+probe_data_2 <- gather(probe_data, key = "variable", value = "value", -(1:8)) %>%
+  filter(variable %in% c(
+    
+    "samozino_practical_profile.Sfv_perc",
+    "samozino_practical_profile.optimal_height",
+    "samozino_practical_profile.height",
+    
+    "samozino_theoretical_profile.Sfv_perc",
+    "samozino_theoretical_profile.optimal_height",
+    "samozino_theoretical_profile.height"  
+  )) %>%
+  mutate(variable = factor(variable, levels = c(
+    "samozino_practical_profile.Sfv_perc",
+    "samozino_practical_profile.optimal_height",
+    "samozino_practical_profile.height",
+    
+    "samozino_theoretical_profile.Sfv_perc",
+    "samozino_theoretical_profile.optimal_height",
+    "samozino_theoretical_profile.height" 
+  )))
+
+  gg <- ggplot(probe_data_2,
+    aes(x = change_ratio, y = value, color = probing)
+    ) +
+   theme_cowplot(6) +
+   geom_line() +
+   facet_wrap(~variable, scales = "free_y") +
+   xlab("Normalized parameter change") +
+   ylab("Estimator value") +
+   scale_color_manual(values = c(
+     "mass" = "#4D4D4D",
+     "max_force" = "#5DA5DA",
+     "max_velocity" =  "#FAA43A",
+     "push_off_distance" = "#60BD68",
+     "time_to_max_activation" = "#B276B2")) +
+    xlim(c(0.8, 1.35)) 
+  
+  direct.label(gg, list("last.bumpup", cex = 0.4))
+```
+
+What is interesting from the above figure, is that both practical and theoretical $S_{FV}\%$ showed predictable behavior when increasing Force Generator max force and max velocity. In other words, increasing max force increases $S_{FV}\%$ and decreasing max force decreases $S_{FV}\%$. When it comes to max velocity, increaseing it decreases $S_{FV}\%$ and decreasing max velocity increases $S_{FV}\%$. 
+
+Let's perform this same analysis, but now using more *velocity dominant profile*:
+
+```{r}
+probe_data_velocity <- probe_profile(
+  mass = 75,
+  max_force = 2500,
+  max_velocity = 8,
+  time_to_max_activation = 0.3,
+  time_step = 0.001,
+  external_load = c(0, 20, 40, 60, 80),
+  change_ratio = seq(0.8, 1.2, length.out = 7),
+
+  # Profile variables
+  profile_func = vjsim::get_all_samozino_profiles
+)
+```
+
+```{r}
+# Convert to long
+probe_data_1 <- gather(probe_data_velocity, key = "variable", value = "value", -(1:8)) %>%
+  filter(variable %in% c(
+    "samozino_practical_profile.F0",
+    "samozino_practical_profile.V0",
+    "samozino_practical_profile.optimal_F0",
+    "samozino_practical_profile.optimal_V0",   
+    "samozino_practical_profile.Pmax",
+  
+    "samozino_theoretical_profile.F0",
+    "samozino_theoretical_profile.V0",
+    "samozino_theoretical_profile.optimal_F0",
+    "samozino_theoretical_profile.optimal_V0",
+    "samozino_theoretical_profile.Pmax" 
+  )) %>%
+  mutate(variable = factor(variable, levels = c(
+      "samozino_practical_profile.F0",
+    "samozino_practical_profile.V0",
+    "samozino_practical_profile.optimal_F0",
+    "samozino_practical_profile.optimal_V0",   
+    "samozino_practical_profile.Pmax",
+  
+    "samozino_theoretical_profile.F0",
+    "samozino_theoretical_profile.V0",
+    "samozino_theoretical_profile.optimal_F0",
+    "samozino_theoretical_profile.optimal_V0",
+    "samozino_theoretical_profile.Pmax"   
+  )))
+
+  gg <- ggplot(probe_data_1,
+    aes(x = change_ratio, y = value, color = probing)
+    ) +
+   theme_cowplot(6) +
+   geom_line() +
+   facet_wrap(~variable, scales = "free_y") +
+   xlab("Normalized parameter change") +
+   ylab("Estimator value") +
+   scale_color_manual(values = c(
+     "mass" = "#4D4D4D",
+     "max_force" = "#5DA5DA",
+     "max_velocity" =  "#FAA43A",
+     "push_off_distance" = "#60BD68",
+     "time_to_max_activation" = "#B276B2")) +
+    xlim(c(0.8, 1.35)) 
+  
+  direct.label(gg, list("last.bumpup", cex = 0.4))
+```
+
+```{r}
+# Convert to long
+probe_data_2 <- gather(probe_data_velocity, key = "variable", value = "value", -(1:8)) %>%
+  filter(variable %in% c(
+    
+    "samozino_practical_profile.Sfv_perc",
+    "samozino_practical_profile.optimal_height",
+    "samozino_practical_profile.height",
+    
+    "samozino_theoretical_profile.Sfv_perc",
+    "samozino_theoretical_profile.optimal_height",
+    "samozino_theoretical_profile.height"  
+  )) %>%
+  mutate(variable = factor(variable, levels = c(
+    "samozino_practical_profile.Sfv_perc",
+    "samozino_practical_profile.optimal_height",
+    "samozino_practical_profile.height",
+    
+    "samozino_theoretical_profile.Sfv_perc",
+    "samozino_theoretical_profile.optimal_height",
+    "samozino_theoretical_profile.height" 
+  )))
+
+  gg <- ggplot(probe_data_2,
+    aes(x = change_ratio, y = value, color = probing)
+    ) +
+   theme_cowplot(6) +
+   geom_line() +
+   facet_wrap(~variable, scales = "free_y") +
+   xlab("Normalized parameter change") +
+   ylab("Estimator value") +
+   scale_color_manual(values = c(
+     "mass" = "#4D4D4D",
+     "max_force" = "#5DA5DA",
+     "max_velocity" =  "#FAA43A",
+     "push_off_distance" = "#60BD68",
+     "time_to_max_activation" = "#B276B2")) +
+    xlim(c(0.8, 1.35)) 
+  
+  direct.label(gg, list("last.bumpup", cex = 0.4))
+```
+
+Both theoretical and practical profiles (using predicted height) showed higher improvements in predicted jump height when max force improves. I will further explore these topics in the next vignette (and at the end of this one), but so far, this model seems to predict intervention effects of increasing either max force or max velocity based on $S_{FV}\%$ metric. 
+
+# Alternatives?
+
+The goal of optimization profile is to help answer intervention question: "What should athlete do?". This is a complex question, but for the sake of this vignette, we are answering it from the vertical jump perspective: "What should athlete do to yield biggest effect in jump performance?". In other way, should athlete focus on high-load and low-velocity activities (e.g. heavy squatting, or deadlifting), or low-load and high-velocity activities (e.g. unloaded jumping or even *assisted* jumping). Samozino optimization profile seems to help in answering this question. But let's explore another approache and see if it works.
+
+In the previous vignette I have demonstrated multitude of profiles that we can make. The simplest profile is Load~TOV, or mass and take-off velocity. This is actually THE profile we get from jumping, from which the Samozino profile is further developed using assumptions of constants acceleration and equal mean force over distance and time. Figure below depicts Load~TOV profile, termed *simple profile* which is estimated using `vjsim::get_simple_profile` function. 
+
+```{r}
+simple_profile <- vjsim::get_simple_profile(profile_data)
+
+plot_data <- data.frame(
+  x = c(simple_profile$L0, 0),
+  y = c(0, simple_profile$TOV0)
+)
+
+plot_data_points <- profile_data %>%
+  mutate(x = mass, y = take_off_velocity)
+
+ggplot(plot_data, aes(x = x, y = y)) +
+  theme_cowplot(8) +
+  geom_vline(xintercept = profile_data$bodyweight[1], color = "grey", linetype = "dashed") +
+  geom_hline(yintercept = simple_profile$take_off_velocity[1], color = "grey", linetype = "dashed") +
+  geom_line(alpha = 0.8) +
+  geom_point(data = plot_data_points, alpha = 0.8) +
+  labs(x = "Load (kg)", y = "Take-off Velocity (m/s)")
+```
+
+Vertical dashed line indicates bodyweight (75kg in this case), and horizontal dashed line indicates predicted take-off velocity. As can be seen it is very close to *true* take-off velocity during the bodyweight jump. 
+
+Similar to Samozino model, we can check how changing slope of the profile afffects the predicted vertical jump height. The logic is same as with Samozino profile, but simpler: we check where the profile line cuts the vertical dashed line:
+
+```{r}
+k <- c(0.8, 0.9, 1, 1.1, 1.2)
+
+plot_data <- tibble(
+  k = k,
+  L0 = simple_profile$L0 * k,
+  TOV0 = simple_profile$TOV0 / k,
+  slope = vjsim::get_slope(L0, TOV0),
+  predicted_TOV = vjsim::get_simple_take_off_velocity(L0, TOV0, 75),
+  group = 1,
+  x = L0,
+  y = 0,
+)
+
+plot_data_2 <- plot_data
+plot_data_2$group <- 2
+plot_data_2$x <- 0
+plot_data_2$y <- plot_data_2$TOV0
+
+plot_data <- rbind(
+  plot_data,
+  plot_data_2
+)
+
+plot_data <- plot_data %>%
+  mutate(
+    k = factor(k),
+    slope = round(slope, 2)
+  )
+
+gg <- ggplot(plot_data, aes(x = x, y = y, group = k, color = slope)) +
+  theme_cowplot(8) +
+  geom_line(alpha = 0.8, color = "blue") +
+  geom_vline(xintercept = profile_data$bodyweight[1], color = "grey", linetype = "dashed") +
+  labs(x = "Mean GRF over distance (N)", y = "Mean Velocity (m/s)") +
+  scale_color_gradient(low = "black", high = "black")
+
+direct.label(gg, list("last.points", cex = 0.5))
+```
+
+The results of this search can be represented with the following figure:
+
+```{r}
+plot_data <- tibble(
+  k = seq(0.3, 2.5, length.out = 100),
+  L0 = simple_profile$L0 * k,
+  TOV0 = simple_profile$TOV0 / k,
+  slope = vjsim::get_slope(L0, TOV0),
+  predicted_TOV = vjsim::get_simple_take_off_velocity(L0, TOV0, 75)
+)
+
+ggplot(plot_data, aes(x =  slope, y = predicted_TOV)) +
+  theme_cowplot(8) +
+  geom_line() +
+  geom_vline(xintercept = simple_profile$Sfv, color = "grey") +
+  geom_vline(xintercept = simple_profile$optimal_Sfv, color = "grey", linetype = "dashed")
+```
+
+Vertical dashed line represents optimal slope estimated using `vjsim::get_simple_profile` function. Here is the output of the same function:
+
+```{r}
+simple_profile
+```
+
+Using `vjsim::probe_simple_take_off_velocity` we can further probe the behavior of the predicted take-off velocity when, in this case $L_0$ and $TOV_0$ change. 
+
+```{r}
+simple_probe_data <- probe_simple_take_off_velocity(
+  L0 = simple_profile$L0,
+  TOV0 = simple_profile$TOV0,
+  bodyweight = 75,
+  change_ratio = seq(0.8, 1.2, length.out = 1001)
+)
+
+ggplot(
+  simple_probe_data,
+  aes(
+    x = change_ratio,
+    y = take_off_velocity,
+    color = probing
+   )
+  ) +
+  theme_cowplot(8) + 
+  geom_line() +
+  geom_vline(xintercept = 1, color = "grey", linetype = "dashed") +
+  geom_hline(yintercept = simple_profile$take_off_velocity, color = "grey", linetype = "dashed")
+```
+
+Let's probe this model when the Force Generator characteristics change. We can use the"force-dominant" and "velocity-dominant" profiles and compare it to Samozino model behavior
+
+```{r}
+probe_data_velocity <- vjsim::probe_profile(
+  mass = 75,
+  max_force = 2500,
+  max_velocity = 8,
+  time_to_max_activation = 0.3,
+  time_step = 0.001,
+  external_load = c(0, 20, 40, 60, 80),
+  change_ratio = seq(0.8, 1.2, length.out = 7),
+
+  # Profile variables
+  profile_func = function(...){list(list = vjsim::get_simple_profile(...))}
+)
 
 
-# Alternatives
+probe_data_force <- vjsim::probe_profile(
+  mass = 75,
+  max_force = 3500,
+  max_velocity = 3,
+  time_to_max_activation = 0.3,
+  time_step = 0.001,
+  external_load = c(0, 20, 40, 60, 80),
+  change_ratio = seq(0.8, 1.2, length.out = 7),
 
+  # Profile variables
+  profile_func = function(...){list(list = vjsim::get_simple_profile(...))}
+)
+
+probe_data <- rbind(
+  data.frame(profile = "Velocity dominant", probe_data_velocity),
+  data.frame(profile = "Force dominant", probe_data_force)
+)
+
+probe_data <- gather(probe_data, key = "variable", value = "value", -(1:9)) %>%
+  filter(variable %in% c("L0", "TOV0", "height", "optimal_Sfv", "Sfv_perc", "probe_IMB")) %>%
+  mutate(variable = factor(variable, levels = c("L0", "TOV0", "height", "optimal_Sfv", "Sfv_perc", "probe_IMB")))
+
+
+  gg <- ggplot(probe_data,
+    aes(x = change_ratio, y = value, color = probing)
+    ) +
+   theme_cowplot(6) +
+   geom_line() +
+   facet_wrap(profile~variable, scales = "free", nrow = 2, ncol = 6) +
+   xlab("Normalized parameter change") +
+   ylab("Estimator value") +
+    xlim(c(0.8, 1.4)) 
+  
+  direct.label(gg, list("last.bumpup", cex = 0.4))
+```
+
+As can be seen from the above graph, this simple model is not able to "predict" effects of increasing max force or max velocity of the force generator. If we check the height (actually predicted height), we can see that in velocity dominant profile, increasing max force parameter yields biggest effects. In the force dominant profile, increasing max velocity parameter of the Force generator yields biggest effect. This is not picked up with $S_{FV}\%$ nor $probe_{IMB}$.
+
+Let's repeat the same visual (one more time) using practical Samozino method (which also uses take-off velocity):
+
+```{r}
+probe_data_velocity <- vjsim::probe_profile(
+  mass = 75,
+  max_force = 2500,
+  max_velocity = 8,
+  time_to_max_activation = 0.3,
+  time_step = 0.001,
+  external_load = c(0, 20, 40, 60, 80),
+  change_ratio = seq(0.8, 1.2, length.out = 7),
+
+  # Profile variables
+  profile_func = vjsim::get_all_samozino_profiles
+)
+
+
+probe_data_force <- vjsim::probe_profile(
+  mass = 75,
+  max_force = 3500,
+  max_velocity = 3,
+  time_to_max_activation = 0.3,
+  time_step = 0.001,
+  external_load = c(0, 20, 40, 60, 80),
+  change_ratio = seq(0.8, 1.2, length.out = 7),
+
+  # Profile variables
+  profile_func = vjsim::get_all_samozino_profiles
+)
+
+probe_data <- rbind(
+  data.frame(profile = "Velocity dominant", probe_data_velocity),
+  data.frame(profile = "Force dominant", probe_data_force)
+)
+
+probe_data <- gather(probe_data, key = "variable", value = "value", -(1:9)) %>%
+  filter(variable %in% c(
+    "samozino_practical_profile.F0",
+    "samozino_practical_profile.V0",
+    "samozino_practical_profile.height",
+    "samozino_practical_profile.optimal_Sfv",
+    "samozino_practical_profile.Sfv_perc",
+    "samozino_practical_profile.probe_IMB")) %>%
+  mutate(variable = factor(
+    variable,
+    levels = c(
+     "samozino_practical_profile.F0",
+    "samozino_practical_profile.V0",
+    "samozino_practical_profile.height",
+    "samozino_practical_profile.optimal_Sfv",
+    "samozino_practical_profile.Sfv_perc",
+    "samozino_practical_profile.probe_IMB"),
+    labels = c("F0", "V0", "height", "optimal_Sfv", "Sfv_perc", "probe_IMB")))
+
+
+  gg <- ggplot(probe_data,
+    aes(x = change_ratio, y = value, color = probing)
+    ) +
+   theme_cowplot(6) +
+   geom_line() +
+   facet_wrap(profile~variable, scales = "free", nrow = 2, ncol = 6) +
+   xlab("Normalized parameter change") +
+   ylab("Estimator value") +
+    xlim(c(0.8, 1.4)) 
+  
+  direct.label(gg, list("last.bumpup", cex = 0.4))
+```
+
+And finally using theoretical Samozino model:
+
+```{r}
+probe_data_velocity <- vjsim::probe_profile(
+  mass = 75,
+  max_force = 2500,
+  max_velocity = 8,
+  time_to_max_activation = 0.3,
+  time_step = 0.001,
+  external_load = c(0, 20, 40, 60, 80),
+  change_ratio = seq(0.8, 1.2, length.out = 7),
+
+  # Profile variables
+  profile_func = vjsim::get_all_samozino_profiles
+)
+
+
+probe_data_force <- vjsim::probe_profile(
+  mass = 75,
+  max_force = 3500,
+  max_velocity = 3,
+  time_to_max_activation = 0.3,
+  time_step = 0.001,
+  external_load = c(0, 20, 40, 60, 80),
+  change_ratio = seq(0.8, 1.2, length.out = 7),
+
+  # Profile variables
+  profile_func = vjsim::get_all_samozino_profiles
+)
+
+probe_data <- rbind(
+  data.frame(profile = "Velocity dominant", probe_data_velocity),
+  data.frame(profile = "Force dominant", probe_data_force)
+)
+
+probe_data <- gather(probe_data, key = "variable", value = "value", -(1:9)) %>%
+  filter(variable %in% c(
+    "samozino_theoretical_profile.F0",
+    "samozino_theoretical_profile.V0",
+    "samozino_theoretical_profile.height",
+    "samozino_theoretical_profile.optimal_Sfv",
+    "samozino_theoretical_profile.Sfv_perc",
+    "samozino_theoretical_profile.probe_IMB")) %>%
+  mutate(variable = factor(
+    variable,
+    levels = c(
+     "samozino_theoretical_profile.F0",
+    "samozino_theoretical_profile.V0",
+    "samozino_theoretical_profile.height",
+    "samozino_theoretical_profile.optimal_Sfv",
+    "samozino_theoretical_profile.Sfv_perc",
+    "samozino_theoretical_profile.probe_IMB"),
+    labels = c("F0", "V0", "height", "optimal_Sfv", "Sfv_perc", "probe_IMB")))
+
+
+  gg <- ggplot(probe_data,
+    aes(x = change_ratio, y = value, color = probing)
+    ) +
+   theme_cowplot(6) +
+   geom_line() +
+   facet_wrap(profile~variable, scales = "free", nrow = 2, ncol = 6) +
+   xlab("Normalized parameter change") +
+   ylab("Estimator value") +
+    xlim(c(0.8, 1.4)) 
+  
+  direct.label(gg, list("last.bumpup", cex = 0.4))
+```
+
+Both Samozino profiles (practical and theoretical) correctly identified the effects of increasing Force Generator max force or max velocity characteristics for two different profiles. 
+
+In the next vignette I will continue with the discussion and exploration of this model by using simulated data for a large ammount of different combinations of Force Generator parameters. I will follow up with discussion of intervention studies using this model [@jimenez-reyesEffectivenessIndividualizedTraining2017; @jimenez-reyesOptimizedTrainingJumping2019] and provide final conclusion about it's application. 
+
+# Shiny App
+
+Now start playing with the code or with the [Shiny App](https://athletess.shinyapps.io/shiny-simulator/) by click on the previous link or by running the following code:
+
+```{r eval=FALSE}
+vjsim::run_simulator()
+```
+
+The [Shiny App](https://athletess.shinyapps.io/shiny-simulator/) will allow you much more interactive environment for exploring the `vjsim`. 
+
+# Want to learn more?
+
+Please continue by reading [Exploring vignette](https://mladenjovanovic.github.io/vjsim/articles/exploring-vjsim.html):
+
+```{r eval=FALSE}
+vignette("exploring-vjsim")
+```
+ 
 # References

@@ -4,13 +4,13 @@ require(tidyverse)
 require(progress)
 
 gravity_const <- 9.81
-external_load <- c(-0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8)
+external_load <- c(0, 0.2, 0.4, 0.6, 0.8)
 time_step <- 0.001
 
 
 parameters <- expand_grid(
-  mass = seq(50, 90, 10),
-  push_off_distance = c(0.5, 0.4, 0.3),
+  mass = seq(90, 50, -10),
+  push_off_distance = c(0.3, 0.4, 0.5),
   max_force_rel = c(35, 40, 45, 50),
   max_velocity = c(2.0, 2.5, 3, 3.5, 4, 4.5),
   decline_rate = c(1.1, 0.8, 0.5),
@@ -65,6 +65,7 @@ for(i in seq(1, parameters_len)) {
     ", max_force=", max_force, ", max_velocity=", max_velocity,
     ", decline_rate=", decline_rate, ", peak_location=", peak_location,
     ", time_to_max_activation=", time_to_max_activation, sep=""))
+
 
   # Hypothetical using Samozino model
   optimal_profile <- get_samozino_optimal_profile(
@@ -147,7 +148,37 @@ for(i in seq(1, parameters_len)) {
     height_velocity_diff = bodyweight_jump_velocity$height - bodyweight_jump$height,
     height_velocity_ratio = bodyweight_jump_velocity$height / bodyweight_jump$height,
     height_diff = (bodyweight_jump_velocity$height - bodyweight_jump$height) - (bodyweight_jump_force$height - bodyweight_jump$height),
-    height_ratio = (bodyweight_jump_velocity$height - bodyweight_jump$height) / (bodyweight_jump_force$height - bodyweight_jump$height)
+    height_ratio = (bodyweight_jump_velocity$height - bodyweight_jump$height) / (bodyweight_jump_force$height - bodyweight_jump$height),
+
+    take_off_velocity_force = bodyweight_jump_force$take_off_velocity,
+    take_off_velocity_force_diff = bodyweight_jump_force$take_off_velocity - bodyweight_jump$take_off_velocity,
+    take_off_velocity_force_ratio = bodyweight_jump_force$take_off_velocity / bodyweight_jump$take_off_velocity,
+    take_off_velocity_velocity = bodyweight_jump_velocity$take_off_velocity,
+    take_off_velocity_velocity_diff = bodyweight_jump_velocity$take_off_velocity - bodyweight_jump$take_off_velocity,
+    take_off_velocity_velocity_ratio = bodyweight_jump_velocity$take_off_velocity / bodyweight_jump$take_off_velocity,
+    take_off_velocity_diff = (bodyweight_jump_velocity$take_off_velocity - bodyweight_jump$take_off_velocity) - (bodyweight_jump_force$take_off_velocity - bodyweight_jump$take_off_velocity),
+    take_off_velocity_ratio = (bodyweight_jump_velocity$take_off_velocity - bodyweight_jump$take_off_velocity) / (bodyweight_jump_force$take_off_velocity - bodyweight_jump$take_off_velocity)
+  )
+
+  # ------------------------
+  # Bosco Index
+  double_bodyweight_jump <- vj_simulate(
+    mass = mass*2,
+    weight = weight*2,
+    push_off_distance = push_off_distance,
+    gravity_const = gravity_const,
+    time_step = time_step,
+    save_trace = FALSE,
+    max_force = max_force,
+    max_velocity = max_velocity,
+    decline_rate = decline_rate,
+    peak_location = peak_location,
+    time_to_max_activation = time_to_max_activation
+  )
+
+  bosco <- list(
+    height_2BW = double_bodyweight_jump$summary$height,
+    index = double_bodyweight_jump$summary$height / bodyweight_jump$height * 100
   )
 
   # -------------------------
@@ -173,16 +204,21 @@ for(i in seq(1, parameters_len)) {
   samozino_profile <- get_all_samozino_profiles(jump_profile_data)
   samozino_profile <- as.list(unlist(samozino_profile$list))
 
+  # ------------------------
+  # Simple profile
+  simple_profile <- get_simple_profile(jump_profile_data)
+
   # -------------------------
   # Save results
   vjsim_data[[i]] <- list(
     force_generator = force_generator,
     bodyweight_jump = as.list(bodyweight_jump),
     probe_bodyweight_jump = probe_bodyweight_jump,
+    bosco = bosco,
     jump_profile,
-    samozino_profile
+    samozino_profile,
+    simple_profile = simple_profile
   )
-
 }
 
 vjsim_data <- as.data.frame(do.call(rbind, lapply(vjsim_data, unlist)))

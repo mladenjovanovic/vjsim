@@ -4,7 +4,7 @@
 #' characteristics as latent or intrinsic qualities and manifested performance in a single jump
 #' as well as profile metrics and optimization metrics
 #'
-#' @format A data frame with 8640 rows and 148 variables:
+#' @format A data frame with 8640 rows and 174 variables:
 #' \describe{
 #'    \item{force_generator.bodyweight}{}
 #'    \item{force_generator.push_off_distance}{}
@@ -35,6 +35,7 @@
 #'    \item{force_generator.optimal_Sfv}{}
 #'    \item{force_generator.Sfv_perc}{}
 #'    \item{force_generator.FV_imbalance}{}
+#'    \item{force_generator.probe_IMB}{}
 #'    \item{bodyweight_jump.take_off_time}{}
 #'    \item{bodyweight_jump.take_off_velocity}{}
 #'    \item{bodyweight_jump.height}{}
@@ -80,6 +81,16 @@
 #'    \item{probe_bodyweight_jump.height_velocity_ratio}{}
 #'    \item{probe_bodyweight_jump.height_diff}{}
 #'    \item{probe_bodyweight_jump.height_ratio}{}
+#'    \item{probe_bodyweight_jump.take_off_velocity_force}{}
+#'    \item{probe_bodyweight_jump.take_off_velocity_force_diff}{}
+#'    \item{probe_bodyweight_jump.take_off_velocity_force_ratio}{}
+#'    \item{probe_bodyweight_jump.take_off_velocity_velocity}{}
+#'    \item{probe_bodyweight_jump.take_off_velocity_velocity_diff}{}
+#'    \item{probe_bodyweight_jump.take_off_velocity_velocity_ratio}{}
+#'    \item{probe_bodyweight_jump.take_off_velocity_diff}{}
+#'    \item{probe_bodyweight_jump.take_off_velocity_ratio}{}
+#'    \item{bosco.height_2BW}{}
+#'    \item{bosco.index}{}
 #'    \item{profile_mean_FV.F0}{}
 #'    \item{profile_mean_FV.F0_rel}{}
 #'    \item{profile_mean_FV.V0}{}
@@ -132,6 +143,7 @@
 #'    \item{samozino_theoretical_profile.optimal_Sfv}{}
 #'    \item{samozino_theoretical_profile.Sfv_perc}{}
 #'    \item{samozino_theoretical_profile.FV_imbalance}{}
+#'    \item{samozino_theoretical_profile.probe_IMB}{}
 #'    \item{samozino_practical_profile.F0}{}
 #'    \item{samozino_practical_profile.F0_rel}{}
 #'    \item{samozino_practical_profile.V0}{}
@@ -154,6 +166,20 @@
 #'    \item{samozino_practical_profile.optimal_Sfv}{}
 #'    \item{samozino_practical_profile.Sfv_perc}{}
 #'    \item{samozino_practical_profile.FV_imbalance}{}
+#'    \item{samozino_practical_profile.probe_IMB}{}
+#'    \item{simple_profile.L0}{}
+#'    \item{simple_profile.TOV0}{}
+#'    \item{simple_profile.Sfv}{}
+#'    \item{simple_profile.take_off_velocity}{}
+#'    \item{simple_profile.height}{}
+#'    \item{simple_profile.optimal_L0}{}
+#'    \item{simple_profile.optimal_TOV0}{}
+#'    \item{simple_profile.optimal_Sfv}{}
+#'    \item{simple_profile.optimal_take_off_velocity}{}
+#'    \item{simple_profile.optimal_height}{}
+#'    \item{simple_profile.Sfv_perc}{}
+#'    \item{simple_profile.FV_imbalance}{}
+#'    \item{simple_profile.probe_IMB}{}
 #' }
 #' @usage data(vjsim_data)
 "vjsim_data"

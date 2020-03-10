@@ -101,6 +101,10 @@ vj_simulate <- function( # system constrains
   summary_peak_RFD_time <- 0
   summary_peak_RFD_distance <- 0
 
+  # GRF at particular times
+  GRF_at_100ms <- NA
+  GRF_at_200ms <- NA
+
   # Peak Power
   summary_peak_power <- 0
   summary_peak_power_time <- 0
@@ -245,6 +249,14 @@ vj_simulate <- function( # system constrains
       summary_peak_power <- current_power
       summary_peak_power_distance <- current_distance
       summary_peak_power_time <- current_time
+    }
+
+    if (current_time <= 0.1) {
+      GRF_at_100ms <- ground_reaction_force
+    }
+
+    if (current_time <= 0.2) {
+      GRF_at_200ms <- ground_reaction_force
     }
 
     if (trace_index > 1) {
@@ -404,6 +416,9 @@ vj_simulate <- function( # system constrains
     peak_RFD = peak_RFD,
     peak_RFD_distance = peak_RFD_distance,
     peak_RFD_time = peak_RFD_time,
+
+    GRF_at_100ms = GRF_at_100ms,
+    GRF_at_200ms = GRF_at_200ms,
 
     peak_RPD = peak_RPD,
     peak_RPD_distance = peak_RPD_distance,

@@ -47,6 +47,8 @@ summary_variables <- c(
   "mean_power",
   "peak_power",
   "peak_RFD",
+  "GRF_at_100ms",
+  "GRF_at_200ms",
   "peak_RPD",
   "work_done",
   "impulse"
@@ -75,6 +77,8 @@ profiling_variables <- c(
   "mean_power",
   "peak_power",
   "peak_RFD",
+  "GRF_at_100ms",
+  "GRF_at_200ms",
   "peak_RPD",
   "work_done",
   "impulse",

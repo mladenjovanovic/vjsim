@@ -4,7 +4,7 @@
 \name{vjsim_data}
 \alias{vjsim_data}
 \title{vjsim data}
-\format{A data frame with 8640 rows and 174 variables:
+\format{A data frame with 8640 rows and 176 variables:
 \describe{
    \item{force_generator.bodyweight}{}
    \item{force_generator.push_off_distance}{}
@@ -59,6 +59,8 @@
    \item{bodyweight_jump.peak_RFD}{}
    \item{bodyweight_jump.peak_RFD_distance}{}
    \item{bodyweight_jump.peak_RFD_time}{}
+   \item{bodyweight_jump.GRF_at_100ms}{}
+   \item{bodyweight_jump.GRF_at_200ms}{}
    \item{bodyweight_jump.peak_RPD}{}
    \item{bodyweight_jump.peak_RPD_distance}{}
    \item{bodyweight_jump.peak_RPD_time}{}

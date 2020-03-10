@@ -100,5 +100,3 @@ above link (this will take you to the *shinyapps.io*)
 # install.packages(c("shiny", "plotly", "DT"))
 run_simulator()
 ```
-
-(App is in ongoing development; Instructional Video will be added)

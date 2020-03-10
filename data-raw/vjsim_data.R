@@ -12,7 +12,7 @@ parameters <- expand_grid(
   mass = seq(90, 50, -10),
   push_off_distance = c(0.3, 0.4, 0.5),
   max_force_rel = c(35, 40, 45, 50),
-  max_velocity = c(2.0, 2.5, 3, 3.5, 4, 4.5),
+  max_velocity = c(2, 3, 4, 5, 6, 7),
   decline_rate = c(1.1, 0.8, 0.5),
   peak_location = c(-0.04, -0.08),
   time_to_max_activation = c(0.4, 0.3, 0.2, 0.1)

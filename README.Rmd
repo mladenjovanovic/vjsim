@@ -92,4 +92,3 @@ To run the Shiny app, use the following code, or by clicking on the above link (
 # install.packages(c("shiny", "plotly", "DT"))
 run_simulator()
 ```
-(App is in ongoing development; Instructional Video will be added)

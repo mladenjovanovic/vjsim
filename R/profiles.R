@@ -91,7 +91,8 @@ get_FV_profile <- function(profile_data, force = "mean_GRF_over_distance", veloc
       V0 = NA,
       Pmax = NA,
       Pmax_rel = NA,
-      Sfv = NA
+      Sfv = NA,
+      Sfv_rel = NA
     ))
   }
 
@@ -127,7 +128,8 @@ get_FV_profile <- function(profile_data, force = "mean_GRF_over_distance", veloc
       V0 = NA,
       Pmax = NA,
       Pmax_rel = NA,
-      Sfv = NA
+      Sfv = NA,
+      Sfv_rel = NA
     ))
   }
 
@@ -166,7 +168,8 @@ get_FV_profile <- function(profile_data, force = "mean_GRF_over_distance", veloc
       V0 = NA,
       Pmax = NA,
       Pmax_rel = NA,
-      Sfv = NA
+      Sfv = NA,
+      Sfv_rel = NA
     ))
   }
 
@@ -175,6 +178,7 @@ get_FV_profile <- function(profile_data, force = "mean_GRF_over_distance", veloc
 
   # Get slope
   slope <- get_slope(force_0, velocity_0)
+  slope_rel <- get_slope(force_0 / bodyweight, velocity_0)
 
   return(list(
     F0 = force_0,
@@ -182,7 +186,8 @@ get_FV_profile <- function(profile_data, force = "mean_GRF_over_distance", veloc
     V0 = velocity_0,
     Pmax = power_max,
     Pmax_rel = power_max / bodyweight,
-    Sfv = slope
+    Sfv = slope,
+    Sfv_rel = slope_rel
   ))
 }
 
@@ -338,11 +343,13 @@ get_all_profiles <- function(profile_data) {
   profile_load_take_off_velocity$Imax <- profile_load_take_off_velocity$Pmax
   profile_load_take_off_velocity$Imax_rel <- profile_load_take_off_velocity$Pmax_rel
   profile_load_take_off_velocity$Slv <- profile_load_take_off_velocity$Sfv
+  profile_load_take_off_velocity$Slv_rel <- profile_load_take_off_velocity$Sfv_rel
   profile_load_take_off_velocity$F0 <- NULL
   profile_load_take_off_velocity$F0_rel <- NULL
   profile_load_take_off_velocity$Pmax <- NULL
   profile_load_take_off_velocity$Pmax_rel <- NULL
   profile_load_take_off_velocity$Sfv <- NULL
+  profile_load_take_off_velocity$Sfv_rel <- NULL
 
   # Impulse ~ Load
   profile_load_impulse <- get_power_profile(

@@ -40,6 +40,7 @@ get_simple_optimal_profile <- function(L0, TOV0, bodyweight, gravity_const = 9.8
     bodyweight = bodyweight
     )
   Sfv <-  get_slope(L0, TOV0)
+  Sfv_rel <- Sfv / bodyweight
 
   optimal_take_off_velocity <- get_simple_take_off_velocity(
     L0 = optimal_L0,
@@ -47,7 +48,7 @@ get_simple_optimal_profile <- function(L0, TOV0, bodyweight, gravity_const = 9.8
     bodyweight = bodyweight
   )
   optimal_Sfv <-  get_slope(optimal_L0, optimal_TOV0)
-
+  optimal_Sfv_rel <- optimal_Sfv / bodyweight
 
   # Probe
   take_off_velocity_f_increase <- get_simple_take_off_velocity(
@@ -67,12 +68,15 @@ get_simple_optimal_profile <- function(L0, TOV0, bodyweight, gravity_const = 9.8
     L0 = L0,
     TOV0 = TOV0,
     Sfv = Sfv,
+    Sfv_rel = Sfv_rel,
+
     take_off_velocity = take_off_velocity,
     height = get_height(take_off_velocity, gravity_const),
 
     optimal_L0 = optimal_L0,
     optimal_TOV0 = optimal_TOV0,
     optimal_Sfv = optimal_Sfv,
+    optimal_Sfv_rel = optimal_Sfv_rel,
     optimal_take_off_velocity = optimal_take_off_velocity,
     optimal_height = get_height(optimal_take_off_velocity, gravity_const),
 

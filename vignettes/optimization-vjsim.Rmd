@@ -1165,7 +1165,74 @@ probe_data <- gather(probe_data, key = "variable", value = "value", -(1:9)) %>%
 
 Both Samozino profiles (practical and theoretical) correctly identified the effects of increasing Force Generator max force or max velocity characteristics for two different profiles. 
 
-In the next vignette I will continue with the discussion and exploration of this model by using simulated data for a large ammount of different combinations of Force Generator parameters. I will follow up with discussion of intervention studies using this model [@jimenez-reyesEffectivenessIndividualizedTraining2017; @jimenez-reyesOptimizedTrainingJumping2019] and provide final conclusion about it's application. 
+## Load~Peak Force profile?
+
+Another profile that is commonly used in practice is the Load~Peak Force profile (LPF). This profile is useful once someone has force platform, but this also makes it less practical compared to Samozino model/profile (one just needs to calculate push-off distance and use jump height which can be estimated with a simple jump mat).
+
+In the example below, I will provide LPF profile for velocity-dominant and force-dominant examples:
+
+```{r}
+profile_data_velocity <- vjsim::vj_profile(
+  external_load = external_load,
+
+  # Simulation parameters
+  mass = 75,
+  push_off_distance = 0.4,
+  max_force = 2500,
+  max_velocity = 8
+)
+
+profile_data_force <- vjsim::vj_profile(
+  external_load = external_load,
+
+  # Simulation parameters
+  mass = 75,
+  push_off_distance = 0.4,
+  max_force = 3500,
+  max_velocity = 3
+)
+
+merged_profiles <- rbind(
+  data.frame(profile = "Velocity dominant", profile_data_velocity),
+  data.frame(profile = "Force dominant", profile_data_force)
+)
+
+plot_merged_profiles <- function(merged_profile_data, x_var, y_var, profile = "profile") {
+  df <- data.frame(
+    x_var = merged_profile_data[[x_var]],
+    y_var = merged_profile_data[[y_var]],
+    profile = merged_profile_data[[profile]]
+  )
+
+  gg <- ggplot(df, aes(x = x_var, y = y_var, group = profile, color = profile)) +
+    theme_cowplot(8) +
+    geom_line(alpha = 0.8) +
+    geom_point(alpha = 0.8) +
+    labs(x = x_var, y = y_var)
+
+  return(gg)
+}
+
+plot_merged_profiles(merged_profiles, "mass", "peak_GRF")
+```
+
+What can be noticed from this profile is that the more "force-dominant" athlete has more steep profile, while "velocity-dominant" athlete has more horizontal profile. We can say that "velocity-dominant" athlete is able to *squeeze* out ability to generate maximal force at lower loads (mass), and can thus benefit from developing max force capabilities (whatever they are in *ontological* sense). The "force-dominant" athlete, on the other hand, is unable to manifest maximal forces at lighter loads and would benefit from training that allows him to do that. 
+
+This LPF profile can be summarized with a slope metric:
+
+```{r}
+LPF_velocity <- lm(peak_GRF~mass, profile_data_velocity)
+coef(LPF_velocity)[[1]]
+```
+
+```{r}
+LPF_force <- lm(peak_GRF~mass, profile_data_force)
+coef(LPF_force)[[1]]
+```
+
+Similar idea is utilizied with *Bosco Index* where the ratio of 2x BW jump height to BW jump height is calculated. Unfortunately, neither of these two (Bosco Index nor LPF slope) gives us a practical summary such as Samozino profile (i.e. using $S_{FV}\%$ nor $probe_{IMB}$). Thus we can only assume what type of intervention should be done, but we can use them to compare between individuals. On the other hand, Samozino profile gives us a hint on which *quality* one needs to be working (and by quality I assume parts of the curve; i.e. F0 or V0) to get the biggest effect on bodyweight jump. 
+
+In the next vignette I will continue with the discussion and exploration of these model by using simulated data for a large ammount of different combinations of Force Generator parameters. I will follow up with discussion of intervention studies using this model [@jimenez-reyesEffectivenessIndividualizedTraining2017; @jimenez-reyesOptimizedTrainingJumping2019] and provide final conclusion about it's application. 
 
 # Shiny App
 

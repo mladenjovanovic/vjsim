@@ -4,7 +4,7 @@
 \name{vjsim_data}
 \alias{vjsim_data}
 \title{vjsim data}
-\format{A data frame with 8640 rows and 176 variables:
+\format{A data frame with 8640 rows and 189 variables:
 \describe{
    \item{force_generator.bodyweight}{}
    \item{force_generator.push_off_distance}{}
@@ -19,6 +19,7 @@
    \item{force_generator.Pmax}{}
    \item{force_generator.Pmax_rel}{}
    \item{force_generator.Sfv}{}
+   \item{force_generator.Sfv_rel}{}
    \item{force_generator.take_off_velocity}{}
    \item{force_generator.height}{}
    \item{force_generator.optimal_F0}{}
@@ -33,6 +34,7 @@
    \item{force_generator.optimal_take_off_velocity_diff}{}
    \item{force_generator.optimal_take_off_velocity_ratio}{}
    \item{force_generator.optimal_Sfv}{}
+   \item{force_generator.optimal_Sfv_rel}{}
    \item{force_generator.Sfv_perc}{}
    \item{force_generator.FV_imbalance}{}
    \item{force_generator.probe_IMB}{}
@@ -99,6 +101,7 @@
    \item{profile_mean_FV.Pmax}{}
    \item{profile_mean_FV.Pmax_rel}{}
    \item{profile_mean_FV.Sfv}{}
+   \item{profile_mean_FV.Sfv_rel}{}
    \item{profile_mean_power.Pmax}{}
    \item{profile_mean_power.Pmax_rel}{}
    \item{profile_mean_power.Pmax_location}{}
@@ -109,6 +112,7 @@
    \item{profile_peak_FV.Pmax}{}
    \item{profile_peak_FV.Pmax_rel}{}
    \item{profile_peak_FV.Sfv}{}
+   \item{profile_peak_FV.Sfv_rel}{}
    \item{profile_peak_power.Pmax}{}
    \item{profile_peak_power.Pmax_rel}{}
    \item{profile_peak_power.Pmax_location}{}
@@ -119,16 +123,20 @@
    \item{profile_load_take_off_velocity.Imax}{}
    \item{profile_load_take_off_velocity.Imax_rel}{}
    \item{profile_load_take_off_velocity.Slv}{}
+   \item{profile_load_take_off_velocity.Slv_rel}{}
    \item{profile_load_impulse.Imax}{}
    \item{profile_load_impulse.Imax_rel}{}
    \item{profile_load_impulse.Imax_location}{}
    \item{profile_load_impulse.L0_perc}{}
+   \item{LPF_profile.slope}{}
+   \item{LPF_profile.slope_rel}{}
    \item{samozino_theoretical_profile.F0}{}
    \item{samozino_theoretical_profile.F0_rel}{}
    \item{samozino_theoretical_profile.V0}{}
    \item{samozino_theoretical_profile.Pmax}{}
    \item{samozino_theoretical_profile.Pmax_rel}{}
    \item{samozino_theoretical_profile.Sfv}{}
+   \item{samozino_theoretical_profile.Sfv_rel}{}
    \item{samozino_theoretical_profile.take_off_velocity}{}
    \item{samozino_theoretical_profile.height}{}
    \item{samozino_theoretical_profile.optimal_F0}{}
@@ -143,6 +151,7 @@
    \item{samozino_theoretical_profile.optimal_take_off_velocity_diff}{}
    \item{samozino_theoretical_profile.optimal_take_off_velocity_ratio}{}
    \item{samozino_theoretical_profile.optimal_Sfv}{}
+   \item{samozino_theoretical_profile.optimal_Sfv_rel}{}
    \item{samozino_theoretical_profile.Sfv_perc}{}
    \item{samozino_theoretical_profile.FV_imbalance}{}
    \item{samozino_theoretical_profile.probe_IMB}{}
@@ -152,6 +161,7 @@
    \item{samozino_practical_profile.Pmax}{}
    \item{samozino_practical_profile.Pmax_rel}{}
    \item{samozino_practical_profile.Sfv}{}
+   \item{samozino_practical_profile.Sfv_rel}{}
    \item{samozino_practical_profile.take_off_velocity}{}
    \item{samozino_practical_profile.height}{}
    \item{samozino_practical_profile.optimal_F0}{}
@@ -166,17 +176,20 @@
    \item{samozino_practical_profile.optimal_take_off_velocity_diff}{}
    \item{samozino_practical_profile.optimal_take_off_velocity_ratio}{}
    \item{samozino_practical_profile.optimal_Sfv}{}
+   \item{samozino_practical_profile.optimal_Sfv_rel}{}
    \item{samozino_practical_profile.Sfv_perc}{}
    \item{samozino_practical_profile.FV_imbalance}{}
    \item{samozino_practical_profile.probe_IMB}{}
    \item{simple_profile.L0}{}
    \item{simple_profile.TOV0}{}
    \item{simple_profile.Sfv}{}
+   \item{simple_profile.Sfv_rel}{}
    \item{simple_profile.take_off_velocity}{}
    \item{simple_profile.height}{}
    \item{simple_profile.optimal_L0}{}
    \item{simple_profile.optimal_TOV0}{}
    \item{simple_profile.optimal_Sfv}{}
+   \item{simple_profile.optimal_Sfv_rel}{}
    \item{simple_profile.optimal_take_off_velocity}{}
    \item{simple_profile.optimal_height}{}
    \item{simple_profile.Sfv_perc}{}

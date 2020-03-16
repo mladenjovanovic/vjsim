@@ -153,7 +153,7 @@ as well as profile metrics and optimization metrics</p>
 
     <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
 
-    <p>A data frame with 8640 rows and 176 variables:</p><dl class='dl-horizontal'>
+    <p>A data frame with 8640 rows and 189 variables:</p><dl class='dl-horizontal'>
    <dt>force_generator.bodyweight</dt><dd><p></p></dd>
    <dt>force_generator.push_off_distance</dt><dd><p></p></dd>
    <dt>force_generator.max_force</dt><dd><p></p></dd>
@@ -167,6 +167,7 @@ as well as profile metrics and optimization metrics</p>
    <dt>force_generator.Pmax</dt><dd><p></p></dd>
    <dt>force_generator.Pmax_rel</dt><dd><p></p></dd>
    <dt>force_generator.Sfv</dt><dd><p></p></dd>
+   <dt>force_generator.Sfv_rel</dt><dd><p></p></dd>
    <dt>force_generator.take_off_velocity</dt><dd><p></p></dd>
    <dt>force_generator.height</dt><dd><p></p></dd>
    <dt>force_generator.optimal_F0</dt><dd><p></p></dd>
@@ -181,6 +182,7 @@ as well as profile metrics and optimization metrics</p>
    <dt>force_generator.optimal_take_off_velocity_diff</dt><dd><p></p></dd>
    <dt>force_generator.optimal_take_off_velocity_ratio</dt><dd><p></p></dd>
    <dt>force_generator.optimal_Sfv</dt><dd><p></p></dd>
+   <dt>force_generator.optimal_Sfv_rel</dt><dd><p></p></dd>
    <dt>force_generator.Sfv_perc</dt><dd><p></p></dd>
    <dt>force_generator.FV_imbalance</dt><dd><p></p></dd>
    <dt>force_generator.probe_IMB</dt><dd><p></p></dd>
@@ -247,6 +249,7 @@ as well as profile metrics and optimization metrics</p>
    <dt>profile_mean_FV.Pmax</dt><dd><p></p></dd>
    <dt>profile_mean_FV.Pmax_rel</dt><dd><p></p></dd>
    <dt>profile_mean_FV.Sfv</dt><dd><p></p></dd>
+   <dt>profile_mean_FV.Sfv_rel</dt><dd><p></p></dd>
    <dt>profile_mean_power.Pmax</dt><dd><p></p></dd>
    <dt>profile_mean_power.Pmax_rel</dt><dd><p></p></dd>
    <dt>profile_mean_power.Pmax_location</dt><dd><p></p></dd>
@@ -257,6 +260,7 @@ as well as profile metrics and optimization metrics</p>
    <dt>profile_peak_FV.Pmax</dt><dd><p></p></dd>
    <dt>profile_peak_FV.Pmax_rel</dt><dd><p></p></dd>
    <dt>profile_peak_FV.Sfv</dt><dd><p></p></dd>
+   <dt>profile_peak_FV.Sfv_rel</dt><dd><p></p></dd>
    <dt>profile_peak_power.Pmax</dt><dd><p></p></dd>
    <dt>profile_peak_power.Pmax_rel</dt><dd><p></p></dd>
    <dt>profile_peak_power.Pmax_location</dt><dd><p></p></dd>
@@ -267,16 +271,20 @@ as well as profile metrics and optimization metrics</p>
    <dt>profile_load_take_off_velocity.Imax</dt><dd><p></p></dd>
    <dt>profile_load_take_off_velocity.Imax_rel</dt><dd><p></p></dd>
    <dt>profile_load_take_off_velocity.Slv</dt><dd><p></p></dd>
+   <dt>profile_load_take_off_velocity.Slv_rel</dt><dd><p></p></dd>
    <dt>profile_load_impulse.Imax</dt><dd><p></p></dd>
    <dt>profile_load_impulse.Imax_rel</dt><dd><p></p></dd>
    <dt>profile_load_impulse.Imax_location</dt><dd><p></p></dd>
    <dt>profile_load_impulse.L0_perc</dt><dd><p></p></dd>
+   <dt>LPF_profile.slope</dt><dd><p></p></dd>
+   <dt>LPF_profile.slope_rel</dt><dd><p></p></dd>
    <dt>samozino_theoretical_profile.F0</dt><dd><p></p></dd>
    <dt>samozino_theoretical_profile.F0_rel</dt><dd><p></p></dd>
    <dt>samozino_theoretical_profile.V0</dt><dd><p></p></dd>
    <dt>samozino_theoretical_profile.Pmax</dt><dd><p></p></dd>
    <dt>samozino_theoretical_profile.Pmax_rel</dt><dd><p></p></dd>
    <dt>samozino_theoretical_profile.Sfv</dt><dd><p></p></dd>
+   <dt>samozino_theoretical_profile.Sfv_rel</dt><dd><p></p></dd>
    <dt>samozino_theoretical_profile.take_off_velocity</dt><dd><p></p></dd>
    <dt>samozino_theoretical_profile.height</dt><dd><p></p></dd>
    <dt>samozino_theoretical_profile.optimal_F0</dt><dd><p></p></dd>
@@ -291,6 +299,7 @@ as well as profile metrics and optimization metrics</p>
    <dt>samozino_theoretical_profile.optimal_take_off_velocity_diff</dt><dd><p></p></dd>
    <dt>samozino_theoretical_profile.optimal_take_off_velocity_ratio</dt><dd><p></p></dd>
    <dt>samozino_theoretical_profile.optimal_Sfv</dt><dd><p></p></dd>
+   <dt>samozino_theoretical_profile.optimal_Sfv_rel</dt><dd><p></p></dd>
    <dt>samozino_theoretical_profile.Sfv_perc</dt><dd><p></p></dd>
    <dt>samozino_theoretical_profile.FV_imbalance</dt><dd><p></p></dd>
    <dt>samozino_theoretical_profile.probe_IMB</dt><dd><p></p></dd>
@@ -300,6 +309,7 @@ as well as profile metrics and optimization metrics</p>
    <dt>samozino_practical_profile.Pmax</dt><dd><p></p></dd>
    <dt>samozino_practical_profile.Pmax_rel</dt><dd><p></p></dd>
    <dt>samozino_practical_profile.Sfv</dt><dd><p></p></dd>
+   <dt>samozino_practical_profile.Sfv_rel</dt><dd><p></p></dd>
    <dt>samozino_practical_profile.take_off_velocity</dt><dd><p></p></dd>
    <dt>samozino_practical_profile.height</dt><dd><p></p></dd>
    <dt>samozino_practical_profile.optimal_F0</dt><dd><p></p></dd>
@@ -314,17 +324,20 @@ as well as profile metrics and optimization metrics</p>
    <dt>samozino_practical_profile.optimal_take_off_velocity_diff</dt><dd><p></p></dd>
    <dt>samozino_practical_profile.optimal_take_off_velocity_ratio</dt><dd><p></p></dd>
    <dt>samozino_practical_profile.optimal_Sfv</dt><dd><p></p></dd>
+   <dt>samozino_practical_profile.optimal_Sfv_rel</dt><dd><p></p></dd>
    <dt>samozino_practical_profile.Sfv_perc</dt><dd><p></p></dd>
    <dt>samozino_practical_profile.FV_imbalance</dt><dd><p></p></dd>
    <dt>samozino_practical_profile.probe_IMB</dt><dd><p></p></dd>
    <dt>simple_profile.L0</dt><dd><p></p></dd>
    <dt>simple_profile.TOV0</dt><dd><p></p></dd>
    <dt>simple_profile.Sfv</dt><dd><p></p></dd>
+   <dt>simple_profile.Sfv_rel</dt><dd><p></p></dd>
    <dt>simple_profile.take_off_velocity</dt><dd><p></p></dd>
    <dt>simple_profile.height</dt><dd><p></p></dd>
    <dt>simple_profile.optimal_L0</dt><dd><p></p></dd>
    <dt>simple_profile.optimal_TOV0</dt><dd><p></p></dd>
    <dt>simple_profile.optimal_Sfv</dt><dd><p></p></dd>
+   <dt>simple_profile.optimal_Sfv_rel</dt><dd><p></p></dd>
    <dt>simple_profile.optimal_take_off_velocity</dt><dd><p></p></dd>
    <dt>simple_profile.optimal_height</dt><dd><p></p></dd>
    <dt>simple_profile.Sfv_perc</dt><dd><p></p></dd>

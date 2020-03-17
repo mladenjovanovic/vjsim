@@ -199,6 +199,15 @@ for(i in seq(1, parameters_len)) {
   jump_profile <- get_all_profiles(jump_profile_data)
   jump_profile <- as.list(unlist(jump_profile$list))
 
+  # ------------------------
+  # Load~Peak Force profiel
+  LPF_profile_model <- lm(peak_GRF~mass, jump_profile_data)
+  LPF_profile <- list(
+    slope = coef(LPF_profile_model)[[2]],
+    slope_rel = coef(LPF_profile_model)[[2]] / mass
+  )
+
+
   # -------------------------
   # Samozino
   samozino_profile <- get_all_samozino_profiles(jump_profile_data)
@@ -216,11 +225,11 @@ for(i in seq(1, parameters_len)) {
     probe_bodyweight_jump = probe_bodyweight_jump,
     bosco = bosco,
     jump_profile,
+    LPF_profile = LPF_profile,
     samozino_profile,
     simple_profile = simple_profile
   )
 }
 
 vjsim_data <- as.data.frame(do.call(rbind, lapply(vjsim_data, unlist)))
-
 usethis::use_data(vjsim_data, overwrite = TRUE)

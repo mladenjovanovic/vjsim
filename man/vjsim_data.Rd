@@ -4,7 +4,7 @@
 \name{vjsim_data}
 \alias{vjsim_data}
 \title{vjsim data}
-\format{A data frame with 8640 rows and 189 variables:
+\format{A data frame with 8640 rows and 194 variables:
 \describe{
    \item{force_generator.bodyweight}{}
    \item{force_generator.push_off_distance}{}
@@ -77,22 +77,27 @@
    \item{bodyweight_jump.diff_mean_GRF_over_distance_to_time}{}
    \item{bodyweight_jump.ratio_mean_GRF_over_distance_to_time}{}
    \item{bodyweight_jump.mean_velocity_as_TOV_half}{}
-   \item{probe_bodyweight_jump.height_force}{}
-   \item{probe_bodyweight_jump.height_force_diff}{}
-   \item{probe_bodyweight_jump.height_force_ratio}{}
-   \item{probe_bodyweight_jump.height_velocity}{}
-   \item{probe_bodyweight_jump.height_velocity_diff}{}
-   \item{probe_bodyweight_jump.height_velocity_ratio}{}
-   \item{probe_bodyweight_jump.height_diff}{}
-   \item{probe_bodyweight_jump.height_ratio}{}
-   \item{probe_bodyweight_jump.take_off_velocity_force}{}
-   \item{probe_bodyweight_jump.take_off_velocity_force_diff}{}
-   \item{probe_bodyweight_jump.take_off_velocity_force_ratio}{}
-   \item{probe_bodyweight_jump.take_off_velocity_velocity}{}
-   \item{probe_bodyweight_jump.take_off_velocity_velocity_diff}{}
-   \item{probe_bodyweight_jump.take_off_velocity_velocity_ratio}{}
-   \item{probe_bodyweight_jump.take_off_velocity_diff}{}
-   \item{probe_bodyweight_jump.take_off_velocity_ratio}{}
+   \item{probe_bodyweight_jump.force_height}{}
+   \item{probe_bodyweight_jump.force_height_diff}{}
+   \item{probe_bodyweight_jump.force_height_ratio}{}
+   \item{probe_bodyweight_jump.velocity_height}{}
+   \item{probe_bodyweight_jump.velocity_height_diff}{}
+   \item{probe_bodyweight_jump.velocity_height_ratio}{}
+   \item{probe_bodyweight_jump.activation_height}{}
+   \item{probe_bodyweight_jump.activation_height_diff}{}
+   \item{probe_bodyweight_jump.activation_height_ratio}{}
+   \item{probe_bodyweight_jump.velocity_to_force_height_diff}{}
+   \item{probe_bodyweight_jump.velocity_to_force_height_ratio}{}
+   \item{probe_bodyweight_jump.velocity_to_activation_height_diff}{}
+   \item{probe_bodyweight_jump.velocity_to_activation_height_ratio}{}
+   \item{probe_bodyweight_jump.force_to_velocity_height_diff}{}
+   \item{probe_bodyweight_jump.force_to_velocity_height_ratio}{}
+   \item{probe_bodyweight_jump.force_to_activation_height_diff}{}
+   \item{probe_bodyweight_jump.force_to_activation_height_ratio}{}
+   \item{probe_bodyweight_jump.activation_to_velocity_height_diff}{}
+   \item{probe_bodyweight_jump.activation_to_velocity_height_ratio}{}
+   \item{probe_bodyweight_jump.activation_to_force_height_diff}{}
+   \item{probe_bodyweight_jump.activation_to_force_height_ratio}{}
    \item{bosco.height_2BW}{}
    \item{bosco.index}{}
    \item{profile_mean_FV.F0}{}

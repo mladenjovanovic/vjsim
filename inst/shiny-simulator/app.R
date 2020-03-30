@@ -2841,7 +2841,7 @@ server <- function(input, output, session) {
             alpha = ifelse(input$ice_line, 0.01, 1),
           ) +
             theme_minimal() +
-            ylab(paste("Predicte", input$modeler_target))
+            ylab(paste("Predicted", input$modeler_target))
         )
       }
       incProgress(1)

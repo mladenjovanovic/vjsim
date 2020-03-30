@@ -140,25 +140,54 @@ for(i in seq(1, parameters_len)) {
   )
   bodyweight_jump_velocity <- bodyweight_jump_velocity$summary
 
-  probe_bodyweight_jump <- list(
-    height_force = bodyweight_jump_force$height,
-    height_force_diff = bodyweight_jump_force$height - bodyweight_jump$height,
-    height_force_ratio = bodyweight_jump_force$height / bodyweight_jump$height,
-    height_velocity = bodyweight_jump_velocity$height,
-    height_velocity_diff = bodyweight_jump_velocity$height - bodyweight_jump$height,
-    height_velocity_ratio = bodyweight_jump_velocity$height / bodyweight_jump$height,
-    height_diff = (bodyweight_jump_velocity$height - bodyweight_jump$height) - (bodyweight_jump_force$height - bodyweight_jump$height),
-    height_ratio = (bodyweight_jump_velocity$height - bodyweight_jump$height) / (bodyweight_jump_force$height - bodyweight_jump$height),
-
-    take_off_velocity_force = bodyweight_jump_force$take_off_velocity,
-    take_off_velocity_force_diff = bodyweight_jump_force$take_off_velocity - bodyweight_jump$take_off_velocity,
-    take_off_velocity_force_ratio = bodyweight_jump_force$take_off_velocity / bodyweight_jump$take_off_velocity,
-    take_off_velocity_velocity = bodyweight_jump_velocity$take_off_velocity,
-    take_off_velocity_velocity_diff = bodyweight_jump_velocity$take_off_velocity - bodyweight_jump$take_off_velocity,
-    take_off_velocity_velocity_ratio = bodyweight_jump_velocity$take_off_velocity / bodyweight_jump$take_off_velocity,
-    take_off_velocity_diff = (bodyweight_jump_velocity$take_off_velocity - bodyweight_jump$take_off_velocity) - (bodyweight_jump_force$take_off_velocity - bodyweight_jump$take_off_velocity),
-    take_off_velocity_ratio = (bodyweight_jump_velocity$take_off_velocity - bodyweight_jump$take_off_velocity) / (bodyweight_jump_force$take_off_velocity - bodyweight_jump$take_off_velocity)
+  bodyweight_jump_activation <- vj_simulate(
+    mass = mass,
+    weight = weight,
+    push_off_distance = push_off_distance,
+    gravity_const = gravity_const,
+    time_step = time_step,
+    save_trace = FALSE,
+    max_force = max_force,
+    max_velocity = max_velocity,
+    decline_rate = decline_rate,
+    peak_location = peak_location,
+    time_to_max_activation = time_to_max_activation / 1.1 # The change
   )
+  bodyweight_jump_activation <- bodyweight_jump_activation$summary
+
+  # Probing summary
+  probe_bodyweight_jump <- list(
+    # Max Force improved
+    force_height = bodyweight_jump_force$height,
+    force_height_diff = bodyweight_jump_force$height - bodyweight_jump$height,
+    force_height_ratio = bodyweight_jump_force$height / bodyweight_jump$height,
+
+    # Max Velocity improved
+    velocity_height = bodyweight_jump_velocity$height,
+    velocity_height_diff = bodyweight_jump_velocity$height - bodyweight_jump$height,
+    velocity_height_ratio = bodyweight_jump_velocity$height / bodyweight_jump$height,
+
+    # Time to max activation
+    activation_height = bodyweight_jump_activation$height,
+    activation_height_diff = bodyweight_jump_activation$height - bodyweight_jump$height,
+    activation_height_ratio = bodyweight_jump_activation$height / bodyweight_jump$height,
+
+    # Ratios and differences
+    velocity_to_force_height_diff = (bodyweight_jump_velocity$height - bodyweight_jump$height) - (bodyweight_jump_force$height - bodyweight_jump$height),
+    velocity_to_force_height_ratio = (bodyweight_jump_velocity$height - bodyweight_jump$height) / (bodyweight_jump_force$height - bodyweight_jump$height),
+    velocity_to_activation_height_diff = (bodyweight_jump_velocity$height - bodyweight_jump$height) - (bodyweight_jump_activation$height - bodyweight_jump$height),
+    velocity_to_activation_height_ratio = (bodyweight_jump_velocity$height - bodyweight_jump$height) / (bodyweight_jump_activation$height - bodyweight_jump$height),
+
+    force_to_velocity_height_diff = (bodyweight_jump_force$height - bodyweight_jump$height) - (bodyweight_jump_velocity$height - bodyweight_jump$height),
+    force_to_velocity_height_ratio = (bodyweight_jump_force$height - bodyweight_jump$height) / (bodyweight_jump_velocity$height - bodyweight_jump$height),
+    force_to_activation_height_diff = (bodyweight_jump_force$height - bodyweight_jump$height) - (bodyweight_jump_activation$height - bodyweight_jump$height),
+    force_to_activation_height_ratio = (bodyweight_jump_force$height - bodyweight_jump$height) / (bodyweight_jump_activation$height - bodyweight_jump$height),
+
+    activation_to_velocity_height_diff = (bodyweight_jump_activation$height - bodyweight_jump$height) - (bodyweight_jump_velocity$height - bodyweight_jump$height),
+    activation_to_velocity_height_ratio = (bodyweight_jump_activation$height - bodyweight_jump$height) / (bodyweight_jump_velocity$height - bodyweight_jump$height),
+    activation_to_force_height_diff = (bodyweight_jump_activation$height - bodyweight_jump$height) - (bodyweight_jump_force$height - bodyweight_jump$height),
+    activation_to_force_height_ratio = (bodyweight_jump_activation$height - bodyweight_jump$height) / (bodyweight_jump_force$height - bodyweight_jump$height)
+    )
 
   # ------------------------
   # Bosco Index

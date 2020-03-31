@@ -1,10 +1,15 @@
 ---
 title: "Exploring using `vjsim`"
 output: rmarkdown::html_vignette
+bibliography: [references.bib]
+biblio-style: apalike
+link-citations: yes
 vignette: >
   %\VignetteIndexEntry{exploring-vjsim}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r, include = FALSE}
@@ -22,18 +27,1024 @@ knitr::opts_chunk$set(
 )
 ```
 
-(To be written soon...)
+# Simulated dataset
 
-# Simulating isometric conditions
+```{r setup}
+# Install vjsim if you haven't already by running the following commands
+# install.packages("devtools")
+# devtools::install_github("mladenjovanovic/vjsim")
 
-# Simulating iso-inertial conditions
+# Install bmbstats if you haven't already by running the following commands
+# devtools::install_github("mladenjovanovic/bmbstats")
 
-# Can FV relationsip manifest itself withou FV characteristic in the Force Generator
-## System behavior with simple Force Generator
-## System behavior with Forge Generator with only Force-Time characteristic
+# Install tidyverse and cowplot packages
+# install.packages(c("tidyverse", "cowplot", "DT", "ggdendro", "ClustOfVar", "vip", "pdp"), dependencies = TRUE)
 
-# Averaging force over time and over distance
+library(vjsim)
+library(tidyverse)
+library(cowplot)
+library(DT)
+library(ggdendro)
+library(ClustOfVar)
+library(vip)
+library(pdp)
+library(bmbstats)
+```
 
-# Peak Velocity vs Mean Velocity
+Before reading this vignette, please read [Introduction to vjsim](https://mladenjovanovic.github.io/vjsim/articles/introduction-vjsim.html), [Simulation in vjsim](https://mladenjovanovic.github.io/vjsim/articles/simulation-vjsim.html), [Profiling in vjsim](https://mladenjovanovic.github.io/vjsim/articles/profiling-vjsim.html), and [Optimization in vjsim](https://mladenjovanovic.github.io/vjsim/articles/optimization-vjsim.html) vignettes by running:
 
-# Is Peak Power related to Force Generator Peak Power?
+```{r eval=FALSE}
+vignette("introduction-vjsim")
+vignette("simulation-vjsim")
+vignette("profiling-vjsim")
+vignette("optimization-vjsim")
+```
+
+To explore various assumptions and models, I have generated a large simulation dataset (source code is available in `data-raw/` folder of the `vjsim` package or through [GitHub](https://github.com/mladenjovanovic/vjsim/blob/master/data-raw/vjsim_data.R)) which features various combinations of Force Generator characteristics and thus allows to explore various assumptions. Here is the sample (100 rows) of the data set:
+
+```{r}
+data("vjsim_data")
+
+datatable(vjsim_data[sample(nrow(vjsim_data), 100), ], rownames = FALSE) %>%
+  formatRound(columns = 1:ncol(vjsim_data), digits = 2)
+```
+
+Full data set features `r nrow(vjsim_data)` rows and `r ncol(vjsim_data)` columns (or variables) that are grouped in the following *sections*:
+
+- Force Generator characteristics and movement constraints (column names start with `force_generator.`; first 7 columns are Force Generator characteristics). This also included Samozino's optimization models for the Force Generator. 
+- Bodyweight jump metrics (column names start with `bodyweight_jump.`)
+- Probing data (column names start with `probe_bodyweight_jump.`), which includes effects on bodyweight jump metrics when max force,  max velocity, or time to max activation characteristics of the Force Generator change by 10%. These column are very important for testing predictions of optimization models.
+- Bosco Index (column names start with `bosco.`) indicated the jump height with 2xBW and the ratio with BW jump
+- Various Force-Velocity profiles (column names start with `profile_`). See [Profiling in vjsim](https://mladenjovanovic.github.io/vjsim/articles/profiling-vjsim.html) vignette for more info.
+- Load~Peak Force profile (column names start with `LPF_profile.`). See [Optimization in vjsim](https://mladenjovanovic.github.io/vjsim/articles/optimization-vjsim.html) vignette for more info. 
+- Theoretical and practical Samozino profiles (column names start with `samozino_`). See [Optimization in vjsim](https://mladenjovanovic.github.io/vjsim/articles/optimization-vjsim.html) vignette for more info.
+- Simple optimization profiles (column names start with `simple_profile.`). See [Optimization in vjsim](https://mladenjovanovic.github.io/vjsim/articles/optimization-vjsim.html) vignette for more info.
+
+Here is the list of all the columns in this data set:
+
+```{r}
+colnames(vjsim_data)
+```
+
+This data set can be used for multiple things: from exploring simple relationships between variables, to performing variable clustering and factor analysis as well for informing future studies. I will provide few ideas to get you started and finish with my summary opinion on the Samozino optimization models [@samozinoSimpleMethodMeasuring2008; @samozinoJumpingAbilityTheoretical2010; @samozinoOptimalForceVelocityProfile2018; @samozinoSimpleMethodMeasuring2018; @samozinoOptimalForceVelocity2012; @samozinoForceVelocityProfileImbalance2013; @samozinoSimpleMethodMeasuring2018] and the most recent intervention studies [@jimenez-reyesEffectivenessIndividualizedTraining2017; @jimenez-reyesOptimizedTrainingJumping2019]. 
+
+# Exploring kinematics
+
+This section will provide simple scatterplots and linear regression models. Before we start, let's create a plotting and analysis function. This function will return `ggplot` object and $R^2$ using simple linear model. 
+
+```{r}
+plot_relationship <- function(x_var, y_var, data = vjsim_data, identity = FALSE) {
+    df <- data.frame(
+    x_var = data[[x_var]],
+    y_var = data[[y_var]]
+  )
+
+  gg <- ggplot(df, aes(x = x_var, y = y_var)) +
+    theme_cowplot(8) +
+    geom_point(alpha = 0.1) +
+    stat_smooth(color = "blue", method = "lm", formula = y ~ x) +
+    labs(x = x_var, y = y_var)
+
+  if (identity == TRUE) {
+    gg <- gg +
+      geom_abline(slope = 1, linetype = "dashed")
+  }
+  
+  # Linear model
+  R_squared <- cor(df$x_var, df$y_var)^2
+  
+  return(list(graph = gg, R_squared = R_squared))
+}
+```
+
+Samozino model assumes that take-off velocity (TOV) is double mean velocity (MV) (it is simplification that allows for easier calculus from practical field data collection). But is that the case? Here is the scatterplot:
+
+```{r}
+mv_tov <- plot_relationship(
+  "bodyweight_jump.mean_velocity",
+  "bodyweight_jump.take_off_velocity"
+  )
+  
+mv_tov$graph + geom_abline(slope = 2, linetype = "dashed")
+mv_tov$R_squared
+```
+
+Another assumption is that mean ground reaction force (GRF) over distance is equal to mean GRF over time (which is the case with uniform acceleration jump, when TOV = 2x MV). Let's check that assumption:
+
+```{r}
+plot_relationship(
+  "bodyweight_jump.mean_GRF_over_distance",
+  "bodyweight_jump.mean_GRF_over_time",
+  identity = TRUE
+  )
+```
+
+As can be seen from the figure above, there is a difference between the two and they should not be used interchangeably. 
+
+Let's compare the *true* bodyweight jump height with predicted jump height with two Samozino models (theoretical and practical):
+
+```{r}
+plot_relationship(
+  "bodyweight_jump.height",
+  "samozino_theoretical_profile.height",
+  identity = TRUE
+  )
+```
+
+As can be seen, theoretical model (the one that uses *true* mean velocity) is not very good at predicting bdyweight jump height. Practical Samozino (or the original one), one the other hand is very good:
+
+```{r}
+plot_relationship(
+  "bodyweight_jump.height",
+  "samozino_practical_profile.height",
+  identity = TRUE
+  )
+```
+
+It is thus my recomendation to Samozino *et al.* to avoid using *mean velocity* in the profile, and rather stick to TOV instead. This way the unnecessary assumptions doesn't need to be applied and optimization procedure becomes less confusing.
+
+# Explore profiles
+
+One of my main *issues* with Samozino model, is the *realist* ontological perspective on the constructs ($F_0$, $V_0$, and $P_{max}$) [@borsboomLatentVariableTheory2008; @borsboomMeasuringMindConceptual2009; @borsboomTheoreticalStatusLatent2003]. In plain English, the assumption is that constructs estimated using *manifested* performance represent *true* characteristics of the lower body (i.e., Force Generator). But, we have already seen that these constructs depends on the push-off distance and other Force Generator characteristics simulated in `vjsim` (e.g., time to max activation, force-length relationship). In real-life, these manifestations depend on the activity as well (e.g., jumping, sprinting). Let's explore those relationships a bit further.
+
+Let's see how true max force of the Force Generator is related to estimated $F_0$s. 
+
+```{r}
+plot_relationship(
+  "force_generator.max_force",
+  "profile_mean_FV.F0",
+  identity = TRUE
+  ) 
+```
+
+```{r}
+plot_relationship(
+  "force_generator.max_force",
+  "profile_peak_FV.F0",
+  identity = TRUE
+  )
+```
+
+```{r}
+plot_relationship(
+  "force_generator.max_force",
+  "samozino_practical_profile.F0",
+  identity = TRUE
+  )
+```
+
+Interestingly, practical Samozino profile has really good relationship between true max force of the Force Generator (although there is some systematic bias). Let's write a multiple linear regression function, than create a regression model from multiple predictors (with or without interaction). Besides, this functions allows for variable importance estimation [@greenwellSimpleEffectiveModelBased2018; @molnarInterpretableMachineLearning2018] as well as PDP and ICE plots [@goldsteinPeekingBlackBox2013; @molnarInterpretableMachineLearning2018; @RJ-2017-016; @altmannLimitationsInterpretableMachine2019]. This function defines *smallest effect size of interest* (SESOI) using target varaible $SD$ times 0.2. This provides an insight into how practically good the predictions are. The plots are made using `bmbstats::plot_bland_altman` [@jovanovicBmbstatsMagnitudebasedStatistics2020; @jovanovicStatisticalModellingSports2019; @R-bmbstats]. 
+
+
+```{r}
+regression_model <- function(data, target, predictors, interactions = FALSE, var_imp = "firm") {
+      model_df <- select_(data, .dots = c(
+      target,
+      predictors
+    ))
+      
+    interactions_string <- "~."
+    if (interactions) interactions_string <- "~.*."
+    
+    model <- lm(as.formula(paste(target, interactions_string)), data = model_df)
+
+    # Plot
+    SESOI_upper <- sd(model_df[[target]]) * 0.2
+    SESOI_lower <- -sd(model_df[[target]]) * 0.2
+    
+    predicted_target_val <- predict(model)
+    comment(predicted_target_val) <- "Predicted"
+    
+    observed_target_val <- model_df[[target]]
+    comment(observed_target_val) <- "Observed"
+      
+      
+    gg <- bmbstats::plot_bland_altman(
+      group_a = observed_target_val,
+      group_b = predicted_target_val,
+      SESOI_lower = SESOI_lower,
+      SESOI_upper = SESOI_upper,
+      plot_average = FALSE
+    )
+    
+    # Variable importance
+    pfun <- function(object, newdata) predict(object, newdata = newdata)
+    
+    variable_importance <- vip(
+      model,
+      train = model_df,
+      method = var_imp,
+      target = target,
+      nsim = 10,
+      metric = "rmse",
+      pred_wrapper = pfun,
+      all_permutations = TRUE
+      ) +
+      theme_cowplot(8)
+    
+    # Return object
+    return(list(
+      train = model_df,
+      model = model,
+      summary = summary(model),
+      graph = gg,
+      var_imp = variable_importance)
+    )
+}
+
+# --------------------------------------------
+# PDP_ICE plot
+plot_pdp <- function(object, predictor = 2) {
+     # PDP + ICE
+    partial(
+            object$model,
+            train = object$train,
+            pred.var = predictor,
+            plot = TRUE,
+            rug = FALSE,
+            ice = TRUE,
+            plot.engine = "ggplot2",
+            alpha = 0.01,
+          ) +
+            theme_cowplot(8) +
+            ylab(paste("Predicted", colnames(object$train)[1])) 
+}
+```
+
+Let's check if we can *predict* (ideally we want to predict on unseen data, but we will leave that out [@jovanovicBmbstatsMagnitudebasedStatistics2020; @jovanovicStatisticalModellingSports2019]) max force from estimated $F_0$, bodyweight and push-off distance:
+
+```{r}
+max_force_model <- regression_model(
+  data = vjsim_data,
+  target = "force_generator.max_force",
+  predictors = c(
+    "force_generator.bodyweight",
+    "force_generator.push_off_distance",
+    "samozino_practical_profile.F0"),
+  interactions = TRUE, var_imp = "firm") 
+
+max_force_model$summary
+max_force_model$graph
+max_force_model$var_imp
+plot_pdp(max_force_model, "samozino_practical_profile.F0")
+plot_pdp(max_force_model, "force_generator.bodyweight")
+plot_pdp(max_force_model, "force_generator.push_off_distance")
+```
+
+Although high $R^2$, using SESOI, this model is not great for predicting max force. But it is indeed highly correlated. From the variable importance graph, it can be seen that `samozino_practical_profile.F0` is the most important variable, followed by bodyweight and push-off distance. This can be seen from the PDP+ICE plots as well (these are used to estimate the variable importance using algorythm explained in @greenwellSimpleEffectiveModelBased2018).
+
+Let's see the situation with velocity:
+
+```{r}
+plot_relationship(
+  "force_generator.max_velocity",
+  "profile_mean_FV.V0",
+  identity = TRUE
+  )
+```
+
+```{r}
+plot_relationship(
+  "force_generator.max_velocity",
+  "profile_peak_FV.V0",
+  identity = TRUE
+  )
+```
+
+```{r}
+plot_relationship(
+  "force_generator.max_velocity",
+  "samozino_practical_profile.V0",
+  identity = TRUE
+  )
+```
+
+Although there is high $R^2$, there is big systematic bias involved. Let's see if we can predict max velocity from `samozino_practical_profile.V0`, bodyweight and push-off distance:
+
+```{r}
+max_velocity_model <- regression_model(
+  data = vjsim_data,
+  target = "force_generator.max_velocity",
+  predictors = c(
+    "force_generator.bodyweight",
+    "force_generator.push_off_distance",
+    "samozino_practical_profile.V0"),
+  interactions = TRUE, var_imp = "firm") 
+
+max_velocity_model$summary
+max_velocity_model$graph
+max_velocity_model$var_imp
+plot_pdp(max_velocity_model, "samozino_practical_profile.V0")
+plot_pdp(max_velocity_model, "force_generator.bodyweight")
+plot_pdp(max_velocity_model, "force_generator.push_off_distance")
+```
+
+As opposed to max force, push-off distance is now more important than bodyweight in estimating max velocity. Although highly correlated, profile $V_0$ is not a great predictor of true simulator max velocity (since residuals are outside of SESOI range). 
+
+The final exploration involve max power ($P_{max}$). Let's check the simple scatterplots first:
+
+```{r}
+plot_relationship(
+  "force_generator.Pmax",
+  "profile_mean_FV.Pmax",
+  identity = TRUE
+  )
+```
+
+```{r}
+plot_relationship(
+  "force_generator.Pmax",
+  "profile_mean_power.Pmax",
+  identity = TRUE
+  )
+```
+
+```{r}
+plot_relationship(
+  "force_generator.Pmax",
+  "profile_peak_FV.Pmax",
+  identity = TRUE
+  )
+```
+
+```{r}
+plot_relationship(
+  "force_generator.Pmax",
+  "profile_peak_power.Pmax",
+  identity = TRUE
+  )
+```
+
+```{r}
+plot_relationship(
+  "force_generator.Pmax",
+  "samozino_practical_profile.Pmax",
+  identity = TRUE
+  )
+```
+
+Again the Samozino practical profile demonstrates high correlation with true $P_{max}$, but with some systematic bias. Let's use multivariate linear model to predict $P_{max}$ from `samozino_practical_profile.Pmax`, bodyweight and known push-off distance:
+
+```{r}
+max_power_model <- regression_model(
+  data = vjsim_data,
+  target = "force_generator.Pmax",
+  predictors = c(
+    "force_generator.bodyweight",
+    "force_generator.push_off_distance",
+    "samozino_practical_profile.Pmax"),
+  interactions = TRUE, var_imp = "firm") 
+
+max_power_model$summary
+max_power_model$graph
+max_power_model$var_imp
+plot_pdp(max_power_model, "samozino_practical_profile.Pmax")
+plot_pdp(max_power_model, "force_generator.bodyweight")
+plot_pdp(max_power_model, "force_generator.push_off_distance")
+```
+
+Overall, given the simulated data and `vjsim` model of the vertical jump, Samozino practical model profile constructs (i.e., $F_0$, $V_0$, and $P_{max}$) has great correlation to the *true* Force Generator values. My reluctance to accept these as *ontological* qualities is still ongoing, particularly since this simulation is related only to concentric squat jump. *Real* force generator qualities might manifest differently in different activities. In other words, $P_{max}$ estimated in squat jump should highly correlated with $P_{max}$ in broad jump, sprint and other activities. But this doesn't negate their practical utility (I am leaning more toward *pragmatist-realist* stance). 
+
+# Aligment between true bodyweight jump height and model predictions
+
+Let's see how different model jump height predictions align with true jump height. 
+
+```{r}
+samozino_theoretical_pred <- regression_model(
+  data = vjsim_data,
+  target = "bodyweight_jump.height",
+  predictors = c(
+    "samozino_theoretical_profile.height"),
+  interactions = TRUE, var_imp = "firm") 
+
+samozino_theoretical_pred$summary
+samozino_theoretical_pred$graph
+```
+
+Theoretical Samozino model (the one that uses *true* mean velocity, rather than take-off velocity) is very bad at predicting jump height. Let's see how the practical model performs:
+
+```{r}
+samozino_practical_pred <- regression_model(
+  data = vjsim_data,
+  target = "bodyweight_jump.height",
+  predictors = c(
+    "samozino_practical_profile.height"),
+  interactions = TRUE, var_imp = "firm") 
+
+samozino_practical_pred$summary
+samozino_practical_pred$graph
+```
+
+And this is, ladies and gents, example of perfect prediction. Let's see how the "simple model" performs:
+
+```{r}
+simple_pred <- regression_model(
+  data = vjsim_data,
+  target = "bodyweight_jump.height",
+  predictors = c(
+    "simple_profile.height"),
+  interactions = TRUE, var_imp = "firm") 
+
+simple_pred$summary
+simple_pred$graph
+```
+
+This also represents perfect prediction. 
+
+# What predicts the jump height?
+
+Let's explore what variables predict vertical jump height. I will split this analysis into two parts: (1) exploration of the Force Generator characteristics, and (2) exploration using practical Samozino profile. 
+
+## Force Generator characteristics
+
+I will use the above function to plot relationship of Force Generator characteristics with vertical jump height, as well as to model using linear regression model at the end of this section. 
+
+```{r}
+plot_relationship(
+  "force_generator.max_force",
+  "bodyweight_jump.height"
+  )
+```
+
+Max force seems to have very low relationship with jump height. Let's check relative max force (divided by bodyweight):
+
+```{r}
+plot_relationship(
+  "force_generator.F0_rel",
+  "bodyweight_jump.height"
+  )
+```
+
+Let's check max velocity:
+
+```{r}
+plot_relationship(
+  "force_generator.max_velocity",
+  "bodyweight_jump.height"
+  )
+```
+
+Much better association between the two. Let's check the max power:
+
+```{r}
+plot_relationship(
+  "force_generator.Pmax",
+  "bodyweight_jump.height"
+  )
+```
+
+Interestingly, although high association, it is lower than max velocity. Let's check relative max power:
+
+```{r}
+plot_relationship(
+  "force_generator.Pmax_rel",
+  "bodyweight_jump.height"
+  )
+```
+
+So far, relative max power has the highest association with jump height. 
+
+Let's perform some modeling using know Force Generator parameters:
+
+```{r}
+fgen_height_model <- regression_model(
+  data = vjsim_data,
+  target = "bodyweight_jump.height",
+  predictors = c(
+    "force_generator.bodyweight",
+    "force_generator.push_off_distance",
+    "force_generator.max_force",
+    "force_generator.max_velocity",
+    "force_generator.time_to_max_activation",
+    "force_generator.decline_rate",
+    "force_generator.peak_location"
+    ),
+  interactions = TRUE, var_imp = "firm") 
+
+fgen_height_model$summary
+fgen_height_model$graph
+fgen_height_model$var_imp
+plot_pdp(fgen_height_model, "force_generator.max_velocity")
+plot_pdp(fgen_height_model, "force_generator.max_force")
+plot_pdp(fgen_height_model, "force_generator.bodyweight")
+```
+
+The jump height prediction (using multivariate linear regression with interaction) from the known Force Generator characteristics is almost perfect, with very high $R^2$.
+
+## Practical Samozino profile
+
+Let's repeat this analysis using Samozino profile:
+
+```{r}
+plot_relationship(
+  "samozino_practical_profile.F0",
+  "bodyweight_jump.height"
+  )
+```
+
+Not great as expected. Let's use relative $F_0$:
+
+```{r}
+plot_relationship(
+  "samozino_practical_profile.F0_rel",
+  "bodyweight_jump.height"
+  )
+```
+
+Let's check $V_0$:
+
+```{r}
+plot_relationship(
+  "samozino_practical_profile.V0",
+  "bodyweight_jump.height"
+  )
+```
+
+Again, much higher association than force. Let's check $P_{max}$:
+
+```{r}
+plot_relationship(
+  "samozino_practical_profile.Pmax",
+  "bodyweight_jump.height"
+  )
+```
+
+And finaly, relative $P_{max}$:
+
+```{r}
+plot_relationship(
+  "samozino_practical_profile.Pmax_rel",
+  "bodyweight_jump.height"
+  )
+```
+
+Relative $P_{max}$ shows very high association with jump height (this could be the *circular causality* explained in the previous vignette: we use performance metrics to device underlying determinants of performance). Let's perform multivatiate prediction usinig linear regression with interactions:
+
+```{r}
+samozino_height_model <- regression_model(
+  data = vjsim_data,
+  target = "bodyweight_jump.height",
+  predictors = c(
+    "force_generator.bodyweight",
+    "force_generator.push_off_distance",
+    "samozino_practical_profile.F0",
+    "samozino_practical_profile.V0"
+    ),
+  interactions = TRUE, var_imp = "firm") 
+
+samozino_height_model$summary
+samozino_height_model$graph
+samozino_height_model$var_imp
+plot_pdp(samozino_height_model, "samozino_practical_profile.F0")
+plot_pdp(samozino_height_model, "samozino_practical_profile.V0")
+plot_pdp(samozino_height_model, "force_generator.bodyweight")
+```
+
+Multivariate model using practical Samozino profile shows great predictive power for predicting vertical jump height. 
+
+# Exploring intervention probing
+
+If you check PDP+ICE plots for $F_0$ and $V_0$, you can see that not all ICE lines are parallel. This implies that for some individuals increasing $F_0$ and $V_0$ yields more or less benefit in increasing jump height. This is further discussed in [optimization vignette](https://mladenjovanovic.github.io/vjsim/articles/optimization-vjsim.html), and it is interesting it showed up in multivariate model as well. 
+
+The goal of Samozino's practical method is to give intervention ideas to practitioners in terms of which side of the FV curve (i.e., $F_0$ or $V_0$) improvements will yield highest improvements in the bodyweight vertical jump. This is very useful information to practitioners. One *problem* with such information is the following: it doesn't give us information what is easier to improve. For example, increasing $V_0$ for 10% that yields higher improvement in vertical jump height compared to 10% improvement in $F_0$ doesn't tell us which one is *easier* or *faster* (or even *safer*) to increase. For example, even if increasing $V_0$ yields higher increase in vertical jump height, maybe increasing $F_0$ is much simpler, and *vice versa*. But this is a topic for the end of this vignette. 
+
+So far we are interested in validity of such statement/model (which was explored in the [optimization vignette](https://mladenjovanovic.github.io/vjsim/articles/optimization-vjsim.html)). What I have done when I generated `vjsim_data` is to provide a probing variables (see columns that start with `probe_bodyweight_jump.`). These are generated by simulating the same jump, but with either 10% better max force, max velocity, or time to max activation (Force Generator characteristic). Variable `probe_bodyweight_jump.velocity_to_force_height_ratio` contains the ratio between improvements in jump height when max velocity is improved to improvements in jump height when max force is improved:
+
+$$
+height \; ratio = \frac{height_{10\%velocity} - height}{height_{10\%force} - height} 
+$$
+
+Thus `probe_bodyweight_jump.velocity_to_force_height_ratio` represents some type of an index which Force Generator characteristic (either *force* or *velocity*) improvement yields more improvement in jump height. Let's plot this variable against `samozino_practical_profile.Sfv_perc` (see [optimization vignette](https://mladenjovanovic.github.io/vjsim/articles/optimization-vjsim.html) for more details):
+
+```{r}
+plot_relationship(
+    "samozino_practical_profile.Sfv_perc",
+  "probe_bodyweight_jump.velocity_to_force_height_ratio"
+  )
+
+probing_Sfv_perc <- regression_model(
+  data = vjsim_data,
+  target = "probe_bodyweight_jump.velocity_to_force_height_ratio",
+  predictors = c(
+    "samozino_practical_profile.Sfv_perc"
+    ),
+  interactions = TRUE, var_imp = "firm") 
+
+
+probing_Sfv_perc$graph
+```
+
+The relationship between the two is outstanding. Although the prediction is not ideal (given SESOI of SDx0.2), this is very interesting and confirmatory insight. Let's repeat the same, but this time for the ratio between max velocity and time to max activation improvement:
+
+```{r}
+plot_relationship(
+   "samozino_practical_profile.Sfv_perc",
+  "probe_bodyweight_jump.velocity_to_activation_height_ratio"
+  )
+
+probing_Sfv_perc <- regression_model(
+  data = vjsim_data,
+  target = "probe_bodyweight_jump.velocity_to_activation_height_ratio",
+  predictors = c(
+    "samozino_practical_profile.Sfv_perc"
+    ),
+  interactions = TRUE, var_imp = "firm") 
+
+
+probing_Sfv_perc$graph
+```
+
+The practical Samozino is not able to *pick-up* improvements between max velocity and time to max activation. Let's check the relationship with ratio between max force and time to max activation improvements:
+
+```{r}
+plot_relationship(
+   "samozino_practical_profile.Sfv_perc",
+  "probe_bodyweight_jump.force_to_activation_height_ratio"
+  )
+
+probing_Sfv_perc <- regression_model(
+  data = vjsim_data,
+  target = "probe_bodyweight_jump.force_to_activation_height_ratio",
+  predictors = c(
+    "samozino_practical_profile.Sfv_perc"
+    ),
+  interactions = TRUE, var_imp = "firm") 
+
+
+probing_Sfv_perc$graph
+```
+
+Again, very bad prediction by the model. This implies that Samozino model was able to (only) predict (with a very decent amount) the intervention effects of increasing max force or max velocity of the Force Generator, thus give insights with one will give more benefits. 
+
+Let's see how other optimization models perform. Let's check the "simple model" (see [optimization vignette](https://mladenjovanovic.github.io/vjsim/articles/optimization-vjsim.html) for more details):
+
+```{r}
+plot_relationship(
+    "simple_profile.Sfv_perc",
+    "probe_bodyweight_jump.velocity_to_force_height_ratio"
+  )
+
+probing_simple_Sfv_perc <- regression_model(
+  data = vjsim_data,
+  target = "probe_bodyweight_jump.velocity_to_force_height_ratio",
+  predictors = c(
+    "simple_profile.Sfv_perc"
+    ),
+  interactions = TRUE, var_imp = "firm") 
+
+
+probing_simple_Sfv_perc$graph
+```
+
+And for other two ratios:
+
+```{r}
+plot_relationship(
+    "simple_profile.Sfv_perc",
+    "probe_bodyweight_jump.velocity_to_activation_height_ratio"
+  )
+
+probing_simple_Sfv_perc <- regression_model(
+  data = vjsim_data,
+  target = "probe_bodyweight_jump.velocity_to_activation_height_ratio",
+  predictors = c(
+    "simple_profile.Sfv_perc"
+    ),
+  interactions = TRUE, var_imp = "firm") 
+
+
+probing_simple_Sfv_perc$graph
+```
+
+```{r}
+plot_relationship(
+    "simple_profile.Sfv_perc",
+    "probe_bodyweight_jump.force_to_activation_height_ratio"
+  )
+
+probing_simple_Sfv_perc <- regression_model(
+  data = vjsim_data,
+  target = "probe_bodyweight_jump.force_to_activation_height_ratio",
+  predictors = c(
+    "simple_profile.Sfv_perc"
+    ),
+  interactions = TRUE, var_imp = "firm") 
+
+
+probing_simple_Sfv_perc$graph
+```
+
+This implies that the simple optimization model is useless in predicting intervention effects. 
+
+Let's now turn to Load~Peak Force profile (see [optimization vignette](https://mladenjovanovic.github.io/vjsim/articles/optimization-vjsim.html) for more details). Since this profile doesn't give us any idea what *quality* needs to be improved, let's check how it is related to improvements in height when max force, max velocity, or time to max activation is improved for 10%:
+
+```{r}
+plot_relationship(
+  "LPF_profile.slope",
+  "probe_bodyweight_jump.force_height_ratio"
+  )
+```
+
+```{r}
+plot_relationship(
+  "LPF_profile.slope",
+  "probe_bodyweight_jump.velocity_height_ratio"
+  )
+```
+
+```{r}
+plot_relationship(
+  "LPF_profile.slope",
+  "probe_bodyweight_jump.activation_height_ratio"
+  )
+```
+
+It seems that LPF slope give unperfect hints only for effects of improving max force, but nothing else. 
+
+## Modeling
+
+Let's see if we can predict `samozino_practical_profile.Sfv_perc` from probing variables:
+
+```{r}
+probing_samozino <- regression_model(
+  data = vjsim_data,
+  target = "samozino_practical_profile.Sfv_perc",
+  predictors = c(
+    "probe_bodyweight_jump.velocity_to_force_height_ratio",
+    "probe_bodyweight_jump.velocity_to_activation_height_ratio",
+    "probe_bodyweight_jump.force_to_activation_height_ratio"
+    ),
+  interactions = FALSE, var_imp = "firm") 
+
+probing_samozino$summary
+probing_samozino$graph
+probing_samozino$var_imp
+plot_pdp(probing_samozino, "probe_bodyweight_jump.velocity_to_force_height_ratio")
+```
+
+
+This simple model concludes that `samozino_practical_profile.Sfv_perc` can give us glimples into which intervention should be done (i.e., improving max force or max velocity). 
+
+Let's do the same for LPF slope:
+
+```{r}
+probing_LPF_slope <- regression_model(
+  data = vjsim_data,
+  target = "LPF_profile.slope",
+  predictors = c(
+    "probe_bodyweight_jump.velocity_height_ratio",
+    "probe_bodyweight_jump.force_height_ratio",
+    "probe_bodyweight_jump.activation_height_ratio"
+    ),
+  interactions = FALSE, var_imp = "firm") 
+
+probing_LPF_slope$summary
+probing_LPF_slope$graph
+probing_LPF_slope$var_imp
+```
+
+And using the ratios:
+
+```{r}
+probing_LPF_slope <- regression_model(
+  data = vjsim_data,
+  target = "LPF_profile.slope",
+  predictors = c(
+    "probe_bodyweight_jump.velocity_to_force_height_ratio",
+    "probe_bodyweight_jump.velocity_to_activation_height_ratio",
+    "probe_bodyweight_jump.force_to_activation_height_ratio"
+    ),
+  interactions = FALSE, var_imp = "firm") 
+
+probing_LPF_slope$summary
+probing_LPF_slope$graph
+probing_LPF_slope$var_imp
+```
+
+Unfortunatelly, LPF slope does not provide insight to which intervention should be done to improve the vertical jump height. 
+
+Bosco Index is another measure that is used to indicate whether someone needs to work on "speed" or "force" qualities. Let's see how is it associated with aforementioned `vjsim` interventions:
+
+```{r}
+plot_relationship(
+  "bosco.index",
+  "probe_bodyweight_jump.force_height_ratio"
+  )
+```
+
+```{r}
+plot_relationship(
+  "bosco.index"  ,
+  "probe_bodyweight_jump.velocity_height_ratio"
+  )
+```
+
+```{r}
+plot_relationship(
+  "bosco.index",
+  "probe_bodyweight_jump.activation_height_ratio"
+  )
+```
+
+It looks like Bosco Index has a similar relationship with max force incremens as LPF slope. Let's chech the relationship between the two:
+
+```{r}
+plot_relationship(
+  "bosco.index",
+  "LPF_profile.slope"
+  )
+```
+
+As can be seen from the above graph, these two metrics are not related. 
+
+In concusion, Samozino model was able to predict which would be better intervetion to be made (i.e. either increasing max force of max velocity) to increase the vertical jump height. LPF slope was able to less than perfectly predict interventions of max force increase (higher the slope, the lower the effects of increasing max force). Keep in mind that these conclusions are only given the `vjsim` model and related to improvements in bodyweight vertical jump height. LPF slope and Bosco Index might be useful for other purposes beyond bodyweight vertical jump height.
+
+# Exploring variable clustering
+
+Another useful exploration that might be done is *factor analysis*. This analysis can help us find *latent variables* that explain the observed metrics [@borsboomLatentVariableTheory2008; @borsboomMeasuringMindConceptual2009; @borsboomTheoreticalStatusLatent2003]. Rather than performing a proper exploratory and confirmatory factor analysis, I will perform simple and more visual *variable clustering* [@R-clustofvar]. Here is the function that perform variable clustering:
+
+```{r}
+var_clust <- function(data, predictors) {
+  # Feature clustering
+  data <- select_(data, .dots = predictors)
+  cluster_model <- hclustvar(data)
+  
+  var_clust <- ggdendrogram(as.dendrogram(cluster_model), rotate = TRUE)
+  
+  return(list(
+    model = cluster_model,
+    graph = var_clust
+    ))
+}
+```
+
+For a start, let's see how bodyweight jump summary metrics cluster together:
+
+```{r}
+jump_metrics_cluster <- var_clust(
+  vjsim_data,
+  c(
+    "force_generator.bodyweight",
+    "bodyweight_jump.take_off_time",
+    "bodyweight_jump.take_off_velocity",
+    "bodyweight_jump.height",
+    "bodyweight_jump.mean_GRF_over_distance",
+    "bodyweight_jump.mean_velocity",
+    "bodyweight_jump.work_done",
+    "bodyweight_jump.impulse",
+    "bodyweight_jump.mean_power",
+    "bodyweight_jump.mean_RFD",
+    "bodyweight_jump.mean_RPD",
+    "bodyweight_jump.peak_GRF",
+    "bodyweight_jump.peak_velocity",
+    "bodyweight_jump.peak_power",
+    "bodyweight_jump.peak_RFD",
+    "bodyweight_jump.GRF_at_100ms",
+    "bodyweight_jump.GRF_at_200ms",
+    "bodyweight_jump.peak_RPD"
+  )
+)
+
+jump_metrics_cluster$graph
+```
+
+Eyeballing the figure above, we can see that there are 2-3 variable clusters (latent variables?):
+
+```{r}
+part <- cutreevar(jump_metrics_cluster$model, 3)
+summary(part)
+plot(part)
+```
+
+Power and force metrics can be normalized (divided by bodyweight), but I will leave this to you to explore. So far the three clusters, in my humble opinion, reflect three *latent* variable: 
+
+- Cluster 1: force, work, power and impulse characteristics
+- Cluster 2: explosiveness (how quick is the take-off, rate of force and power developelopment)
+- Cluster 3: velocity 
+
+Let's see how the profiles cluster together with Force Generator characteristics:
+
+```{r}
+profiles_cluster <- var_clust(
+  vjsim_data,
+  c(
+    # Force Generator characteristics
+    #"force_generator.bodyweight",
+    "force_generator.push_off_distance",
+    "force_generator.max_force",
+    "force_generator.max_velocity",
+    "force_generator.decline_rate",
+    "force_generator.peak_location",
+    "force_generator.time_to_max_activation",
+    "force_generator.Pmax",
+    "force_generator.Sfv",
+    
+   # Profiles
+    "profile_mean_FV.F0",
+    "profile_mean_FV.V0",
+   "profile_mean_FV.Pmax",
+    "profile_mean_FV.Pmax",
+   "profile_mean_FV.Sfv",
+   
+   "profile_mean_power.Pmax",
+   
+   "profile_peak_FV.F0",
+   "profile_peak_FV.V0",
+   "profile_peak_FV.Pmax",
+   "profile_peak_FV.Sfv",
+   
+   "profile_load_take_off_velocity.V0",
+   "profile_load_take_off_velocity.L0",
+   "profile_load_take_off_velocity.Imax",
+   "profile_load_take_off_velocity.Slv",
+   
+   "profile_load_impulse.Imax",
+   
+    "LPF_profile.slope",
+    "samozino_practical_profile.F0",
+    "samozino_practical_profile.V0",
+    "samozino_practical_profile.Pmax",
+    "samozino_practical_profile.Sfv",
+
+    "simple_profile.L0",
+    "simple_profile.TOV0",
+    "simple_profile.Sfv"
+))
+
+profiles_cluster$graph
+```
+
+Here are the list of metrics if 4 clusters are selected:
+
+```{r}
+part <- cutreevar(profiles_cluster$model, 4)
+summary(part)
+plot(part)
+```
+
+For the final variable cluster analysis, let's use probing metrics and optimization profiles:
+
+```{r}
+optimization_cluster <- var_clust(
+  vjsim_data,
+  c(
+    # Probing characteristics
+    "probe_bodyweight_jump.force_height_ratio",
+    "probe_bodyweight_jump.velocity_height_ratio",
+    "probe_bodyweight_jump.activation_height_ratio",
+    "probe_bodyweight_jump.velocity_to_force_height_ratio",
+    "probe_bodyweight_jump.velocity_to_activation_height_ratio",
+    "probe_bodyweight_jump.force_to_activation_height_ratio",
+    
+    # Bosco index
+    "bosco.index",
+    
+    # Profiles
+    "LPF_profile.slope",
+    "samozino_practical_profile.Sfv_perc",
+    "samozino_practical_profile.probe_IMB",
+
+    "simple_profile.Sfv_perc",
+    "simple_profile.probe_IMB"
+    ))
+
+optimization_cluster$graph
+```
+
+As can be seen from the above figure, Samozino optimization model $S_{FV}\%$ and $FV_{IMB}$ cluster very well with `probe_bodyweight_jump.velocity_to_force_height_ratio`. Interesting cluster is simple profile and Bosco Index cluster. 
+
+# Intervention comments
+
+So far, we have added some simulation evidence on the validity of the Samozino model to "predict" intervention effects on the FV curve. This is useful from a practical perspective, since as coaches we are interested in what *quality* needs to be developed to improve training effect. Samozino model allows some of those insights when it comes to squat jump. The procedure is simple (will walk you through the example data set in the [modeling vignette](https://mladenjovanovic.github.io/vjsim/articles/modeling-vjsim.html)): measure individual's push-off distance, put him or her on the jump mat or something that can measure height and perform incremental jumps by adding extra weight (this is usually done with the barbell, but I prefer hex bar barbell, but again, the height of the barbell might be lower or higher than the distance at the bottom of the squat jump). Once we have these values, Samozino model can be perfored and suggestions to what part of the FV curve to intervene. Unfortunately, Samozino model doesn't tell us which effects are easier or less costly to get - it only tell us what would happen if the FV curve shifted. For example, if someone is weak as a kitten (has low $F0$), improving his force capabilities might be easier and thus more beneficial, even if the model suggest otherwise (i.e., improving $V0$). 
+
+So far there have been only two studies that attempted that [@jimenez-reyesEffectivenessIndividualizedTraining2017; @jimenez-reyesOptimizedTrainingJumping2019] with very interesting findings. I won't go into detail of the studies, but the basic premise is simple: distribute individuals in personalized training based on their needs (identified by Samozino model) and see if vertical jump height improves better compared to *well-balanced* (or generic, mixed training). 
+
+Although I welcome this research I have few issues that I will cover here and finish with that. First issue is that groups were not blinded. This means that just by having a special training based on your needs might increase motivation and effects of training. These effects could be reduced by blinding the participants and researchers. Or estimated by adding someone on-purpose from the opposite optimization group (not to confirm the benefits, but to confirm the lack of benefits of personalized training, which is also important). For example, each optimization group (i.e. velocity group vs force group) has not only individuals that are identified as lacking those qualities, but a mix of everyone (but we lie to everyone that this is ideal scenario based on the model insights). For example, the velocity group has a mix of everyone, but we tell them it is their optimal group based on their needs. Then we analyze the sub-strata of the group. 
+
+Second issues is the change in training direction (variety) from a normal traininig, which can cause training effects by itself. Jimenez-Reyes *et al.* [@jimenez-reyesEffectivenessIndividualizedTraining2017; @jimenez-reyesOptimizedTrainingJumping2019] tried to control for this by having *non-optimized* group (which was similar to *well-balanced* group in terms of training content). 
+
+Third, and the most important issue is the message they are sending with *realist ontology* stance, that simple jump squat modeling represent an estimate of the whole lower body Force Generator, which implies that the whole training can be optimized based on the jump squat model. This might not be the intention of the authors, but readers are getting that impressions. Athlete not only need to jump from a static stance, but they needs to perfom many other activities. If the whole training is *optimized* to make improvements in the jump squat, then maybe it might be much more *under-optimized* for other activities, or maybe even harmful. I have spent much more time and words on discussing the concepts of optimality vs. robustness in a pre-print paper and my books [@jovanovic_jukic_2019; @jovanovicHIITManualHigh2018; @jovanovicStrengthTrainingManual2020], so I direct you to those source. 
+
+I have started `vjsim` project since I failed to understand the math and logic behind Samozino model. This simulation allowed me to understand biomechanics of jumping a bit better and to appreciate the Samozino model application. I think it is useful model, but at the end of the day , it represents only one source of information for the coaches to consider and put under perspective and context. For example, Bosco Index and LPF slope might also give us some insight to which element someone needs to work (without a direct optimization objective). Overall, Samozino model rerpresents a sound tool in your toolbox. 
+
+In the next vignette I will walk you through the analysis and modeling using the collected test data. 
+
+# Shiny App
+
+Now start playing with the code or with the [Shiny App](https://athletess.shinyapps.io/shiny-simulator/) by click on the previous link or by running the following code:
+
+```{r eval=FALSE}
+vjsim::run_simulator()
+```
+
+The [Shiny App](https://athletess.shinyapps.io/shiny-simulator/) will allow you much more interactive environment for exploring the `vjsim`. 
+
+# Want to learn more?
+
+Please continue by reading [Modeling vignette](https://mladenjovanovic.github.io/vjsim/articles/modeling-vjsim.html):
+
+```{r eval=FALSE}
+vignette("modeling-vjsim")
+```
+ 
+# References

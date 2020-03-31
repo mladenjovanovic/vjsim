@@ -1,0 +1,42 @@
+#' Jimenez-Reyes data
+#'
+#' Data freely available from \href{https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0216681}{Jimenez-Reyes et al. (2019)}
+#'      paper in which the authors performed the intervention study based on Samozino optimization model. Please refer
+#'      to the original paper for more infomration.
+#'
+#' @references
+#'      Jiménez-Reyes P, Samozino P, Brughelli M, Morin J-B. 2017. Effectiveness of an Individualized Training Based on Force-Velocity Profiling during Jumping. Frontiers in Physiology 7. DOI: 10.3389/fphys.2016.00677.
+#'
+#'      Jiménez-Reyes P, Samozino P, Morin J-B. 2019. Optimized training for jumping performance using the force-velocity imbalance: Individual adaptation kinetics. PLOS ONE 14:e0216681. DOI: 10.1371/journal.pone.0216681.
+#'
+#' @format A data frame with 60 rows and 26 variables:
+#' \describe{
+#'    \item{Subject}{}
+#'    \item{Pre.SJ}{}
+#'    \item{Pre.F0}{}
+#'    \item{Pre.V0}{}
+#'    \item{Pre.P}{}
+#'    \item{Pre.FVimb}{}
+#'    \item{Post.SJ}{}
+#'    \item{Post.F0}{}
+#'    \item{Post.V0}{}
+#'    \item{Post.P}{}
+#'    \item{Post.FVimb}{}
+#'    \item{Det1.SJ}{}
+#'    \item{Det1.F0}{}
+#'    \item{Det1.V0}{}
+#'    \item{Det1.P}{}
+#'    \item{Det1.FVimb}{}
+#'    \item{Det2.SJ}{}
+#'    \item{Det2.F0}{}
+#'    \item{Det2.V0}{}
+#'    \item{Det2.P}{}
+#'    \item{Det2.FVimb}{}
+#'    \item{Det3.SJ}{}
+#'    \item{Det3.F0}{}
+#'    \item{Det3.V0}{}
+#'    \item{Det3.P}{}
+#'    \item{Det3.FVimb}{}
+#' }
+#' @usage data(jimenez_reyes)
+"jimenez_reyes"

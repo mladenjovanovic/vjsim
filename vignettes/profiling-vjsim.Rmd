@@ -338,6 +338,16 @@ vjsim::get_FV_profile(
 
 As can be seen from the examples above, each model fit provides different estimates for $F_0$ and $V_0$ (using `vjsim` data), but we do tend to represent it with simple linear regression. As can be seen from estimated $F_0$ and $V_0$, they do not seem to recover Force Generator max force and max velocity. 
 
+## Mean Force~TOV
+
+This profile is the basis for the [Samozino optimization model](https://mladenjovanovic.github.io/vjsim/articles/optimization-vjsim.html) (although Samozino uses TOV/2 as a practical way to calculate mean velocity - see *Optimization vignette*) . It plots mean force against take-off velocity:
+
+```{r}
+plot_profile(profile_data, "mean_GRF_over_distance", "take_off_velocity")
+```
+
+This profile will be further explored in the next vignette. 
+
 ## Mean Force~Mean Power Profile
 
 As seen from the Mean Force~Mean Velocity Profile, $P_{max}$ can be calculated using $F_0$ and $V_0$. But rather than estimating it, we can actually plot it, since we have that data available from `vjsim` and in our profilind data frame:

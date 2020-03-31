@@ -216,3 +216,147 @@
   abstract = {In recent years a method known as force-velocity profiling has become popular for evaluating jump performance under differing loads (Morin and Samozino, 2016; Samozino et al., 2008, 2010, 2012, 2014).  The method draws support from a theoretical paper that was published in Journal of Theoretical Biology (Samozino et al., 2010).  Unfortunately, there are errors in the mathematics of said paper which reveal that the method certainly cannot be characterised as giving a force-velocity profile.},
   type = {Preprint}
 }
+
+
+
+@article{borsboomLatentVariableTheory2008,
+  title = {Latent {{Variable Theory}}},
+  author = {Borsboom, Denny},
+  year = {2008},
+  month = may,
+  volume = {6},
+  pages = {25--53},
+  issn = {1536-6367, 1536-6359},
+  doi = {10.1080/15366360802035497},
+  abstract = {This paper formulates a metatheoretical framework for latent variable modeling. It does so by spelling out the difference between observed and latent variables. This difference is argued to be purely epistemic in nature: We treat a variable as observed when the inference from data structure to variable structure can be made with certainty and as latent when this inference is prone to error. This difference in epistemic accessibility is argued to be directly related to the datagenerating process, i.e., the process that produces the concrete data patterns on which statistical analyses are executed. For a variable to count as observed through a set of data patterns, the relation between variable structure and data structure should be (a) deterministic, (b) causally isolated, and (c) of equivalent cardinality. When any of these requirements is violated, (part of) the variable structure should be considered latent. It is argued that, on these criteria, observed variables are rare to nonexistent in psychology; hence, psychological variables should be considered latent until proven observed.},
+  journal = {Measurement: Interdisciplinary Research \& Perspective},
+  language = {en},
+  number = {1-2}
+}
+
+@article{borsboomTheoreticalStatusLatent2003,
+  title = {The Theoretical Status of Latent Variables.},
+  author = {Borsboom, Denny and Mellenbergh, Gideon J. and {van Heerden}, Jaap},
+  year = {2003},
+  month = apr,
+  volume = {110},
+  pages = {203--219},
+  issn = {1939-1471, 0033-295X},
+  doi = {10.1037/0033-295X.110.2.203},
+  journal = {Psychological Review},
+  language = {en},
+  number = {2}
+}
+
+
+@article{greenwellSimpleEffectiveModelBased2018,
+  title = {A {{Simple}} and {{Effective Model}}-{{Based Variable Importance Measure}}},
+  author = {Greenwell, Brandon M. and Boehmke, Bradley C. and McCarthy, Andrew J.},
+  year = {2018},
+  month = may,
+  abstract = {In the era of "big data", it is becoming more of a challenge to not only build state-of-the-art predictive models, but also gain an understanding of what's really going on in the data. For example, it is often of interest to know which, if any, of the predictors in a fitted model are relatively influential on the predicted outcome. Some modern algorithms---like random forests and gradient boosted decision trees---have a natural way of quantifying the importance or relative influence of each feature. Other algorithms---like naive Bayes classifiers and support vector machines---are not capable of doing so and model-free approaches are generally used to measure each predictor's importance. In this paper, we propose a standardized, model-based approach to measuring predictor importance across the growing spectrum of supervised learning algorithms. Our proposed method is illustrated through both simulated and real data examples. The R code to reproduce all of the figures in this paper is available in the supplementary materials.},
+  archivePrefix = {arXiv},
+  eprint = {1805.04755},
+  eprinttype = {arxiv},
+  journal = {arXiv:1805.04755 [cs, stat]},
+  keywords = {Computer Science - Machine Learning,Statistics - Machine Learning},
+  primaryClass = {cs, stat}
+}
+
+
+@book{altmannLimitationsInterpretableMachine2019,
+  title = {Limitations of {{Interpretable Machine Learning Methods}}},
+  author = {Altmann, Thomas and Bodensteiner, Jakob and Dankers, Cord and Dassen, Thommy and Fritz, Nikolas and Gruber, Sebastian and Kopper, Philipp and Kronseder, Veronika and Wagner, Moritz and Renkl, Emanuel},
+  year = {2019},
+  abstract = {This book explains limitations of current methods in interpretable machine learning. The methods include partial dependence plots (PDP), Accumulated Local Effects (ALE), permutation feature importance, leave-one-covariate out (LOCO) and local interpretable model-agnostic explanations (LIME). All of those methods can be used to explain the behavior and predictions of trained machine learning models. But the interpretation methods might not work well in the following cases:
+
+if a model models interactions (e.g. when a random forest is used)
+if features strongly correlate with each other
+if the model does not correctly model causal relationships
+if parameters of the interpretation method are not set correctly
+This book is the outcome of the seminar ``Limitations of Interpretable Machine Learning'' which took place in summer 2019 at the Department of Statistics, LMU Munich.},
+}
+
+@article{goldsteinPeekingBlackBox2013,
+  ids = {goldsteinPeekingBlackBox2013a,goldsteinPeekingBlackBox2014},
+  title = {Peeking {{Inside}} the {{Black Box}}: {{Visualizing Statistical Learning}} with {{Plots}} of {{Individual Conditional Expectation}}},
+  shorttitle = {Peeking {{Inside}} the {{Black Box}}},
+  author = {Goldstein, Alex and Kapelner, Adam and Bleich, Justin and Pitkin, Emil},
+  year = {2013},
+  month = sep,
+  abstract = {This article presents Individual Conditional Expectation (ICE) plots, a tool for visualizing the model estimated by any supervised learning algorithm. Classical partial dependence plots (PDPs) help visualize the average partial relationship between the predicted response and one or more features. In the presence of substantial interaction effects, the partial response relationship can be heterogeneous. Thus, an average curve, such as the PDP, can obfuscate the complexity of the modeled relationship. Accordingly, ICE plots refine the partial dependence plot by graphing the functional relationship between the predicted response and the feature for individual observations. Specifically, ICE plots highlight the variation in the fitted values across the range of a covariate, suggesting where and to what extent heterogeneities might exist. In addition to providing a plotting suite for exploratory analysis, we include a visual test for additive structure in the data generating model. Through simulated examples and real data sets, we demonstrate how ICE plots can shed light on estimated models in ways PDPs cannot. Procedures outlined are available in the R package ICEbox.},
+  archivePrefix = {arXiv},
+  eprint = {1309.6392},
+  eprinttype = {arxiv},
+  journal = {arXiv:1309.6392 [stat]},
+  keywords = {Statistics - Applications},
+  primaryClass = {stat}
+}
+
+@article{RJ-2017-016,
+  title = {Pdp: {{An R Package}} for {{Constructing Partial Dependence Plots}}},
+  author = {Greenwell, Brandon M.},
+  year = {2017},
+  volume = {9},
+  pages = {421--436},
+  doi = {10.32614/RJ-2017-016},
+  journal = {The R Journal},
+  number = {1}
+}
+
+@book{molnarInterpretableMachineLearning2018,
+  title = {{Interpretable Machine Learning}},
+  author = {Molnar, Christoph},
+  year = {2018},
+  month = feb,
+  publisher = {{Leanpub}},
+  abstract = {This book teaches you how to make machine learning models more interpretable.},
+  language = {undefined}
+}
+
+@Manual{R-clustofvar,
+    title = {ClustOfVar: Clustering of Variables},
+    author = {Marie Chavent and Vanessa Kuentz and Benoit Liquet and Jerome Saracco},
+    year = {2017},
+    note = {R package version 1.1},
+    url = {https://CRAN.R-project.org/package=ClustOfVar},
+  }
+
+
+@article{jovanovic_jukic_2019,
+  title = {Optimal vs. {{Robust}}: {{Applications}} to {{Planning Strategies}}. {{Insights}} from a Simulation Study},
+  author = {Jovanovi{\'c}, Mladen and Juki{\'c}, Ivan},
+  year = {2019},
+  month = apr,
+  publisher = {{SportRxiv}},
+  doi = {10.31236/osf.io/8n4jf},
+  journal = {SportRxiv}
+}
+
+@book{jovanovicStrengthTrainingManual2020,
+  title = {Strength {{Training Manual}}: {{The Agile Periodization Approach}}},
+  shorttitle = {Strength {{Training Manual}}},
+  author = {Jovanovi{\'c}, Mladen},
+  year = {2020},
+  month = jan,
+  publisher = {{Independently published}},
+  abstract = {Strength Training Manual represents my ongoing pursuit in understanding both strength training and training theory in general, by providing an overview of the conflicting opinions, but also giving practical, heuristic solutions to common problems and their reconciliation. The framework for such an approach is the Agile Periodization, which approaches planning from uncertainty perspective, iterations, and experimentation while providing satisficing and robust solutions. Besides being very rich in theory, Strength Training Manual is also rich in forum-for-action solutions, including reference tables, useful heuristics, and more than 1,900 set and rep schemes provided and analyzed. It also provides the best practices from other experts tinkering in this field. Paperback edition of the Strength Training Manual comes in two volumes: Volume One \& Two, and Volume Three. Volume One and Two of this manual is an in-depth look into strength training planning and general training theory, as well as an introduction to the Agile Periodization framework. I believe that I haven't left any stone unturned in Volume One and Two. But to do that I had to go full circle: I had to go deep into nitty-gritty details, show issues, assumption, flawed reasoning, and finally present simple solutions or even different paradigms.Volume Three is straighter to the point and represents a collection of all the useful tables and heuristics from Volume One and Two that you can use as a starting point when designing your strength training programs. Volume Three is my original writing intention, but when I started writing I realized that some things needed a more thorough description and explanation (and besides, I went off-the-track to explore some concepts that emerged during the writing process), rather than do-this-and-not-this perspective. Volume One and Two covers the following topics:The philosophical underpinning of the Agile Periodization Exercise classifications and their relationships Testing approaches for establishing 1RM used for percent-based prescription as well as the novel Estimation through iteration approachPrescribing training loads using various methods and their modificationsA thorough discussion of the training dose concept, as well as dose -{$>$} response models Anatomy of set and rep schemes and their archetypal variants Mladen's Methodological System of classifying Set and Rep schemesHorizontal and Vertical planning perspectives (This will cut through all the periodization crap you have been fed over the years)Novel planning strategies and concepts such as robustness, microdosing, Don't break the chain and Markov ChainA thorough discussion on what individualization really is (and what it should be)Review and Retrospective practices including updating planning 1RMs between phases and phase potentiation ideas and critiques (and novel iterative approach) Discussion on predictive and causal modeling in strength trainingStrength Training Manual will give you not only a practical solution to tackle everyday problems of planning, prescribing, and monitoring strength training, but also critical thinking skills. You can use these essential skills of thinking and tools in other types of physical preparation and training in general.},
+  isbn = {9798604459898},
+  language = {English}
+}
+
+
+
+@book{jovanovicHIITManualHigh2018,
+  title = {{{HIIT Manual}}: {{High Intensity Interval Training}} and {{Agile Periodization}}},
+  author = {Jovanovi{\'c}, Mladen},
+  year = {2018},
+  month = oct,
+  publisher = {{Ultimate Athlete Concepts}},
+  abstract = {In the field of Strength \& Conditioning, coaches are always striving to help their athletes display their skills at the highest level with as little drop-off as possible throughout a contest. From the outside looking in, the solution to getting an athlete ``in shape'' may seem simple. However, this has been one of the most contentious problems in athletics for some time. Mladen Jovanovic provides practical, scientific solutions for this issue in his new manual for high intensity interval training. The HIIT Manual is organized in two main sections: HIIT basics and HIIT planning. HIIT basics covers the following major points: - Understanding the "Endurance Map" and terminology - Equipment that is needed to test and prescribe HIT conditioning - Understanding the "Velocity Profile" - Estimations of key HIIT parameters, that are needed for prescription and profiling - Prescription of the HIIT conditioning, corrections using start loss and COD loss, as well as grouping of athletes - Different HIIT drills - long intervals, short intervals and tempo, sprint interval training, repeat sprint training, and intermittent recovery The planning part of the HIIT manual outlines the basis of Agile Periodization, which is a framework of approaching planning from an uncertainty perspective. HIIT planning covers: - Understanding uncertainties involved in training planning and realization - Three levels and types of analysis: phenomenological, mechanistical, and physiological - Answering "what should be done" and "when should it be done" using simple heuristics - Top-up approach to planning HIIT conditioning - Example of off-season and pre-season HIIT conditioning program Understanding the above will empower you in selecting, designing and planning HIIT conditioning for both individual and team sports.},
+  isbn = {978-1-72633-750-2},
+  language = {English}
+}
+
+
+

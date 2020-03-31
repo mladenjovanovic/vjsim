@@ -37,5 +37,6 @@ Suggests:
     vip,
     pdp,
     boot,
+    ggdendro,
     bmbstats
 VignetteBuilder: knitr

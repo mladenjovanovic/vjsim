@@ -226,7 +226,8 @@ get_all_samozino_profiles <- function(profile_data) {
 #' @param push_off_distance Numeric vector. Default 0.4
 #' @param height Numeric vector. Jump height. Default 0.5
 #' @param gravity_const Numeric vector. Default 9.81
-#' @return List with \code{mean_GRF_over_distance}, \code{mean_velocity}, and \code{mean_power}
+#' @return List with \code{mass}, \code{push_off_distance}, \code{height}, \code{gravity_const}, \code{mean_GRF_over_distance},
+#'         \code{mean_velocity}, \code{take_off_velocity}, and \code{mean_power}
 #' @references
 #'     Samozino, Pierre. ‘A Simple Method for Measuring Lower Limb Force, Velocity and Power Capabilities During Jumping’. In Biomechanics of Training and Testing, edited by Jean-Benoit Morin and Pierre Samozino, 65–96. Cham: Springer International Publishing, 2018. https://doi.org/10.1007/978-3-319-05633-3_4.
 #'
@@ -251,8 +252,16 @@ get_samozino_jump_metrics <- function(mass = 75,
   mean_power <- mean_GRF_over_distance * mean_velocity
 
   return(list(
+    mass = mass,
+    push_off_distance = push_off_distance,
+    height = height,
+    gravity_const = gravity_const,
     mean_GRF_over_distance = mean_GRF_over_distance,
     mean_velocity = mean_velocity,
+
+    # this is equal to sqrt(2 * gravity_const * height),
+    take_off_velocity = mean_velocity * 2,
+
     mean_power = mean_power
   ))
 }
@@ -310,4 +319,16 @@ probe_samozino_take_off_velocity <- function(F0 = 3000,
     gravity_const = gravity_const
   )
 }
+
+#' @export
+#'
+#'
+#'
+
+get_samozino_profile <- function() {
+
+}
+
+
+
 

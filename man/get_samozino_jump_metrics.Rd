@@ -21,7 +21,8 @@ get_samozino_jump_metrics(
 \item{gravity_const}{Numeric vector. Default 9.81}
 }
 \value{
-List with \code{mean_GRF_over_distance}, \code{mean_velocity}, and \code{mean_power}
+List with \code{mass}, \code{push_off_distance}, \code{height}, \code{gravity_const}, \code{mean_GRF_over_distance},
+        \code{mean_velocity}, \code{take_off_velocity}, and \code{mean_power}
 }
 \description{
 \code{get_samozino_jump_metrics} return mean force, mean velocity and mean power using simple method explained in

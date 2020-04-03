@@ -89,7 +89,20 @@ get_samozino_optimal_profile <- function(F0 = 3000,
   # Find optimal parameters
   upper_bound <- (F0 / bodyweight) / gravity_const
 
-  results <- stats::optim(par = 1, fn = opt_jump_func, data = data, method = "Brent", lower = 0, upper = upper_bound)
+  get_optim_model <- function() {
+    tryCatch({
+      stats::optim(par = 1, fn = opt_jump_func, data = data, method = "Brent", lower = 0, upper = upper_bound)
+    },
+    error=function(cond) {
+      return(list(par = NA, value = NA))
+    },
+    warning=function(cond) {
+      return(list(par = NA, value = NA))
+    }
+    )
+  }
+
+  results <- get_optim_model()
 
   # Save the results
   Sfv <- get_slope(F0, V0)
@@ -325,8 +338,52 @@ probe_samozino_take_off_velocity <- function(F0 = 3000,
 #'
 #'
 
-get_samozino_profile <- function() {
+get_samozino_profile <- function(bodyweight,
+                                 push_off_distance,
+                                 mean_GRF_over_distance,
+                                 mean_velocity,
+                                 gravity_const = 9.81) {
 
+  # Check if any of the parameters is NA and return a list with NA
+  if (any(
+    is.na(bodyweight),
+    is.na(push_off_distance),
+    is.na(mean_GRF_over_distance),
+    is.na(mean_velocity),
+    is.na(gravity_const))) {
+
+    return(lapply(
+      get_samozino_optimal_profile(
+      F0 = 5000,
+      V0 = 4,
+      bodyweight = 100,
+      push_off_distance = 0.4,
+      gravity_const = 10
+    ),
+    function(x){NA}))
+  }
+
+  profile_data <- data.frame(
+    bodyweight = bodyweight,
+    mean_GRF_over_distance = mean_GRF_over_distance,
+    mean_velocity = mean_velocity
+  )
+
+  jump_profile <- get_FV_profile(
+    profile_data,
+    force = "mean_GRF_over_distance",
+    velocity = "mean_velocity"
+  )
+
+  samozino_profile <- get_samozino_optimal_profile(
+    F0 = jump_profile$F0,
+    V0 = jump_profile$V0,
+    bodyweight = bodyweight[1],
+    push_off_distance = push_off_distance[1],
+    gravity_const = gravity_const[1]
+  )
+
+  return(samozino_profile)
 }
 
 

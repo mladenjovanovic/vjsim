@@ -1,3 +1,4 @@
-# vjsim 0.0.0.9000
+# vjsim 0.1.0
 
-* Added a `NEWS.md` file to track changes to the package.
+* First release with all documentation and vignettes written
+* Includes Shiny simulator

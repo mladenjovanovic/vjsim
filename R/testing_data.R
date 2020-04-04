@@ -8,7 +8,7 @@
 #'    \item{athlete}{Character string}
 #'    \item{bodyweight}{Bodyweight in kilograms}
 #'    \item{push_off_distance}{Push-off distance during squat jump in meters}
-#'    \iterm{external_load}{External load added to bodyweight in kilograms}
+#'    \item{external_load}{External load added to bodyweight in kilograms}
 #'    \item{aerial_time}{Aerial time measured with jump mat in seconds}
 #' }
 #' @usage data(testing_data)

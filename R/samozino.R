@@ -432,7 +432,7 @@ get_samozino_profile <- function(bodyweight,
 # Calculate residual standard error and R^2
   predicted_mean_velocity <- jump_profile$V0 + mean_GRF_over_distance/jump_profile$Sfv
   RSE <- sqrt(sum((predicted_mean_velocity - mean_velocity)^2) / (length(mean_velocity) - 2))
-  R_squared <- cor(predicted_mean_velocity, mean_velocity)^2
+  R_squared <- stats::cor(predicted_mean_velocity, mean_velocity)^2
 
   samozino_profile <- get_samozino_optimal_profile(
     F0 = jump_profile$F0,

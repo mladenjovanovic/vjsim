@@ -3,13 +3,13 @@ citHeader("To cite 'vjsim' in publications use:")
 citEntry(entry = "Manual",
   title        = "{vjsim}: Vertical Jump Simulator",
   author       = personList(as.person("Mladen Jovanović")),
-  note         = "R package version 0.0.0.900",
+  note         = "R package version 0.1.0",
   year         = "2020",
   url          = "https://mladenjovanovic.github.io/vjsim/",
 
   textVersion  =
   paste("Mladen Jovanović (2020).",
         "vjsim: Vertical Jump Simulator.",
-        "R package version 0.0.0.900.",
+        "R package version 0.1.0.",
         "URL https://mladenjovanovic.github.io/vjsim/")
 )

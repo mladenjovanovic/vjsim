@@ -333,11 +333,65 @@ probe_samozino_take_off_velocity <- function(F0 = 3000,
   )
 }
 
+#' Get Samozino Profile
+#' \code{get_samozino_profile} returns Samozino model estimated from known \code{bodyweight}, \code{push_off_distance},
+#'      \code{mean_GRF_over_distance}, \code{mean_velocity} and \code{gravity_const}.
+#' @param bodyweight Numeric value
+#' @param push_off_distance Numeric value
+#' @param mean_GRF_over_distance Numeric vector
+#' @param mean_velocity Numeric vector
+#' @param gravity_const Numeric value
+#' @return Object returned from \code{\link{get_samozino_optimal_profile}} with addition of RSE and R_Squared elements
+#' @references
+#'     Samozino, Pierre. ‘A Simple Method for Measuring Lower Limb Force, Velocity and Power Capabilities During Jumping’. In Biomechanics of Training and Testing, edited by Jean-Benoit Morin and Pierre Samozino, 65–96. Cham: Springer International Publishing, 2018. https://doi.org/10.1007/978-3-319-05633-3_4.
+#'
+#'     ———. ‘Optimal Force-Velocity Profile in Ballistic Push-off: Measurement and Relationship with Performance’. In Biomechanics of Training and Testing, edited by Jean-Benoit Morin and Pierre Samozino, 97–119. Cham: Springer International Publishing, 2018. https://doi.org/10.1007/978-3-319-05633-3_5.
+#'
+#'     Samozino, Pierre, Jean-Benoît Morin, Frédérique Hintzy, and Alain Belli. ‘Jumping Ability: A Theoretical Integrative Approach’. Journal of Theoretical Biology 264, no. 1 (May 2010): 11–18. https://doi.org/10.1016/j.jtbi.2010.01.021.
+#'
+#'     Samozino, Pierre, Enrico Rejc, Pietro Enrico Di Prampero, Alain Belli, and Jean-Benoît Morin. ‘Optimal Force–Velocity Profile in Ballistic Movements—Altius’: Medicine & Science in Sports & Exercise 44, no. 2 (February 2012): 313–22. https://doi.org/10.1249/MSS.0b013e31822d757a.
 #' @export
+#' @examples
+#' require(tidyverse)
+#' data("testing_data")
+#'
+#' testing_data <- testing_data %>%
+#'   mutate(
+#'     height = vjsim::get_height_from_aerial_time(aerial_time),
+#'     total_load = bodyweight + external_load)
+#'
+#' jump_metric <- function(data) {
+#'   samozino_metrics <- vjsim::get_samozino_jump_metrics(
+#'     mass = data$bodyweight + data$external_load,
+#'     push_off_distance = data$push_off_distance,
+#'     height = data$height
+#'   )
+#'   return(as.data.frame(samozino_metrics))
+#' }
 #'
 #'
+#' testing_data <- testing_data %>%
+#'   # Need to add bodyweight so it is kept in the output
+#'   group_by(athlete, bodyweight) %>%
+#'   do(jump_metric(.))
 #'
-
+#' samozino_profile <- function(data) {
+#'   samozino_data <- vjsim::get_samozino_profile(
+#'     bodyweight = data$bodyweight,
+#'     push_off_distance = data$push_off_distance,
+#'     mean_GRF_over_distance = data$mean_GRF_over_distance,
+#'     mean_velocity = data$mean_velocity
+#'   )
+#'
+#'   return(as.data.frame(samozino_data))
+#' }
+#'
+#' testing_data_samozino <- testing_data %>%
+#'   # Need to add bodyweight so it is kept in the output
+#'   group_by(athlete, bodyweight) %>%
+#'   do(samozino_profile(.))
+#'
+#' testing_data_samozino
 get_samozino_profile <- function(bodyweight,
                                  push_off_distance,
                                  mean_GRF_over_distance,
@@ -375,6 +429,11 @@ get_samozino_profile <- function(bodyweight,
     velocity = "mean_velocity"
   )
 
+# Calculate residual standard error and R^2
+  predicted_mean_velocity <- jump_profile$V0 + mean_GRF_over_distance/jump_profile$Sfv
+  RSE <- sqrt(sum((predicted_mean_velocity - mean_velocity)^2) / (length(mean_velocity) - 2))
+  R_squared <- cor(predicted_mean_velocity, mean_velocity)^2
+
   samozino_profile <- get_samozino_optimal_profile(
     F0 = jump_profile$F0,
     V0 = jump_profile$V0,
@@ -383,7 +442,11 @@ get_samozino_profile <- function(bodyweight,
     gravity_const = gravity_const[1]
   )
 
-  return(samozino_profile)
+  return(list(
+    samozino_profile,
+    RSE = RSE,
+    R_squared = R_squared
+  ))
 }
 
 

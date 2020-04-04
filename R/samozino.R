@@ -442,11 +442,10 @@ get_samozino_profile <- function(bodyweight,
     gravity_const = gravity_const[1]
   )
 
-  return(list(
-    samozino_profile,
-    RSE = RSE,
-    R_squared = R_squared
-  ))
+  samozino_profile$RSE <- RSE
+  samozino_profile$R_squared <- R_squared
+
+  return(samozino_profile)
 }
 
 

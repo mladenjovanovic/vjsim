@@ -227,7 +227,7 @@ chris_df_samozino_long <- gather(chris_df_samozino, key = "metric", "value", -(1
   mutate(metric = factor(metric, levels = c("F0", "V0", "optimal_F0", "optimal_V0", "Sfv", "optimal_Sfv", "height", "optimal_height", "Sfv_perc", "RSE", "R_squared")))
 
 ggplot(chris_df_samozino_long, aes(x = push_off_distance, y = value)) +
-  theme_minimal() +
+  theme_cowplot(7) +
   geom_line() +
   facet_wrap(~metric, scales = "free_y")
 ```
@@ -316,7 +316,7 @@ The analysis we perform assumes we are dealing with *true* values, without measu
 
 One technique that is very useful, although not often used in sport science practice and research, is called **simulation extrapolation** (SIMEX) [@keoghSTRATOSGuidanceDocument2020; @shawSTRATOSGuidanceDocument2020; @wallaceAnalysisImperfectWorld2020]. Using simuations, we can on purpose add (known) error of particular magnitude on observations (e.g. observation + 0.5xRE; which is equal to factor 1.5, since we already have error in our observations). Then we can *extrapolate* estimates to zero error (when error factor is 0). 
 
-Since this is simulation and might take a long time, I've used SIMEX only on one athlete, John. The code below is my implementation of the SIMEX. Each error factor is simulated 200 times.
+Since this is simulation and might take a long time, I've used SIMEX only on one athlete, Jack (since he has the widest compatibility band around the FV profile). The code below is my implementation of the SIMEX. Each error factor is simulated 200 times.
 
 ```{r}
 # Need to reload the data
@@ -367,8 +367,9 @@ SIMEX_samozino_profile <- function(data) {
 }
 
 samozino_error_data <- testing_data_error %>%
+  # Use only Jack
+  filter(athlete == "Jack") %>%
   # Need to add bodyweight so it is kept in the output
-  filter(athlete == "John") %>%
   group_by(athlete, bodyweight, error_factor, rep) %>%
   do(SIMEX_samozino_profile(.))
 
@@ -395,7 +396,7 @@ ggplot(
   geom_vline(xintercept = 0, color = "transparent") +
   geom_smooth(group = 1, se = FALSE, method = "lm", formula = y ~ I(x^2), fullrange = TRUE, size = 0.5) +
   ylab(NULL) +
-  ggtitle("John")
+  ggtitle("Jack")
 ```
 
 These averages are modeled with qubic linear regression, and this can be extrapolated to a error factor of 0, which indicates metric estimates when there is no error. 

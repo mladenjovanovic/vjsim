@@ -334,6 +334,7 @@ probe_samozino_take_off_velocity <- function(F0 = 3000,
 }
 
 #' Get Samozino Profile
+#'
 #' \code{get_samozino_profile} returns Samozino model estimated from known \code{bodyweight}, \code{push_off_distance},
 #'      \code{mean_GRF_over_distance}, \code{mean_velocity} and \code{gravity_const}.
 #' @param bodyweight Numeric value

@@ -2,9 +2,7 @@
 % Please edit documentation in R/samozino.R
 \name{get_samozino_profile}
 \alias{get_samozino_profile}
-\title{Get Samozino Profile
-\code{get_samozino_profile} returns Samozino model estimated from known \code{bodyweight}, \code{push_off_distance},
-     \code{mean_GRF_over_distance}, \code{mean_velocity} and \code{gravity_const}.}
+\title{Get Samozino Profile}
 \usage{
 get_samozino_profile(
   bodyweight,
@@ -29,7 +27,6 @@ get_samozino_profile(
 Object returned from \code{\link{get_samozino_optimal_profile}} with addition of RSE and R_Squared elements
 }
 \description{
-Get Samozino Profile
 \code{get_samozino_profile} returns Samozino model estimated from known \code{bodyweight}, \code{push_off_distance},
      \code{mean_GRF_over_distance}, \code{mean_velocity} and \code{gravity_const}.
 }

@@ -40,3 +40,4 @@ Suggests:
     ggdendro,
     bmbstats
 VignetteBuilder: knitr
+Language: en-US

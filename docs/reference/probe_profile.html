@@ -73,7 +73,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">vjsim</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.1</span>
       </span>
     </div>
 
@@ -222,13 +222,13 @@ output values</p></td>
 
 <span class='co'># You call also use get get_all_samozino_profiles() function in the profile_func parameter</span>
 <span class='no'>profile_probe_data</span> <span class='kw'>&lt;-</span> <span class='fu'>probe_profile</span>(
-<span class='kw'>mass</span> <span class='kw'>=</span> <span class='fl'>75</span>,
-<span class='kw'>max_force</span> <span class='kw'>=</span> <span class='fl'>3000</span>,
-<span class='kw'>max_velocity</span> <span class='kw'>=</span> <span class='fl'>3</span>,
-<span class='kw'>time_to_max_activation</span> <span class='kw'>=</span> <span class='fl'>0.3</span>,
-<span class='kw'>time_step</span> <span class='kw'>=</span> <span class='fl'>0.001</span>,
-<span class='kw'>external_load</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(-<span class='fl'>40</span>, -<span class='fl'>20</span>, <span class='fl'>0</span>, <span class='fl'>20</span>, <span class='fl'>40</span>, <span class='fl'>60</span>, <span class='fl'>80</span>, <span class='fl'>100</span>),
-<span class='kw'>profile_func</span> <span class='kw'>=</span> <span class='no'>get_all_profiles</span> <span class='co'># Can also use get_all_samozino_profiles</span>
+  <span class='kw'>mass</span> <span class='kw'>=</span> <span class='fl'>75</span>,
+  <span class='kw'>max_force</span> <span class='kw'>=</span> <span class='fl'>3000</span>,
+  <span class='kw'>max_velocity</span> <span class='kw'>=</span> <span class='fl'>3</span>,
+  <span class='kw'>time_to_max_activation</span> <span class='kw'>=</span> <span class='fl'>0.3</span>,
+  <span class='kw'>time_step</span> <span class='kw'>=</span> <span class='fl'>0.001</span>,
+  <span class='kw'>external_load</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(-<span class='fl'>40</span>, -<span class='fl'>20</span>, <span class='fl'>0</span>, <span class='fl'>20</span>, <span class='fl'>40</span>, <span class='fl'>60</span>, <span class='fl'>80</span>, <span class='fl'>100</span>),
+  <span class='kw'>profile_func</span> <span class='kw'>=</span> <span class='no'>get_all_profiles</span> <span class='co'># Can also use get_all_samozino_profiles</span>
 )
 
 <span class='no'>plot_data</span> <span class='kw'>&lt;-</span> <span class='fu'>gather</span>(<span class='no'>profile_probe_data</span>, <span class='kw'>key</span> <span class='kw'>=</span> <span class='st'>"variable"</span>, <span class='kw'>value</span> <span class='kw'>=</span> <span class='st'>"value"</span>, -(<span class='fl'>1</span>:<span class='fl'>8</span>)) <span class='kw'>%&gt;%</span>

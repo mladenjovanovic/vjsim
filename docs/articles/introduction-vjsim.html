@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">vjsim</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.1</span>
       </span>
     </div>
 
@@ -101,7 +101,7 @@
 </h1>
                         <h4 class="author">Mladen Jovanović</h4>
             
-            <h4 class="date">2020-04-05</h4>
+            <h4 class="date">2020-04-11</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/mladenjovanovic/vjsim/blob/master/vignettes/introduction-vjsim.Rmd"><code>vignettes/introduction-vjsim.Rmd</code></a></small>
       <div class="hidden name"><code>introduction-vjsim.Rmd</code></div>
@@ -114,7 +114,7 @@
 <h1 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h1>
 <p><code>vjsim</code> is R package that simulates vertical jump with the aim of teaching basic biomechanical principles, FV profiling, and exploring assumptions of FV optimization models.</p>
-<p>A vertical jump can be done in multiple ways. One way is to quickly dip down and then rebound as high as possible. This vertical jump contains <em>countermovement action</em>, which increases vertical jump height due to various mechanisms (which are not in our interest for this simulation). Another way involves squatting down, holding the squat position for a second or two, and then exploding upward without any dip. This can be considered purely <em>concentric</em> (or static) jump, and it is usually termed <em>squat jump</em> to be differentiated from the countermovement jump. The hands are typically held at the hip, without allowing any swinging action. In <code>vjsim</code> only the squat jump is simulated and analyzed. Thus, when I refer to vertical jump, I refer to a static squat jump with arms continuously held at the hips.</p>
+<p>A vertical jump can be done in multiple ways. One way is to quickly dip down and then rebound as high as possible. This vertical jump contains <em>counter-movement action</em>, which increases vertical jump height due to various mechanisms (which are not in our interest for this simulation). Another way involves squatting down, holding the squat position for a second or two, and then exploding upward without any dip. This can be considered purely <em>concentric</em> (or static) jump, and it is usually termed <em>squat jump</em> to be differentiated from the jump. The hands are typically held at the hip, without allowing any swinging action. In <code>vjsim</code> only the squat jump is simulated and analyzed. Thus, when I refer to vertical jump, I refer to a static squat jump with arms continuously held at the hips.</p>
 <p>In <code>vjsim</code>, the vertical jump is represented with a simple mechanical model (see Figure).</p>
 <div class="figure" style="text-align: center">
 <img src="mechanical-model.png" alt="Mechanical model that is used to represent vertical jump" width="90%"><p class="caption">
@@ -177,7 +177,7 @@ Force Generator characteristics
 <span id="cb2-8"><a href="#cb2-8"></a>force_length &lt;-<span class="st"> </span>parameters <span class="op">%&gt;%</span></span>
 <span id="cb2-9"><a href="#cb2-9"></a><span class="st">  </span><span class="kw">mutate</span>(</span>
 <span id="cb2-10"><a href="#cb2-10"></a>    <span class="dt">force_perc =</span> vjsim<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/vjsim/man/fgen_get_force_percentage.html">fgen_get_force_percentage</a></span>(</span>
-<span id="cb2-11"><a href="#cb2-11"></a>      <span class="dt">current_distance =</span>  current_distance,</span>
+<span id="cb2-11"><a href="#cb2-11"></a>      <span class="dt">current_distance =</span> current_distance,</span>
 <span id="cb2-12"><a href="#cb2-12"></a>      <span class="dt">push_off_distance =</span> push_off_distance,</span>
 <span id="cb2-13"><a href="#cb2-13"></a>      <span class="dt">decline_rate =</span> decline_rate,</span>
 <span id="cb2-14"><a href="#cb2-14"></a>      <span class="dt">peak_location =</span> peak_location</span>
@@ -198,7 +198,7 @@ Force Generator characteristics
 <span id="cb2-29"><a href="#cb2-29"></a>) <span class="op">+</span></span>
 <span id="cb2-30"><a href="#cb2-30"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="dv">8</span>) <span class="op">+</span></span>
 <span id="cb2-31"><a href="#cb2-31"></a><span class="st">  </span><span class="kw">geom_line</span>() <span class="op">+</span></span>
-<span id="cb2-32"><a href="#cb2-32"></a><span class="st">  </span><span class="kw">facet_grid</span>(decline_rate_label<span class="op">~</span>peak_location_label) <span class="op">+</span></span>
+<span id="cb2-32"><a href="#cb2-32"></a><span class="st">  </span><span class="kw">facet_grid</span>(decline_rate_label <span class="op">~</span><span class="st"> </span>peak_location_label) <span class="op">+</span></span>
 <span id="cb2-33"><a href="#cb2-33"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Distance (m)"</span>) <span class="op">+</span></span>
 <span id="cb2-34"><a href="#cb2-34"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">"Force percentage"</span>) <span class="op">+</span></span>
 <span id="cb2-35"><a href="#cb2-35"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">color =</span> <span class="st">"Push-off distance"</span>)</span></code></pre></div>
@@ -219,7 +219,7 @@ Force-Length characteristic
 <span id="cb3-9"><a href="#cb3-9"></a>) <span class="op">+</span></span>
 <span id="cb3-10"><a href="#cb3-10"></a><span class="st">  </span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/theme_cowplot.html">theme_cowplot</a></span>(<span class="dv">8</span>) <span class="op">+</span></span>
 <span id="cb3-11"><a href="#cb3-11"></a><span class="st">  </span><span class="kw">geom_line</span>(<span class="dt">alpha =</span> <span class="fl">0.6</span>) <span class="op">+</span></span>
-<span id="cb3-12"><a href="#cb3-12"></a><span class="st">  </span><span class="kw">facet_grid</span>(decline_rate_label<span class="op">~</span>peak_location_label) <span class="op">+</span></span>
+<span id="cb3-12"><a href="#cb3-12"></a><span class="st">  </span><span class="kw">facet_grid</span>(decline_rate_label <span class="op">~</span><span class="st"> </span>peak_location_label) <span class="op">+</span></span>
 <span id="cb3-13"><a href="#cb3-13"></a><span class="st">  </span><span class="kw">xlab</span>(<span class="st">"Distance to take-off (m)"</span>) <span class="op">+</span></span>
 <span id="cb3-14"><a href="#cb3-14"></a><span class="st">  </span><span class="kw">ylab</span>(<span class="st">"Force percentage"</span>) <span class="op">+</span></span>
 <span id="cb3-15"><a href="#cb3-15"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">color =</span> <span class="st">"Push-off distance"</span>)</span></code></pre></div>
@@ -351,7 +351,7 @@ Calculating initial activation
 <a href="#force-velocity-characteristic" class="anchor"></a>Force-Velocity Characteristic</h2>
 <p>So far, the Force-Length and Force-Time characteristics assumed <em>static</em> conditions or <span class="math inline">\(v=0m/s\)</span>. In plain English, we used <em>isometric</em> or static conditions by holding the Force Generator and probing it. But once the Force Generator starts moving, there is an additional component that is modeled with the <em>viscous</em> properties:</p>
 <p><span class="math display">\[
-F_{viscuous} = k \times v
+F_{viscous} = k \times v
 \]</span></p>
 <p>In <em>real-life</em>, the faster the muscles (i.e. Force Generator) are shortening, the less force they can exert. The mechanism behind this is not really understood (pardon my ignorance if I am wrong), but it is hypothesized that it is due to the shortening of the time <em>cross-bridges</em> in the muscle cell have to perform the cycling. Another explanation might be an increase in the viscous forces inside the muscle, that resist movement. Anyway, this <em>phenomenological</em> characteristic (i.e. muscle or Force Generator decrease force production as velocity increases) can be modeled with the above equation. The higher the <span class="math inline">\(k\)</span> parameter, the bigger the resistance.</p>
 <p>Let’s assume that the max force is 2700N and that <span class="math inline">\(k=675\)</span>. In <em>unconstrained</em> conditions (hypothetical conditions where Force Generator has unlimited push-off distance, unlimited time, zero external load, and maximal force percentage) the <strong>max velocity</strong> is achieved when max force becomes equal to viscous force:</p>
@@ -415,7 +415,7 @@ Force-Velocity characteristic
 </p>
 </div>
 <p>The above Figure represents intrinsic viscous force generated at particular velocities. Assuming unconstrained conditions, we are interested in estimating maximal velocity that can be achieved when the Force Generator faces some external resistance. Since we are assuming unconstrained conditions, the mass of the resistance is not important (due unlimited Push-off distance to accelerate), but only the facing external resisting force. The Force Generator faces two opposing forces then: external resistance force and viscous force (which is internal or intrinsic part of the Force Generator itself). <strong>Peak velocity</strong> is achieved when the sum of forces is equal to zero. I keep saying the sum of force, because <span class="math inline">\(F_{viscous}\)</span> and <span class="math inline">\(F_{external}\)</span> are in the opposite direction to <span class="math inline">\(F_{max}\)</span>; thus, they have a negative sign.</p>
-<p>Please note the difference between peak velocity, which is the maximal velocity that can be reached in unconstrained conditions at a particular level of the external resistance force, a maximal velocity, which is “maximal” maximal velocity that can be reached in unconstrained conditions when there iz zero external resistance force.</p>
+<p>Please note the difference between peak velocity, which is the maximal velocity that can be reached in unconstrained conditions at a particular level of the external resistance force, a maximal velocity, which is “maximal” maximal velocity that can be reached in unconstrained conditions when there is zero external resistance force.</p>
 <p><span class="math display">\[
 F_{max} - F_{viscous} - F_{external} = 0
 \]</span></p>
@@ -479,7 +479,7 @@ Relationship between external force and velocity that can be reached
 <div id="power-of-the-force-generator" class="section level3">
 <h3 class="hasAnchor">
 <a href="#power-of-the-force-generator" class="anchor"></a>Power of the Force Generator</h3>
-<p>From the Force-Velocity profile of the Force Generator we can calculate generated Power (in uncostrained conditions). Power output is calculated by multiplying the velocity reached and external force:</p>
+<p>From the Force-Velocity profile of the Force Generator we can calculate generated Power (in unconstrained conditions). Power output is calculated by multiplying the velocity reached and external force:</p>
 <p><span class="math display">\[P = F_{external} \times v_{peak}\]</span></p>
 <p>The following figure depicts power output of the Forge Generator at different external forces once the <span class="math inline">\(v_{peak}\)</span> is reached:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>velocity_reached &lt;-<span class="st"> </span>velocity_reached <span class="op">%&gt;%</span></span>

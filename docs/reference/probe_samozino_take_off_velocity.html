@@ -70,7 +70,7 @@ F0, V0, and bodyweight parameters" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">vjsim</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.1</span>
       </span>
     </div>
 
@@ -198,23 +198,23 @@ output values</p></td>
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>require</a></span>(<span class='no'>ggplot2</span>)
 
- <span class='no'>samozino_probe_data</span> <span class='kw'>&lt;-</span> <span class='fu'>probe_samozino_take_off_velocity</span>(
-   <span class='kw'>F0</span> <span class='kw'>=</span> <span class='fl'>3000</span>,
-   <span class='kw'>V0</span> <span class='kw'>=</span> <span class='fl'>3.5</span>,
-   <span class='kw'>push_off_distance</span> <span class='kw'>=</span> <span class='fl'>0.4</span>,
-   <span class='kw'>bodyweight</span> <span class='kw'>=</span> <span class='fl'>75</span>,
-   <span class='kw'>change_ratio</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='fl'>0.8</span>, <span class='fl'>1.2</span>, <span class='kw'>length.out</span> <span class='kw'>=</span> <span class='fl'>1001</span>)
- )
+<span class='no'>samozino_probe_data</span> <span class='kw'>&lt;-</span> <span class='fu'>probe_samozino_take_off_velocity</span>(
+  <span class='kw'>F0</span> <span class='kw'>=</span> <span class='fl'>3000</span>,
+  <span class='kw'>V0</span> <span class='kw'>=</span> <span class='fl'>3.5</span>,
+  <span class='kw'>push_off_distance</span> <span class='kw'>=</span> <span class='fl'>0.4</span>,
+  <span class='kw'>bodyweight</span> <span class='kw'>=</span> <span class='fl'>75</span>,
+  <span class='kw'>change_ratio</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span>(<span class='fl'>0.8</span>, <span class='fl'>1.2</span>, <span class='kw'>length.out</span> <span class='kw'>=</span> <span class='fl'>1001</span>)
+)
 
- <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span>(
-   <span class='no'>samozino_probe_data</span>,
-   <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span>(
-     <span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>change_ratio</span>,
-     <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>take_off_velocity</span>,
-     <span class='kw'>color</span> <span class='kw'>=</span> <span class='no'>probing</span>
-   )
- ) +
-   <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_path.html'>geom_line</a></span>()</div><div class='img'><img src='probe_samozino_take_off_velocity-1.png' alt='' width='700' height='433' /></div></pre>
+<span class='fu'><a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot</a></span>(
+  <span class='no'>samozino_probe_data</span>,
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes</a></span>(
+    <span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>change_ratio</span>,
+    <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>take_off_velocity</span>,
+    <span class='kw'>color</span> <span class='kw'>=</span> <span class='no'>probing</span>
+  )
+) +
+  <span class='fu'><a href='https://ggplot2.tidyverse.org/reference/geom_path.html'>geom_line</a></span>()</div><div class='img'><img src='probe_samozino_take_off_velocity-1.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

@@ -6,7 +6,7 @@ Authors@R:
            family = "Jovanović",
            role = c("aut", "cre"),
            email = "coach.mladen.jovanovic@gmail.com")
-Version: 0.1.0
+Version: 0.1.1
 Description: vjsim is R package that simulates vertical jump with the
     aim of teaching basic biomechanical principles, FV profiling,
     and exploring assumptions of FV optimization models. 

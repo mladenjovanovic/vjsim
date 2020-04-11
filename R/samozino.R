@@ -545,7 +545,7 @@ make_samozino_profile <- function(bodyweight,
       y = c(0, samozino_model$optimal_V0)
     )
 
-    mean_force_df <- expand_grid(
+    mean_force_df <- expand.grid(
       mass = bodyweight,
       gravity_const = gravity_const,
       push_off_distance = push_off_distance,

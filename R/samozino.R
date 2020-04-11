@@ -90,15 +90,16 @@ get_samozino_optimal_profile <- function(F0 = 3000,
   upper_bound <- (F0 / bodyweight) / gravity_const
 
   get_optim_model <- function() {
-    tryCatch({
-      stats::optim(par = 1, fn = opt_jump_func, data = data, method = "Brent", lower = 0, upper = upper_bound)
-    },
-    error=function(cond) {
-      return(list(par = NA, value = NA))
-    },
-    warning=function(cond) {
-      return(list(par = NA, value = NA))
-    }
+    tryCatch(
+      {
+        stats::optim(par = 1, fn = opt_jump_func, data = data, method = "Brent", lower = 0, upper = upper_bound)
+      },
+      error = function(cond) {
+        return(list(par = NA, value = NA))
+      },
+      warning = function(cond) {
+        return(list(par = NA, value = NA))
+      }
     )
   }
 
@@ -298,31 +299,30 @@ get_samozino_jump_metrics <- function(mass = 75,
 #' @examples
 #' require(ggplot2)
 #'
-#'  samozino_probe_data <- probe_samozino_take_off_velocity(
-#'    F0 = 3000,
-#'    V0 = 3.5,
-#'    push_off_distance = 0.4,
-#'    bodyweight = 75,
-#'    change_ratio = seq(0.8, 1.2, length.out = 1001)
-#'  )
+#' samozino_probe_data <- probe_samozino_take_off_velocity(
+#'   F0 = 3000,
+#'   V0 = 3.5,
+#'   push_off_distance = 0.4,
+#'   bodyweight = 75,
+#'   change_ratio = seq(0.8, 1.2, length.out = 1001)
+#' )
 #'
-#'  ggplot(
-#'    samozino_probe_data,
-#'    aes(
-#'      x = change_ratio,
-#'      y = take_off_velocity,
-#'      color = probing
-#'    )
-#'  ) +
-#'    geom_line()
+#' ggplot(
+#'   samozino_probe_data,
+#'   aes(
+#'     x = change_ratio,
+#'     y = take_off_velocity,
+#'     color = probing
+#'   )
+#' ) +
+#'   geom_line()
 probe_samozino_take_off_velocity <- function(F0 = 3000,
                                              V0 = 4,
                                              bodyweight = 75,
                                              push_off_distance = 0.4,
                                              gravity_const = 9.81,
                                              change_ratio = seq(0.9, 1.1, length.out = 3),
-                                             aggregate = "raw"
-) {
+                                             aggregate = "raw") {
   get_probing_data(
     args_list = list(F0 = F0, V0 = V0, bodyweight = bodyweight),
     probe_func = function(...) list(take_off_velocity = get_samozino_take_off_velocity(...)),
@@ -359,7 +359,8 @@ probe_samozino_take_off_velocity <- function(F0 = 3000,
 #' testing_data <- testing_data %>%
 #'   mutate(
 #'     height = vjsim::get_height_from_aerial_time(aerial_time),
-#'     total_load = bodyweight + external_load)
+#'     total_load = bodyweight + external_load
+#'   )
 #'
 #' jump_metric <- function(data) {
 #'   samozino_metrics <- vjsim::get_samozino_jump_metrics(
@@ -405,17 +406,20 @@ get_samozino_profile <- function(bodyweight,
     is.na(push_off_distance),
     is.na(mean_GRF_over_distance),
     is.na(mean_velocity),
-    is.na(gravity_const))) {
-
+    is.na(gravity_const)
+  )) {
     return(lapply(
       get_samozino_optimal_profile(
-      F0 = 5000,
-      V0 = 4,
-      bodyweight = 100,
-      push_off_distance = 0.4,
-      gravity_const = 10
-    ),
-    function(x){NA}))
+        F0 = 5000,
+        V0 = 4,
+        bodyweight = 100,
+        push_off_distance = 0.4,
+        gravity_const = 10
+      ),
+      function(x) {
+        NA
+      }
+    ))
   }
 
   profile_data <- data.frame(
@@ -430,8 +434,8 @@ get_samozino_profile <- function(bodyweight,
     velocity = "mean_velocity"
   )
 
-# Calculate residual standard error and R^2
-  predicted_mean_velocity <- jump_profile$V0 + mean_GRF_over_distance/jump_profile$Sfv
+  # Calculate residual standard error and R^2
+  predicted_mean_velocity <- jump_profile$V0 + mean_GRF_over_distance / jump_profile$Sfv
   RSE <- sqrt(sum((predicted_mean_velocity - mean_velocity)^2) / (length(mean_velocity) - 2))
   R_squared <- stats::cor(predicted_mean_velocity, mean_velocity)^2
 
@@ -449,6 +453,175 @@ get_samozino_profile <- function(bodyweight,
   return(samozino_profile)
 }
 
+#' Make Samozino Profile
+#'
+#' \code{make_samozino_profile} generates Samozino profile from squat jump data. When both \code{aerial_time} and
+#'     \code{height} are forwarded to the function, only \code{height} is used to estimate mean GRF.
+#'
+#' @param bodyweight Numeric value
+#' @param push_off_distance Numeric value
+#' @param external_load Numeric vector
+#' @param height Numeric vector
+#' @param aerial_time Numeric vector
+#' @param gravity_const Numeric vector. Default 9.81
+#' @param plot TRUE/FALSE. Default is TRUE
+#' @return List of Samozino profile parameters
+#' @export
+#' @references
+#'     Samozino, Pierre. ‘A Simple Method for Measuring Lower Limb Force, Velocity and Power Capabilities During Jumping’. In Biomechanics of Training and Testing, edited by Jean-Benoit Morin and Pierre Samozino, 65–96. Cham: Springer International Publishing, 2018. https://doi.org/10.1007/978-3-319-05633-3_4.
+#'
+#'     ———. ‘Optimal Force-Velocity Profile in Ballistic Push-off: Measurement and Relationship with Performance’. In Biomechanics of Training and Testing, edited by Jean-Benoit Morin and Pierre Samozino, 97–119. Cham: Springer International Publishing, 2018. https://doi.org/10.1007/978-3-319-05633-3_5.
+#'
+#'     Samozino, Pierre, Jean-Benoît Morin, Frédérique Hintzy, and Alain Belli. ‘Jumping Ability: A Theoretical Integrative Approach’. Journal of Theoretical Biology 264, no. 1 (May 2010): 11–18. https://doi.org/10.1016/j.jtbi.2010.01.021.
+#'
+#'     Samozino, Pierre, Enrico Rejc, Pietro Enrico Di Prampero, Alain Belli, and Jean-Benoît Morin. ‘Optimal Force–Velocity Profile in Ballistic Movements—Altius’: Medicine & Science in Sports & Exercise 44, no. 2 (February 2012): 313–22. https://doi.org/10.1249/MSS.0b013e31822d757a.
+#' @examples
+#' require(tidyverse)
+#'
+#' data("testing_data")
+#'
+#' with(
+#'   filter(testing_data, athlete == "Jack"),
+#'   make_samozino_profile(
+#'     bodyweight = bodyweight,
+#'     push_off_distance = push_off_distance,
+#'     external_load = external_load,
+#'     aerial_time = aerial_time,
+#'     plot = TRUE
+#'   )
+#' )
+make_samozino_profile <- function(bodyweight,
+                                  push_off_distance,
+                                  external_load,
+                                  height,
+                                  aerial_time,
+                                  gravity_const = 9.81,
+                                  plot = TRUE) {
 
+  # Check if both height and aerial_time are used
+  if (!missing(height) & !missing(aerial_time)) {
+    warning("Please use either height or aerial time as a parameter. Using height to model", call. = FALSE)
+  }
 
+  # If height missing, use aerial time to create it
+  if (missing(height)) {
+    height <- get_height_from_aerial_time(aerial_time)
+  }
 
+  # Get Force-Velocity profile
+  samozino_metrics <- get_samozino_jump_metrics(
+    mass = bodyweight + external_load,
+    push_off_distance = push_off_distance,
+    height = height,
+    gravity_const = gravity_const
+  )
+
+  # Get Samozino optimal profile
+  samozino_model <- get_samozino_profile(
+    bodyweight = bodyweight,
+    push_off_distance = push_off_distance,
+    mean_GRF_over_distance = samozino_metrics$mean_GRF_over_distance,
+    mean_velocity = samozino_metrics$mean_velocity,
+    gravity_const = gravity_const
+  )
+
+  # Create plot
+  if (plot) {
+
+    # Define function to calculate TOV from mean force
+    get_tov <- function(mass, gravity_const, mean_force, push_off_distance) {
+      sqrt((2 * push_off_distance * (mean_force - mass * gravity_const)) / mass)
+    }
+
+    plot_data <- data.frame(
+      group = rep(1:2, each = 2),
+      x = c(samozino_model$F0, 0),
+      y = c(0, samozino_model$V0)
+    )
+
+    plot_data_optimal <- data.frame(
+      group = rep(1:2, each = 2),
+      x = c(samozino_model$optimal_F0, 0),
+      y = c(0, samozino_model$optimal_V0)
+    )
+
+    mean_force_df <- expand_grid(
+      mass = bodyweight,
+      gravity_const = gravity_const,
+      push_off_distance = push_off_distance,
+      mean_GRF_over_distance = seq(min(bodyweight) * gravity_const, max(samozino_model$F0, samozino_model$optimal_F0))
+    )
+
+    mean_force_df$MV <- get_tov(
+      mass = bodyweight,
+      gravity_const = gravity_const,
+      mean_force = mean_force_df$mean_GRF_over_distance,
+      push_off_distance = push_off_distance
+    ) / 2
+
+    gg <- ggplot2::ggplot() +
+      cowplot::theme_cowplot(8) +
+
+      ggplot2::geom_line(
+        ggplot2::aes(
+          x = mean_force_df$mean_GRF_over_distance,
+          y = mean_force_df$MV
+        ),
+        alpha = 0.8,
+        color = "grey"
+      ) +
+
+      ggplot2::geom_point(
+        ggplot2::aes(
+          x = samozino_metrics$mean_GRF_over_distance,
+          y = samozino_metrics$mean_velocity
+        ),
+        alpha = 0.8
+      ) +
+
+      ggplot2::geom_line(
+        ggplot2::aes(
+          x = plot_data$x,
+          y = plot_data$y
+        ),
+        alpha = 0.8
+      ) +
+
+      ggplot2::geom_line(
+        ggplot2::aes(
+          x = plot_data_optimal$x,
+          y = plot_data_optimal$y
+        ),
+        alpha = 0.8,
+        linetype = "dashed"
+      ) +
+      ggplot2::xlab("Mean GRF [N]") +
+      ggplot2::ylab("Mean Velocity [m/s]") +
+      ggplot2::ggtitle(
+        "Samozino profile",
+        paste(
+          "F0 = ", round(samozino_model$F0, 0), "N",
+          "; V0 = ", round(samozino_model$V0, 2), "m/s",
+          "; Pmax = ", round(samozino_model$Pmax, 0), "W",
+          "; Sfv = ", round(samozino_model$Sfv, 0),
+          "; Height = ", round(samozino_model$height, 2), "m",
+          "; RSE = ", round(samozino_model$RSE, 2), "m/s",
+          "; R2 = ", round(samozino_model$R_squared, 2),
+          "\n",
+          "Optimal: ",
+          "F0 = ", round(samozino_model$optimal_F0, 0), "N",
+          "; V0 = ", round(samozino_model$optimal_V0, 2), "m/s",
+          "; Pmax = ", round(samozino_model$optimal_Pmax, 0), "W",
+          "; Sfv = ", round(samozino_model$optimal_Sfv, 0),
+          "; Height = ", round(samozino_model$optimal_height, 2), "m",
+          "\n",
+          "Sfv% = ", round(samozino_model$Sfv_perc, 2),
+          "; FVimb = ", round(samozino_model$FV_imbalance, 2),
+          sep = ""
+        )
+      )
+    plot(gg)
+  }
+
+  return(samozino_model)
+}

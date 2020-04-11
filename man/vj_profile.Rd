@@ -25,5 +25,4 @@ vj_profile_data <- vj_profile(mass = 75)
 
 plot(x = vj_profile_data$mass, y = vj_profile_data$height)
 plot(x = vj_profile_data$mean_GRF_over_distance, y = vj_profile_data$mean_velocity)
-
 }

@@ -12,7 +12,6 @@
 #'
 #' plot(x = vj_profile_data$mass, y = vj_profile_data$height)
 #' plot(x = vj_profile_data$mean_GRF_over_distance, y = vj_profile_data$mean_velocity)
-#'
 vj_profile <- function(external_load = c(-40, -20, 0, 20, 40, 60, 80, 100),
                        mass = 75,
                        ...) {
@@ -50,7 +49,6 @@ vj_profile <- function(external_load = c(-40, -20, 0, 20, 40, 60, 80, 100),
 #' @examples
 #' fv_profile <- vj_profile(mass = 75)
 #' get_FV_profile(fv_profile)
-#'
 get_FV_profile <- function(profile_data, force = "mean_GRF_over_distance", velocity = "mean_velocity", poly_deg = 1) {
   # Extract data
   df <- data.frame(
@@ -62,29 +60,30 @@ get_FV_profile <- function(profile_data, force = "mean_GRF_over_distance", veloc
 
   # model
   get_fv_model <- function(df) {
-    tryCatch({
-      stats::lm(velocity ~ stats::poly(force,  poly_deg), df)
-    },
-    error=function(cond) {
-      #message(paste("Error when creating linear model for", force, "~", velocity, "profile"))
-      #message("Here's the original error message:")
-      #message(cond)
-      #message("\nReturning 0")
-      return(NA)
-    },
-    warning=function(cond) {
-      #message(paste("Error when creating linear model for", force, "~", velocity, "profile"))
-      #message("Here's the original warning message:")
-      #message(cond)
-      #message("\nReturning 0")
-      return(NA)
-    }
+    tryCatch(
+      {
+        stats::lm(velocity ~ stats::poly(force, poly_deg), df)
+      },
+      error = function(cond) {
+        # message(paste("Error when creating linear model for", force, "~", velocity, "profile"))
+        # message("Here's the original error message:")
+        # message(cond)
+        # message("\nReturning 0")
+        return(NA)
+      },
+      warning = function(cond) {
+        # message(paste("Error when creating linear model for", force, "~", velocity, "profile"))
+        # message("Here's the original warning message:")
+        # message(cond)
+        # message("\nReturning 0")
+        return(NA)
+      }
     )
   }
 
   profile_model <- get_fv_model(df)
 
-  if(is.na(profile_model[1])) {
+  if (is.na(profile_model[1])) {
     return(list(
       F0 = NA,
       F0_rel = NA,
@@ -99,29 +98,30 @@ get_FV_profile <- function(profile_data, force = "mean_GRF_over_distance", veloc
 
   # Get V0
   get_velocity_0 <- function(profile_model) {
-    tryCatch({
-      stats::predict(profile_model, newdata = data.frame(force = 0))
-    },
-    error=function(cond) {
-      #message(paste("Error when finding V0 for", force, "~", velocity, "profile"))
-      #message("Here's the original error message:")
-      #message(cond)
-      #message("\nReturning 0")
-      return(NA)
-    },
-    warning=function(cond) {
-      #message(paste("Warning when finding V0 for", force, "~", velocity, "profile"))
-      #message("Here's the original warning message:")
-      #message(cond)
-      #message("\nReturning 0")
-      return(NA)
-    }
+    tryCatch(
+      {
+        stats::predict(profile_model, newdata = data.frame(force = 0))
+      },
+      error = function(cond) {
+        # message(paste("Error when finding V0 for", force, "~", velocity, "profile"))
+        # message("Here's the original error message:")
+        # message(cond)
+        # message("\nReturning 0")
+        return(NA)
+      },
+      warning = function(cond) {
+        # message(paste("Warning when finding V0 for", force, "~", velocity, "profile"))
+        # message("Here's the original warning message:")
+        # message(cond)
+        # message("\nReturning 0")
+        return(NA)
+      }
     )
   }
 
-  velocity_0 <-  get_velocity_0(profile_model)[[1]]
+  velocity_0 <- get_velocity_0(profile_model)[[1]]
 
-  if(is.na(velocity_0)) {
+  if (is.na(velocity_0)) {
     return(list(
       F0 = NA,
       F0_rel = NA,
@@ -135,33 +135,34 @@ get_FV_profile <- function(profile_data, force = "mean_GRF_over_distance", veloc
 
   # get F0
   get_force_0 <- function(profile_model) {
-    tryCatch({
-    stats::uniroot(
-      function(x) {
-        stats::predict(profile_model, newdata = data.frame(force = x))
+    tryCatch(
+      {
+        stats::uniroot(
+          function(x) {
+            stats::predict(profile_model, newdata = data.frame(force = x))
+          },
+          interval = c(0, 10 * max(profile_data[[force]]))
+        )
       },
-      interval = c(0, 10 * max(profile_data[[force]]))
+      error = function(cond) {
+        # message(paste("Error when finding F0 for", force, "~", velocity, "profile"))
+        # message("Here's the original error message:")
+        # message(cond)
+        # message("\nReturning 0")
+        return(list(root = NA))
+      },
+      warning = function(cond) {
+        # message(paste("Warning when finding F0 for", force, "~", velocity, "profile"))
+        # message("Here's the original warning message:")
+        # message(cond)
+        # message("\nReturning 0")
+        return(list(root = NA))
+      }
     )
-      },
-    error=function(cond) {
-      #message(paste("Error when finding F0 for", force, "~", velocity, "profile"))
-      #message("Here's the original error message:")
-      #message(cond)
-      #message("\nReturning 0")
-      return(list(root = NA))
-    },
-    warning=function(cond) {
-      #message(paste("Warning when finding F0 for", force, "~", velocity, "profile"))
-      #message("Here's the original warning message:")
-      #message(cond)
-      #message("\nReturning 0")
-      return(list(root = NA))
-    }
-  )
-}
+  }
   force_0 <- get_force_0(profile_model)$root[[1]]
 
-  if(is.na(force_0)) {
+  if (is.na(force_0)) {
     return(list(
       F0 = NA,
       F0_rel = NA,
@@ -204,8 +205,6 @@ get_FV_profile <- function(profile_data, force = "mean_GRF_over_distance", veloc
 #' @examples
 #' fv_profile <- vj_profile(mass = 75)
 #' get_power_profile(fv_profile)
-#'
-
 get_power_profile <- function(profile_data, power = "mean_power", x_var = "mean_GRF_over_distance", poly_deg = 2) {
   # Extract data
   df <- data.frame(
@@ -217,29 +216,30 @@ get_power_profile <- function(profile_data, power = "mean_power", x_var = "mean_
 
   # model
   get_fv_model <- function(df) {
-    tryCatch({
-      stats::lm(power ~ stats::poly(x_var,  poly_deg), df)
-    },
-    error=function(cond) {
-      #message(paste("Error when creating linear model for", power, "~", x_var, "profile"))
-      #message("Here's the original error message:")
-      #message(cond)
-      #message("\nReturning 0")
-      return(NA)
-    },
-    warning=function(cond) {
-      #message(paste("Error when creating linear model for", power, "~", x_var, "profile"))
-      #message("Here's the original warning message:")
-      #message(cond)
-      #message("\nReturning 0")
-      return(NA)
-    }
+    tryCatch(
+      {
+        stats::lm(power ~ stats::poly(x_var, poly_deg), df)
+      },
+      error = function(cond) {
+        # message(paste("Error when creating linear model for", power, "~", x_var, "profile"))
+        # message("Here's the original error message:")
+        # message(cond)
+        # message("\nReturning 0")
+        return(NA)
+      },
+      warning = function(cond) {
+        # message(paste("Error when creating linear model for", power, "~", x_var, "profile"))
+        # message("Here's the original warning message:")
+        # message(cond)
+        # message("\nReturning 0")
+        return(NA)
+      }
     )
   }
 
   profile_model <- get_fv_model(df)
 
-  if(is.na(profile_model[1])) {
+  if (is.na(profile_model[1])) {
     return(list(
       Pmax = NA,
       Pmax_rel = NA,
@@ -250,29 +250,30 @@ get_power_profile <- function(profile_data, power = "mean_power", x_var = "mean_
 
   # get max Power
   get_max_power <- function(profile_model) {
-    tryCatch({
-      stats::optimize(
-        function(x) {
-          stats::predict(profile_model, newdata = data.frame(x_var = x))
-        },
-        interval = c(0, 100 * max(profile_data[[x_var]])),
-        maximum = TRUE
-      )
-    },
-    error=function(cond) {
-      #essage(paste("Error when finding Pmax for", power, "~", x_var, "profile"))
-      #message("Here's the original error message:")
-      #message(cond)
-      #message("\nReturning 0")
-      return(list(objective = NA, maximum = NA))
-    },
-    warning=function(cond) {
-      #message(paste("Warning when finding Pmax for", power, "~", x_var, "profile"))
-      #message("Here's the original warning message:")
-      #message(cond)
-      #message("\nReturning 0")
-      return(list(objective = NA, maximum = NA))
-    }
+    tryCatch(
+      {
+        stats::optimize(
+          function(x) {
+            stats::predict(profile_model, newdata = data.frame(x_var = x))
+          },
+          interval = c(0, 100 * max(profile_data[[x_var]])),
+          maximum = TRUE
+        )
+      },
+      error = function(cond) {
+        # essage(paste("Error when finding Pmax for", power, "~", x_var, "profile"))
+        # message("Here's the original error message:")
+        # message(cond)
+        # message("\nReturning 0")
+        return(list(objective = NA, maximum = NA))
+      },
+      warning = function(cond) {
+        # message(paste("Warning when finding Pmax for", power, "~", x_var, "profile"))
+        # message("Here's the original warning message:")
+        # message(cond)
+        # message("\nReturning 0")
+        return(list(objective = NA, maximum = NA))
+      }
     )
   }
 
@@ -403,5 +404,122 @@ get_all_profiles <- function(profile_data) {
   return(list(
     list = profiles_list,
     data_frame = profiles_df
+  ))
+}
+
+#' Make Load Profile
+#'
+#' \code{make_load_profile} generates Load-TOV (take-off velocity) profile from squat jump data. When both \code{aerial_time} and
+#'     \code{height} are forwarded to the function, only \code{height} is used to estimate TOV.
+#'
+#' @param bodyweight Numeric value
+#' @param push_off_distance Numeric value
+#' @param external_load Numeric vector
+#' @param height Numeric vector
+#' @param aerial_time Numeric vector
+#' @param gravity_const Numeric vector. Default 9.81
+#' @param plot TRUE/FALSE. Default is TRUE
+#' @return List of L-TOV profile parameters
+#' @export
+#' @examples
+#' require(tidyverse)
+#'
+#' data("testing_data")
+#'
+#' with(
+#'   filter(testing_data, athlete == "Jack"),
+#'   make_load_profile(
+#'     bodyweight = bodyweight,
+#'     push_off_distance = push_off_distance,
+#'     external_load = external_load,
+#'     aerial_time = aerial_time,
+#'     plot = TRUE
+#'   )
+#' )
+make_load_profile <- function(bodyweight,
+                              push_off_distance,
+                              external_load,
+                              height,
+                              aerial_time,
+                              gravity_const = 9.81,
+                              plot = TRUE) {
+
+  # Check if both height and aerial_time are used
+  if (!missing(height) & !missing(aerial_time)) {
+    warning("Please use either height or aerial time as a parameter. Using height to model", call. = FALSE)
+  }
+
+  # If height missing, use aerial time to create it
+  if (missing(height)) {
+    height <- get_height_from_aerial_time(aerial_time)
+  }
+
+  # Get take-off velocity
+  TOV <- sqrt(2 * gravity_const * height)
+
+  df <- data.frame(
+    bodyweight = bodyweight,
+    load = bodyweight + external_load,
+    TOV = TOV
+  )
+
+  LTOV_profile <- get_FV_profile(df, force = "load", velocity = "TOV")
+
+  # Get model fit metrics
+  predicted_TOV <- LTOV_profile$V0 + df$load / LTOV_profile$Sfv
+  RSE <- sqrt(sum((predicted_TOV - TOV)^2) / (length(TOV) - 2))
+  R_squared <- stats::cor(predicted_TOV, TOV)^2
+
+
+  if (plot) {
+    plot_data <- data.frame(
+      group = rep(1:2, each = 2),
+      x = c(LTOV_profile$F0, 0),
+      y = c(0, LTOV_profile$V0)
+    )
+
+    gg <- ggplot2::ggplot() +
+      cowplot::theme_cowplot(8) +
+
+      ggplot2::geom_point(
+        ggplot2::aes(
+          x = df$load,
+          y = df$TOV
+        ),
+        alpha = 0.8
+      ) +
+
+      ggplot2::geom_line(
+        ggplot2::aes(
+          x = plot_data$x,
+          y = plot_data$y
+        ),
+        alpha = 0.8
+      ) +
+
+      ggplot2::xlab("Load [kg]") +
+      ggplot2::ylab("Take-off Velocity [m/s]") +
+      ggplot2::ggtitle(
+        "Load - TOV profile",
+        paste(
+          "L0 = ", round(LTOV_profile$F0, 0), "kg",
+          "; V0 = ", round(LTOV_profile$V0, 2), "m/s",
+          "; Sfv = ", round(LTOV_profile$Sfv, 0),
+          "; RSE = ", round(RSE, 2), "m/s",
+          "; R2 = ", round(R_squared, 2),
+          sep = ""
+        )
+      )
+    plot(gg)
+  }
+
+  return(list(
+    L0 = LTOV_profile$F0,
+    L0_rel = LTOV_profile$F0_rel,
+    TOV0 = LTOV_profile$V0,
+    Sltv = LTOV_profile$Sfv,
+    Sltv_rel = LTOV_profile$Sfv_rel,
+    RSE = RSE,
+    R_squared = R_squared
   ))
 }

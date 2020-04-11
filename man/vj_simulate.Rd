@@ -20,7 +20,7 @@ vj_simulate(
 \arguments{
 \item{mass}{Numeric value. Default is 75kg}
 
-\item{weight}{Numeric value. Deafult is \code{mass} * \code{gravity_const}}
+\item{weight}{Numeric value. Default is \code{mass} * \code{gravity_const}}
 
 \item{push_off_distance}{Numeric value. Default is 0.4m}
 
@@ -34,7 +34,7 @@ vj_simulate(
 
 \item{iter}{Logical. Default is FALSE}
 
-\item{max_iter}{Numeric value. Defaut value 1000}
+\item{max_iter}{Numeric value. Default value 1000}
 
 \item{...}{Forwarded to \code{fgen_func}}
 }

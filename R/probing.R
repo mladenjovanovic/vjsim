@@ -207,15 +207,16 @@ probe_fgen <- function(current_time = 0,
 #'     "max_force" = "#5DA5DA",
 #'     "max_velocity" =  "#FAA43A",
 #'     "push_off_distance" = "#60BD68",
-#'     "time_to_max_activation" = "#B276B2"))
+#'     "time_to_max_activation" = "#B276B2"
+#'   ))
 probe_vj <- function(mass = 75,
                      push_off_distance = 0.4,
                      max_force = 3000,
                      max_velocity = 4,
                      time_to_max_activation = 0.3,
-                  change_ratio = seq(0.9, 1.1, length.out = 3),
-                  aggregate = "raw",
-                  ...) {
+                     change_ratio = seq(0.9, 1.1, length.out = 3),
+                     aggregate = "raw",
+                     ...) {
   fgen_probe_data <- get_probing_data(
     args_list = list(
       mass = mass,
@@ -231,12 +232,12 @@ probe_vj <- function(mass = 75,
 
       out.df <- list(n_params)
 
-      for(i in seq(1, n_params)) {
-        params <- df[i,]
+      for (i in seq(1, n_params)) {
+        params <- df[i, ]
         out <- do.call(vj_simulate, params)
         out.df[[i]] <- out$summary[, -c(1, 2, 3, 4, 5, 7, 8)]
       }
-    return(do.call(list, do.call(rbind, out.df)))
+      return(do.call(list, do.call(rbind, out.df)))
     },
     aggregate = aggregate,
     change_ratio = change_ratio,
@@ -274,13 +275,13 @@ probe_vj <- function(mass = 75,
 #'
 #' # You call also use get get_all_samozino_profiles() function in the profile_func parameter
 #' profile_probe_data <- probe_profile(
-#' mass = 75,
-#' max_force = 3000,
-#' max_velocity = 3,
-#' time_to_max_activation = 0.3,
-#' time_step = 0.001,
-#' external_load = c(-40, -20, 0, 20, 40, 60, 80, 100),
-#' profile_func = get_all_profiles # Can also use get_all_samozino_profiles
+#'   mass = 75,
+#'   max_force = 3000,
+#'   max_velocity = 3,
+#'   time_to_max_activation = 0.3,
+#'   time_step = 0.001,
+#'   external_load = c(-40, -20, 0, 20, 40, 60, 80, 100),
+#'   profile_func = get_all_profiles # Can also use get_all_samozino_profiles
 #' )
 #'
 #' plot_data <- gather(profile_probe_data, key = "variable", value = "value", -(1:8)) %>%
@@ -313,15 +314,15 @@ probe_vj <- function(mass = 75,
 #'   profile_func = function(...) list(list = get_power_profile(...))
 #' )
 probe_profile <- function(mass = 75,
-                     push_off_distance = 0.4,
-                     max_force = 3000,
-                     max_velocity = 4,
-                     time_to_max_activation = 0.3,
-                     change_ratio = seq(0.9, 1.1, length.out = 3),
-                     aggregate = "raw",
-                     external_load = c(-40, -20, 0, 20, 40, 60, 80, 100),
-                     profile_func = get_all_profiles,
-                     ...) {
+                          push_off_distance = 0.4,
+                          max_force = 3000,
+                          max_velocity = 4,
+                          time_to_max_activation = 0.3,
+                          change_ratio = seq(0.9, 1.1, length.out = 3),
+                          aggregate = "raw",
+                          external_load = c(-40, -20, 0, 20, 40, 60, 80, 100),
+                          profile_func = get_all_profiles,
+                          ...) {
   fgen_probe_data <- get_probing_data(
     args_list = list(
       mass = mass,
@@ -338,8 +339,8 @@ probe_profile <- function(mass = 75,
 
       out.df <- list(n_params)
 
-      for(i in seq(1, n_params)) {
-        params <- as.list(df[i,])
+      for (i in seq(1, n_params)) {
+        params <- as.list(df[i, ])
         # add external load
         params$external_load <- external_load
         out <- do.call(vj_profile, params)

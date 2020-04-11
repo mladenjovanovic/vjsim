@@ -50,5 +50,5 @@ ggplot(
     color = probing
   )
 ) +
-geom_line()
+  geom_line()
 }

@@ -41,21 +41,21 @@ Probing data frame
 \examples{
 require(ggplot2)
 
- samozino_probe_data <- probe_samozino_take_off_velocity(
-   F0 = 3000,
-   V0 = 3.5,
-   push_off_distance = 0.4,
-   bodyweight = 75,
-   change_ratio = seq(0.8, 1.2, length.out = 1001)
- )
+samozino_probe_data <- probe_samozino_take_off_velocity(
+  F0 = 3000,
+  V0 = 3.5,
+  push_off_distance = 0.4,
+  bodyweight = 75,
+  change_ratio = seq(0.8, 1.2, length.out = 1001)
+)
 
- ggplot(
-   samozino_probe_data,
-   aes(
-     x = change_ratio,
-     y = take_off_velocity,
-     color = probing
-   )
- ) +
-   geom_line()
+ggplot(
+  samozino_probe_data,
+  aes(
+    x = change_ratio,
+    y = take_off_velocity,
+    color = probing
+  )
+) +
+  geom_line()
 }

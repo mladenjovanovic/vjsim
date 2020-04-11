@@ -56,13 +56,13 @@ require(tidyverse)
 
 # You call also use get get_all_samozino_profiles() function in the profile_func parameter
 profile_probe_data <- probe_profile(
-mass = 75,
-max_force = 3000,
-max_velocity = 3,
-time_to_max_activation = 0.3,
-time_step = 0.001,
-external_load = c(-40, -20, 0, 20, 40, 60, 80, 100),
-profile_func = get_all_profiles # Can also use get_all_samozino_profiles
+  mass = 75,
+  max_force = 3000,
+  max_velocity = 3,
+  time_to_max_activation = 0.3,
+  time_step = 0.001,
+  external_load = c(-40, -20, 0, 20, 40, 60, 80, 100),
+  profile_func = get_all_profiles # Can also use get_all_samozino_profiles
 )
 
 plot_data <- gather(profile_probe_data, key = "variable", value = "value", -(1:8)) \%>\%

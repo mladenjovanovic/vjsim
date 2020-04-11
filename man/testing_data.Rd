@@ -10,8 +10,8 @@ data(testing_data)
 }
 \description{
 Profiling data for N=5 athletes using progressive squat jump measured using jump mat.
-    Jump mat has a mesurement error, with systematic bias of 0, proportional bias of 1
-    and random error normaly distributed with SD of 0.01s
+    Jump mat has a measurement error, with systematic bias of 0, proportional bias of 1
+    and random error normally distributed with SD of 0.01s
 }
 \details{
 \describe{

@@ -2,7 +2,7 @@
 % Please edit documentation in R/fgen.R
 \name{fgen_get_output}
 \alias{fgen_get_output}
-\title{Get Instanteous Output Of The Force Generator}
+\title{Get Instantaneous Output Of The Force Generator}
 \usage{
 fgen_get_output(
   current_time = 0,

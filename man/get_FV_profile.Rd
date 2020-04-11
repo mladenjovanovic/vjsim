@@ -31,5 +31,4 @@ Applied simple linear regression model using \code{force} and \code{velocity} co
 \examples{
 fv_profile <- vj_profile(mass = 75)
 get_FV_profile(fv_profile)
-
 }

@@ -37,7 +37,7 @@ get_max_power <- function(max_force, max_velocity) {
 #' @examples
 #' get_slope(3000, 4)
 get_slope <- function(max_force, max_velocity) {
-  -max_force/max_velocity
+  -max_force / max_velocity
 }
 
 #' Get Work Done
@@ -66,7 +66,7 @@ get_work <- function(mass,
 
 #' Get Mean Power
 #'
-#' Function \code{get_mean_power} calculates the vertical jump mean power using kinetic and potential enery
+#' Function \code{get_mean_power} calculates the vertical jump mean power using kinetic and potential energy
 #' @param mass Numeric vector
 #' @param weight Numeric vector. Default \code{mass} * 9.81
 #' @param take_off_velocity Numeric vector
@@ -139,7 +139,7 @@ get_mean_force_over_time <- function(mass,
 #' @examples
 #' get_impulse(75, 2)
 get_impulse <- function(mass,
-                       take_off_velocity) {
+                        take_off_velocity) {
   mass * take_off_velocity
 }
 
@@ -156,14 +156,14 @@ get_impulse <- function(mass,
 #' @examples
 #' get_take_off_velocity(
 #'   mean_force = 2000,
-#'   mass= 85,
+#'   mass = 85,
 #'   push_off_distance = 0.4
 #' )
 get_take_off_velocity <- function(mean_force = 3000,
                                   mass = 75,
                                   push_off_distance = 0.4,
                                   gravity_const = 9.81) {
-  sqrt(2*push_off_distance*(mean_force / mass - gravity_const))
+  sqrt(2 * push_off_distance * (mean_force / mass - gravity_const))
 }
 
 #' Get Aerial Time
@@ -177,7 +177,7 @@ get_take_off_velocity <- function(mean_force = 3000,
 #' get_aerial_time(0.4)
 get_aerial_time <- function(height,
                             gravity_const = 9.81) {
-  sqrt(8*height/gravity_const)
+  sqrt(8 * height / gravity_const)
 }
 
 #' Get Height from Aerial Time
@@ -188,8 +188,8 @@ get_aerial_time <- function(height,
 #' @return Numeric vector. Jump height in meters
 #' @export
 #' @examples
-#' get_height_from_aerial_time (0.7)
+#' get_height_from_aerial_time(0.7)
 get_height_from_aerial_time <- function(aerial_time,
-                            gravity_const = 9.81) {
-  1/8 * gravity_const * aerial_time^2
+                                        gravity_const = 9.81) {
+  1 / 8 * gravity_const * aerial_time^2
 }

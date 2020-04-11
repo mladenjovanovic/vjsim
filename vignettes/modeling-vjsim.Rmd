@@ -58,7 +58,7 @@ vignette("optimization-vjsim")
 vignette("exploring-vjsim")
 ```
 
-In this vingette I will demonstrate modeling features of the `vjsim` by using built in dataset `testing_data`. `testing_data` consists of N=5 individuals tested in the progressively loaded squat jump using jump mat. Jump mat provide aerial time that we need to convert to jump height. All but one athlete ("Chris") has known push-off distance (that was measure before testing). Here is the dataset:
+In this vignette I will demonstrate modeling features of the `vjsim` by using built in dataset `testing_data`. `testing_data` consists of N=5 individuals tested in the progressively loaded squat jump using jump mat. Jump mat provide aerial time that we need to convert to jump height. All but one athlete ("Chris") has known push-off distance (that was measure before testing). Here is the dataset:
 
 ```{r}
 data("testing_data")
@@ -91,7 +91,7 @@ ggplot(testing_data, aes(x = external_load, y = height)) +
 ```
 
 
-The gray band around the line represents the *confidence* band (or let's call it *uncertainty* band; some call is *compatibility* band or interval) around the line. This is something we estimated as well using the bootstrap method in the previous vignettes. This confidence band for the line is used to make inferences to population, or to which *true* lines our data is compatible with (with 95% confidence)[^inference]. Since we have N=1 analysis, thus each athlete represents *population*, this uncertainty band can be seend as a compatibility band with individual's true profile. This uncertainty can arise due too small number of observations, non-linear relationship between observations (which we are trying to model with a straight line), and measurement error (I will get back to this).
+The gray band around the line represents the *confidence* band (or let's call it *uncertainty* band; some call is *compatibility* band or interval) around the line. This is something we estimated as well using the bootstrap method in the previous vignettes. This confidence band for the line is used to make inferences to population, or to which *true* lines our data is compatible with (with 95% confidence)[^inference]. Since we have N=1 analysis, thus each athlete represents *population*, this uncertainty band can be seen as a compatibility band with individual's true profile. This uncertainty can arise due too small number of observations, non-linear relationship between observations (which we are trying to model with a straight line), and measurement error (I will get back to this).
 
 [^inference]: I am watching my language here since it is very easy to make some stupid statements when discussing confidence intervals.
 
@@ -110,7 +110,7 @@ ggplot(testing_data, aes(x = total_load, y = height)) +
 
 # Modeling using Samozino method
 
-This data represents the data that can be easily gathered in the *field* without the need for *laboratory* equipment (e.g., force plates; although these are now more common that before, as well as more affordable). One only needs jump mat, which is a simple contact mat that measures flight time. If we know someone's push-off distance (which is measured and explained in [@samozinoJumpingAbilityTheoretical2010; @samozinoSimpleMethodMeasuring2008; @samozinoSimpleMethodMeasuring2018]), we can estimate mean force $\bar{F}$ (mean ground reaction force; $\bar{GRF}$) over distance, and we can approximate mean velocity $\bar{v}$ to be $\frac{1}{2}$ of take-off velocity (TOV) (which is calculated from jump height or flight time). From this we can also calculate mean power $\bar{P}$ duirng the push-off. This method is not exact, but as demonstrated in the previous vignettes and papers cited, it is good enough to be useful. For example, model doesn't need to be factually 100% correct to be useful in practice (i.e., just remember the geocentric model vs heliocentric model). In my humble opinion, I would prefer for the Samozino model to show GRF~TOV graph rather than estimated mean velocity, particularly if the objective is to find the optimized intervention for improving vertical jump height. Thus, I would prefer to call it "mean froce - take-off" velocity profile. 
+This data represents the data that can be easily gathered in the *field* without the need for *laboratory* equipment (e.g., force plates; although these are now more common that before, as well as more affordable). One only needs jump mat, which is a simple contact mat that measures flight time. If we know someone's push-off distance (which is measured and explained in [@samozinoJumpingAbilityTheoretical2010; @samozinoSimpleMethodMeasuring2008; @samozinoSimpleMethodMeasuring2018]), we can estimate mean force $\bar{F}$ (mean ground reaction force; $\bar{GRF}$) over distance, and we can approximate mean velocity $\bar{v}$ to be $\frac{1}{2}$ of take-off velocity (TOV) (which is calculated from jump height or flight time). From this we can also calculate mean power $\bar{P}$ during the push-off. This method is not exact, but as demonstrated in the previous vignettes and papers cited, it is good enough to be useful. For example, model doesn't need to be factually 100% correct to be useful in practice (i.e., just remember the geocentric model vs heliocentric model). In my humble opinion, I would prefer for the Samozino model to show GRF~TOV graph rather than estimated mean velocity, particularly if the objective is to find the optimized intervention for improving vertical jump height. Thus, I would prefer to call it "mean force - take-off" velocity profile. 
 
 Here is how we can estimate mean force, mean velocity, TOV, and mean power using `vjsim::get_samozino_jump_metrics` function that takes load (i.e., bodyweight plus external load), push-off distance, and height as parameters. Since we are dealing with multiple individuals, I had to make a *wrapper* for this function to be used in the *tidyverse* framework:
 
@@ -134,7 +134,7 @@ datatable(testing_data, rownames = FALSE) %>%
   formatRound(columns = 1:ncol(testing_data), digits = 2)
 ```
 
-As can be seen, these could not be computed for Chris, since Chris lacks push-off distance data. Now we can plot both mean GRF - mean velocity profiles (or TOV, which I would personaly prefer since there is no assumptions of uniform acceleration):
+As can be seen, these could not be computed for Chris, since Chris lacks push-off distance data. Now we can plot both mean GRF - mean velocity profiles (or TOV, which I would personally prefer since there is no assumptions of uniform acceleration):
 
 ```{r}
 ggplot(testing_data, aes(x = mean_GRF_over_distance, y = mean_velocity)) +
@@ -159,7 +159,7 @@ john_samozino_profile <- vjsim::get_samozino_profile(
 john_samozino_profile
 ```
 
-From the output, we can see that John has almost optimal profile, with $S_{FV}\%$ equalt to `r round(john_samozino_profile$Sfv_perc, 0)`%. In addition to standard output of the Samozino model, `vjsim::get_samozino_profile` also provides residual standard error (`RSE`) and $R^2$ (R squared or variance explained) for the mean GRF over distance~mean velocity model. These are metrics of model fit.  
+From the output, we can see that John has almost optimal profile, with $S_{FV}\%$ equal to `r round(john_samozino_profile$Sfv_perc, 0)`%. In addition to standard output of the Samozino model, `vjsim::get_samozino_profile` also provides residual standard error (`RSE`) and $R^2$ (R squared or variance explained) for the mean GRF over distance~mean velocity model. These are metrics of model fit.  
 
 Let's put this function into wrapper, so we can apply it in tidyverse framework (i.e., for every athlete):
 
@@ -188,7 +188,7 @@ As can be seen from the table above, Chris doesn't have any estimates since he l
 
 # Missing push-off distance
 
-Estimating push-off distance is the only *bottleneck* in Samozino method. Getting bodyweight, external load, and jump heigth is simple and quick. Estimating push-off distance demand much more effort, and it is higly likely to be missing. What we can do, is similar to Bayesian analysis, is to to use some *priors* in what we believe the push-off might be for a paricular individual (e.g., we can also take into account his height, but so far I do not have a simple *heuristic* to convert one to another). 
+Estimating push-off distance is the only *bottleneck* in Samozino method. Getting bodyweight, external load, and jump height is simple and quick. Estimating push-off distance demand much more effort, and it is highly likely to be missing. What we can do, is similar to Bayesian analysis, is to to use some *priors* in what we believe the push-off might be for a particular individual (e.g., we can also take into account his height, but so far I do not have a simple *heuristic* to convert one to another). 
 
 Let's say that we think Chris' push-off distance is between 0.35 and 0.45m (this is *uniform* prior). We can thus perform the analysis by taking, say 10, estimates from this range.
 
@@ -237,7 +237,7 @@ This procedure could be used as even "simpler" analysis than Samozino suggested.
 
 # Providing confidence intervals using bootstrap
 
-Let's write a function that returns Samozino model with 95% confidence intervals using `bmbstats` package [@jovanovicBmbstatsMagnitudebasedStatistics2020; @jovanovicStatisticalModellingSports2019; @R-bmbstats]. `bmbstats` performs a bootstrap and returns the metrics (i.e., estimators). I have implemented one "trick" here to make bootstrap work, particularly for athletes with small number of observations (e.g., less than 5): I have create a strata vector. In this casa strata has two compartments: high (all jump reps over over and equal to median total mass) and low (all jump reps under median total mass). This way we made sure that at least two different data points (from high vs. low load sets) will be available in each bootstrap resample which is needed to create a profile. For the sake of example, let's give Chris a push-off distance of 0.4m, so we are able to estimate his Samozino metrics. 
+Let's write a function that returns Samozino model with 95% confidence intervals using `bmbstats` package [@jovanovicBmbstatsMagnitudebasedStatistics2020; @jovanovicStatisticalModellingSports2019; @R-bmbstats]. `bmbstats` performs a bootstrap and returns the metrics (i.e., estimators). I have implemented one "trick" here to make bootstrap work, particularly for athletes with small number of observations (e.g., less than 5): I have create a strata vector. In this case strata has two compartments: high (all jump reps over over and equal to median total mass) and low (all jump reps under median total mass). This way we made sure that at least two different data points (from high vs. low load sets) will be available in each bootstrap resample which is needed to create a profile. For the sake of example, let's give Chris a push-off distance of 0.4m, so we are able to estimate his Samozino metrics. 
 
 ```{r}
 # Need to reload the data
@@ -287,7 +287,7 @@ datatable(testing_data_samozino, rownames = FALSE) %>%
   formatRound(columns = 1:ncol(testing_data_samozino), digits = 2)
 ```
 
-We can plot the bootstraped estimates for each athlete:
+We can plot the bootstrapped estimates for each athlete:
 
 ```{r}
 ggplot(
@@ -312,9 +312,9 @@ This figure can give us some idea about uncertainty around metrics. The more dat
 
 # Dealing with know measurement errors
 
-The analysis we perform assumes we are dealing with *true* values, without measurement error. Unfortunately, every measuremet has some measurement error. We estimate these error (i.e. random error (RE); or measurement error variance) in a reliability study. Let's assume that we know the measurement errors for the jump mat flight time (RE=0.01s), push-off distance (RE=0.01m), and bodyweight (RE=0.25kg). These error are already *inside* our observations (let's call this error factor 1). How do we estimate our metrics as if there is no measurement error? How do we evaluate how the measurement error affect our estimates?
+The analysis we perform assumes we are dealing with *true* values, without measurement error. Unfortunately, every measurement has some measurement error. We estimate these error (i.e. random error (RE); or measurement error variance) in a reliability study. Let's assume that we know the measurement errors for the jump mat flight time (RE=0.01s), push-off distance (RE=0.01m), and bodyweight (RE=0.25kg). These error are already *inside* our observations (let's call this error factor 1). How do we estimate our metrics as if there is no measurement error? How do we evaluate how the measurement error affect our estimates?
 
-One technique that is very useful, although not often used in sport science practice and research, is called **simulation extrapolation** (SIMEX) [@keoghSTRATOSGuidanceDocument2020; @shawSTRATOSGuidanceDocument2020; @wallaceAnalysisImperfectWorld2020]. Using simuations, we can on purpose add (known) error of particular magnitude on observations (e.g. observation + 0.5xRE; which is equal to factor 1.5, since we already have error in our observations). Then we can *extrapolate* estimates to zero error (when error factor is 0). 
+One technique that is very useful, although not often used in sport science practice and research, is called **simulation extrapolation** (SIMEX) [@keoghSTRATOSGuidanceDocument2020; @shawSTRATOSGuidanceDocument2020; @wallaceAnalysisImperfectWorld2020]. Using simulations, we can on purpose add (known) error of particular magnitude on observations (e.g. observation + 0.5xRE; which is equal to factor 1.5, since we already have error in our observations). Then we can *extrapolate* estimates to zero error (when error factor is 0). 
 
 Since this is simulation and might take a long time, I've used SIMEX only on one athlete, Jack (since he has the widest compatibility band around the FV profile). The code below is my implementation of the SIMEX. Each error factor is simulated 200 times.
 
@@ -378,7 +378,7 @@ datatable(samozino_error_data, rownames = FALSE) %>%
   formatRound(columns = 1:ncol(samozino_error_data), digits = 2)
 ```
 
-Each simulation for each error factor can be depictes as a line. The average of those lines (or average of metric across simulation reps) is the estimate of the metric for a particular error factor. Here is the neat plot:
+Each simulation for each error factor can be depicted as a line. The average of those lines (or average of metric across simulation reps) is the estimate of the metric for a particular error factor. Here is the neat plot:
 
 ```{r}
 samozino_error_data_long <- gather(samozino_error_data, "metric", "value", -(1:4))
@@ -399,14 +399,86 @@ ggplot(
   ggtitle("Jack")
 ```
 
-These averages are modeled with qubic linear regression, and this can be extrapolated to a error factor of 0, which indicates metric estimates when there is no error. 
+These averages are modeled with cubic linear regression, and this can be extrapolated to a error factor of 0, which indicates metric estimates when there is no error. 
 
-We can also provide confidence limits for each simulation and summarize those as well, but that can take troumendous computing time since we need to do bootstrap for each athlete, each error factor and each simulation. It is thus not considered here.
+We can also provide confidence limits for each simulation and summarize those as well, but that can take tremendous computing time since we need to do bootstrap for each athlete, each error factor and each simulation. It is thus not considered here.
 
 SIMEX represent very useful analysis technique since it allows us to take into account the know measurement errors. I will leave you to play with the code and explore how different measurement errors affect the metric estimates for John (or any other athlete).
-
+ 
 # Conclusion
 
 Hopefully the functions from `vjsim`, particularly those used in this modeling vignette, can be useful in practice and might help researches and coaches develop squat jump profiles, but this time with addition of uncertainty intervals and SIMEX analysis. 
+
+# Addendum
+
+Package `vjsim` also has two functions that simplify profile building using the data collected: `vjsim::make_samozino_profile` and `vjsim::make_load_profile`. Let's explore `vjsim::make_samozino_profile` first using the `testing_data`:
+
+```{r}
+data("testing_data")
+
+with(
+  filter(testing_data, athlete == "Jack"),
+  make_samozino_profile(
+    bodyweight = bodyweight,
+    push_off_distance = push_off_distance,
+    external_load = external_load,
+    aerial_time = aerial_time,
+    plot = TRUE
+  )
+)
+```
+
+Function `vjsim::make_samozino_profile` thus provides all the modeling explained in this vignette in one command, and spits out the Samozino profile parameters, as well as create a neat summary graph. 
+
+Function `vjsim::make_load_profile` does the same functionality, but generated Load-TOV profile. 
+
+```{r}
+with(
+  filter(testing_data, athlete == "Jack"),
+  make_load_profile(
+    bodyweight = bodyweight,
+    push_off_distance = push_off_distance,
+    external_load = external_load,
+    aerial_time = aerial_time,
+    plot = TRUE
+  )
+)
+```
+
+If you want to provide profile summaries for multiple athletes using `dplyr` and `tidyverse`, use the following *wrapper*:
+
+```{r}
+make_samozino_profile_wrapper <- function(data) {
+  profile <- with(
+    data,
+    make_samozino_profile(
+      bodyweight = bodyweight,
+      push_off_distance = push_off_distance,
+      external_load = external_load,
+      aerial_time = aerial_time,
+      plot = FALSE
+    )
+  )
+
+  return(data.frame(
+    F0 = profile$F0,
+    V0 = profile$V0,
+    height = profile$height,
+    optimal_F0 = profile$optimal_F0,
+    optimal_V0 = profile$optimal_V0,
+    optimal_height = profile$optimal_height,
+    Sfv_perc = profile$Sfv_perc
+  ))
+}
+
+athlete_profiles <- testing_data %>%
+  group_by(athlete) %>%
+  do(make_samozino_profile_wrapper(.))
+
+
+athlete_profiles
+```
+
+These two functions provide simple way you can analyze your own jump squat data. 
 
 # References

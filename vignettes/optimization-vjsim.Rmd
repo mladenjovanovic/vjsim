@@ -79,7 +79,7 @@ profile_data <- vjsim::vj_profile(
 
 As illustrated in the previous vignette, with `vjsim` we can create various FV profiles. But @samozinoSimpleMethodMeasuring2008 and @samozinoJumpingAbilityTheoretical2010 suggested a simple *field* method that can approximate mean force ($\bar{F}$) and mean velocity ($\bar{v}$) from a known (1) bodyweight, (2) jump height and (3) push-off distance. Otherwise, more expensive equipment, such as force place, is needed. The goal is to *approximate* laboratory Force-Velocity profiling using *field* Load-Height profile. 
 
-To represent jump, we will use introduced model in `vjsim`, where we have object of mass $m$, that is acelerated over push-off distance (or height) $h_{po}$ by the action of the Force Generator, eventually reaching jump height $h$. The jump is performed vertically, on Earth, where the gravity constant $g$ is equal to $9.81ms^-2$. At the end of the push-off distance, object reaches the take-off velocity ($TOV$, or $v_{to}$), from which we can calculate height reached. Actualy, in this field method, we calculate TOV from jump height reached using the inverse ballistic equation:
+To represent jump, we will use introduced model in `vjsim`, where we have object of mass $m$, that is accelerated over push-off distance (or height) $h_{po}$ by the action of the Force Generator, eventually reaching jump height $h$. The jump is performed vertically, on Earth, where the gravity constant $g$ is equal to $9.81ms^-2$. At the end of the push-off distance, object reaches the take-off velocity ($TOV$, or $v_{to}$), from which we can calculate height reached. Actually, in this field method, we calculate TOV from jump height reached using the inverse ballistic equation:
 
 $$
 v_{to} = \sqrt{2gh}
@@ -116,7 +116,7 @@ $$
 \bar{v} = \frac{h_{po}}{t_{po}}
 $$
 
-Unfortunatelly, we do not know $t_{po}$ (using this simple field approach). What @samozinoSimpleMethodMeasuring2008 and @samozinoJumpingAbilityTheoretical2010 have done (see @samozinoSimpleMethodMeasuring2008 page 2941, equation 6) is to use impulse-momentum equation, which states that impulse ($I = (\bar{F} - mg) \times t_{po}$) is equal to the momentum ($M = m \times v_{to}$). We thus get the following equation, from which we can extract $t_{po}$:
+Unfortunately, we do not know $t_{po}$ (using this simple field approach). What @samozinoSimpleMethodMeasuring2008 and @samozinoJumpingAbilityTheoretical2010 have done (see @samozinoSimpleMethodMeasuring2008 page 2941, equation 6) is to use impulse-momentum equation, which states that impulse ($I = (\bar{F} - mg) \times t_{po}$) is equal to the momentum ($M = m \times v_{to}$). We thus get the following equation, from which we can extract $t_{po}$:
 
 $$
 \begin{aligned}
@@ -163,7 +163,7 @@ Why is this? Because, equations used by @samozinoSimpleMethodMeasuring2008 and @
 
 In short, field method proposed by @samozinoSimpleMethodMeasuring2008 and @samozinoJumpingAbilityTheoretical2010 approximates $\bar{F}$ and $\bar{v}$ assuming constant force and is uniform acceleration across $h_{po}$. Although wrong, the error introduced by this assumption is estimated in the aforementioned studies when compared with laboratory measurement and it doesn't seem to be practically significant. But this error (or assumption) simplifies the estimation of $\bar{F}$ and $\bar{v}$ in the field settings. 
 
-In `vjsim` this method of profiling is implemented using *true* $\bar{v}$ and mean GRF over distance ($\bar{F}$), which I called *theoretical* (and thus represent Mean Force ~ Mean Velocity profile) and using $\frac{1}{2}v_{to}$ as $\bar{v}$, which I called *practical*. We will explore their similarities and differences in this and the next vignette. Here is how these are calculated in `vjsim` (forcus on $F_0$ and $V_0$ and disregard *optimal* metrics for now - they will soon be explained):
+In `vjsim` this method of profiling is implemented using *true* $\bar{v}$ and mean GRF over distance ($\bar{F}$), which I called *theoretical* (and thus represent Mean Force ~ Mean Velocity profile) and using $\frac{1}{2}v_{to}$ as $\bar{v}$, which I called *practical*. We will explore their similarities and differences in this and the next vignette. Here is how these are calculated in `vjsim` (focus on $F_0$ and $V_0$ and disregard *optimal* metrics for now - they will soon be explained):
 
 ```{r}
 samozino_profiles <- vjsim::get_all_samozino_profiles(profile_data)
@@ -254,7 +254,7 @@ direct.label(gg, list("last.bumpup", cex = 0.6))
 ```
 
 As can be seen from this graph, higher the $\bar{F}$, the higher the $v_{to}$ reached. The same thing with $h_{po}$. If the $\bar{F}$ is below $mg$ (in this case `r round(75 * 9.81, 2)`N), then there will be no jump at all, since force acting on the object is lower than object's weight. 
-We can also do this for the jeump height, rather than $v_{to}$:
+We can also do this for the jump height, rather than $v_{to}$:
 
 ```{r}
 params$height <- vjsim::get_height(params$take_off_velocity, params$gravity_const)
@@ -267,7 +267,7 @@ gg <- ggplot(params, aes(x = mean_GRF_over_distance, y = height, group = push_of
 direct.label(gg, list("last.bumpup", cex = 0.6))
 ```
 
-Long story short, assuming $h_{po}$ is fixed, the more force one applies (particularyl relative force, i.e. $\frac{\bar{F}}{m}$), the higher the jump. Rocket science! 
+Long story short, assuming $h_{po}$ is fixed, the more force one applies (particularly relative force, i.e. $\frac{\bar{F}}{m}$), the higher the jump. Rocket science! 
 
 # Adding Force Generator 'constraints'
 
@@ -296,9 +296,9 @@ $$
    m-F_0)}{h_{po}}\right)}-\frac{F_0}{2 V_0}\right)}{m}
 $$
 
-This equation is implementd in `vjsim::get_samozino_take_off_velocity` function, that we will shortly use. 
+This equation is implemented in `vjsim::get_samozino_take_off_velocity` function, that we will shortly use. 
 
-Look at $\hat{v_{to}}$ this way - given the FV characteristic of the individual (as well as his/her bodyweight, $h_{po}$ and of course gravity constant) we can *predict* take-off velocity and height. Thus, this is a model predicton. 
+Look at $\hat{v_{to}}$ this way - given the FV characteristic of the individual (as well as his/her bodyweight, $h_{po}$ and of course gravity constant) we can *predict* take-off velocity and height. Thus, this is a model prediction. 
 
 As already explained, in `vjsim` we can implement practical Samozino profile (approximating mean velocity with half of TOV) and theoretical profile (using *true* mean velocity over $h_{po}$). We can plot these and see that the model $v_{to}$ predictions differ, but they are both quite close to the first data point (i.e. bodyweight jump performance):
 
@@ -315,7 +315,7 @@ ggplot(plot_data, aes(x = x, y = y, group = group, color = profile)) +
 ```
 
 
-The differences between true jump height or true take-off velocity and model predicted can be traced back to the ratio between take-off velocity and mean velocity (since Samozino's model asssumes uniform acceleration and 2:1 ratio between these two). This is something we will explore in the next vignette.
+The differences between true jump height or true take-off velocity and model predicted can be traced back to the ratio between take-off velocity and mean velocity (since Samozino's model assumes uniform acceleration and 2:1 ratio between these two). This is something we will explore in the next vignette.
 
 This model might seems a bit *circular*, and that is one of my arguments against it. We use load and jump height performance to infer $F_0$ and $V_0$, from which we predict jump height. Besides, we estimate Force Generator constraints or determinants of performance (in this case jump height) from the performance itself. Then we claim that $F_0$ and $V_0$ determine jump performance (which we estimated from performance itself in the first place)?! 
 
@@ -381,7 +381,7 @@ vjsim::get_samozino_take_off_velocity(
 
 Here comes the *probing* question: "If we assume $P_{max}$ stays the same, can we *tilt* the FV profile so that take-off velocity is maximized (for a given $P_{max}$)?". 
 
-But how do we *tilt* the FV curve without affecting $P_{max}$? If you look at the equation for $P_{max}$, which is $\frac{F_0 \times V_0}{4}$, we tils the slope by multiplying $F_0$ by a specific factor $k$, while simultaneously dividing $V_0$ by the same factor. This way $P_{max}$ stays the same, while we tilt the FV curve. 
+But how do we *tilt* the FV curve without affecting $P_{max}$? If you look at the equation for $P_{max}$, which is $\frac{F_0 \times V_0}{4}$, we tilt the slope by multiplying $F_0$ by a specific factor $k$, while simultaneously dividing $V_0$ by the same factor. This way $P_{max}$ stays the same, while we tilt the FV curve. 
 
 Here is the code and graphical representation using $k$ of 0.8, 0.9, 1, 1.1, 1.2:
 
@@ -429,7 +429,7 @@ gg <- ggplot(plot_data, aes(x = x, y = y, group = k, color = slope)) +
 direct.label(gg, list("last.points", cex = 0.5))
 ```
 
-Each profile line on the previous figure has the same $P_{max}$, but different slope. The original slope is equal to -1500, but as can be seen from the figure, according to this model, take-off velocity would be maximized wheen slope is -960. According to this model, this implies improving "velocity" characteristics of the Force Generator (whatever that might be). In coaches language, this individual should improve his "velocity" characteristics to improve take-off velocity and jump height. 
+Each profile line on the previous figure has the same $P_{max}$, but different slope. The original slope is equal to -1500, but as can be seen from the figure, according to this model, take-off velocity would be maximized when slope is -960. According to this model, this implies improving "velocity" characteristics of the Force Generator (whatever that might be). In coaches language, this individual should improve his "velocity" characteristics to improve take-off velocity and jump height. 
 
 We can represent these FV profiles with different slopes (but same $P_{max}$) with this figure:
 
@@ -448,7 +448,7 @@ ggplot(plot_data, aes(x = slope, y = predicted_TOV)) +
   geom_line()
 ```
 
-There is algebraic solution to this problem of finding $S_{fv}{opt}$ (that maximizes $v_{to}$), but in `vjsim::get_samozino_optimal_profile` function I have used the `optim` function to find the slope that maximizes the take-off velocity while maintaing the $P_{max}$:
+There is algebraic solution to this problem of finding $S_{fv}{opt}$ (that maximizes $v_{to}$), but in `vjsim::get_samozino_optimal_profile` function I have used the `optim` function to find the slope that maximizes the take-off velocity while maintaining the $P_{max}$:
 
 ```{r}
 vjsim::get_samozino_optimal_profile(
@@ -460,7 +460,7 @@ vjsim::get_samozino_optimal_profile(
 )
 ```
 
-`vjsim::get_samozino_optimal_profile` spits out mutiple summarise, both original and *optimized*. To compare $S_{fv}$ and $S_{fv}^{optimal}$, Samozino suggested used two metrics, $S_{FV}\%$ and $FV_{IMB}$:
+`vjsim::get_samozino_optimal_profile` spits out multiple summaries, both original and *optimized*. To compare $S_{fv}$ and $S_{fv}^{optimal}$, Samozino suggested used two metrics, $S_{FV}\%$ and $FV_{IMB}$:
 
 $$
 \begin{aligned}
@@ -469,7 +469,7 @@ $$
 \end{aligned}
 $$
 
-Acording to Samozino *et al.*, $S_{FV}\%$ over 100% represents FV profile too much oriented towards "force", which implies "velocity" deficit (and the individual should spend more time fixing "velocity" deficit by performing low-load high-speed activities). When $S_{FV}\%$ is under 100%, it represents FV profile that is too much oriented towards "velocity", which implies "force" deficit (and the individual should spend more time fixing "force" deficit by performing high-load low-speed activities). 
+According to Samozino *et al.*, $S_{FV}\%$ over 100% represents FV profile too much oriented towards "force", which implies "velocity" deficit (and the individual should spend more time fixing "velocity" deficit by performing low-load high-speed activities). When $S_{FV}\%$ is under 100%, it represents FV profile that is too much oriented towards "velocity", which implies "force" deficit (and the individual should spend more time fixing "force" deficit by performing high-load low-speed activities). 
 
 $FV_{IMB}$ represents an absolute measure of this *imbalance* without a direction, where 0 represents optimal profile. 
 
@@ -557,11 +557,11 @@ direct.label(gg, list("last.bumpup", cex = 0.6))
 
 As can be seen from the above probing experiment, increasing $V_0$ in this profile creates higher improvements in take-off velocity, reaching the same conclusion as with optimal slope concept.
 
-# Bootstraping optimization estimators
+# Bootstrapping optimization estimators
 
 Like we did in the previous [vignette on profiling](https://mladenjovanovic.github.io/vjsim/articles/profiling-vjsim.html), we can use bootstrap and [`bmbstats`](https://mladenjovanovic.github.io/bmbstats-book/)[^bmbstats] package to get estimates of uncertainty around optimization metrics (i.e.  $S_{FV}\%$, $FV_{IMB}$, and $probe_{IMB}$). 
 
-[^bmbstats]: `bmbstats` package and acompanying book are currently in development, but you can access them on GitHub: https://github.com/mladenjovanovic/bmbstats and https://github.com/mladenjovanovic/bmbstats-book. The `bmbstats` book can be read on the GitHub pages: https://mladenjovanovic.github.io/bmbstats-book/
+[^bmbstats]: `bmbstats` package and accompanying book are currently in development, but you can access them on GitHub: https://github.com/mladenjovanovic/bmbstats and https://github.com/mladenjovanovic/bmbstats-book. The `bmbstats` book can be read on the GitHub pages: https://mladenjovanovic.github.io/bmbstats-book/
 
 `bmbstats` needs to be installed from the GitHub repository: 
 
@@ -623,7 +623,7 @@ From the 90% CIs above we can see some randomness involved in estimating optimiz
 boot_data$graphs
 ```
 
-One of the main take-away points is the difference between theoretical and practical profiles (and their optimization estimators), as well as uncertaintly involved when estimating them with 6 observations. And this is all without any *measurement error* involved. 
+One of the main take-away points is the difference between theoretical and practical profiles (and their optimization estimators), as well as uncertainty involved when estimating them with 6 observations. And this is all without any *measurement error* involved. 
 
 # Probing Force Generator characteristics
 
@@ -745,7 +745,7 @@ gg <- ggplot(
 direct.label(gg, list("last.bumpup", cex = 0.4))
 ```
 
-What is interesting from the above figure, is that both practical and theoretical $S_{FV}\%$ showed predictable behavior when increasing Force Generator max force and max velocity. In other words, increasing max force increases $S_{FV}\%$ and decreasing max force decreases $S_{FV}\%$. When it comes to max velocity, increaseing it decreases $S_{FV}\%$ and decreasing max velocity increases $S_{FV}\%$. 
+What is interesting from the above figure, is that both practical and theoretical $S_{FV}\%$ showed predictable behavior when increasing Force Generator max force and max velocity. In other words, increasing max force increases $S_{FV}\%$ and decreasing max force decreases $S_{FV}\%$. When it comes to max velocity, increasing it decreases $S_{FV}\%$ and decreasing max velocity increases $S_{FV}\%$. 
 
 Let's perform this same analysis, but now using more *velocity dominant profile*:
 
@@ -862,7 +862,7 @@ Both theoretical and practical profiles (using predicted height) showed higher i
 
 # Alternatives?
 
-The goal of optimization profile is to help answer intervention question: "What should athlete do?". This is a complex question, but for the sake of this vignette, we are answering it from the vertical jump perspective: "What should athlete do to yield biggest effect in jump performance?". In other way, should athlete focus on high-load and low-velocity activities (e.g. heavy squatting, or deadlifting), or low-load and high-velocity activities (e.g. unloaded jumping or even *assisted* jumping). Samozino optimization profile seems to help in answering this question. But let's explore another approache and see if it works.
+The goal of optimization profile is to help answer intervention question: "What should athlete do?". This is a complex question, but for the sake of this vignette, we are answering it from the vertical jump perspective: "What should athlete do to yield biggest effect in jump performance?". In other way, should athlete focus on high-load and low-velocity activities (e.g. heavy squatting, or deadlifting), or low-load and high-velocity activities (e.g. unloaded jumping or even *assisted* jumping). Samozino optimization profile seems to help in answering this question. But let's explore another approach and see if it works.
 
 In the previous vignette I have demonstrated multitude of profiles that we can make. The simplest profile is Load~TOV, or mass and take-off velocity. This is actually THE profile we get from jumping, from which the Samozino profile is further developed using assumptions of constants acceleration and equal mean force over distance and time. Figure below depicts Load~TOV profile, termed *simple profile* which is estimated using `vjsim::get_simple_profile` function. 
 
@@ -888,7 +888,7 @@ ggplot(plot_data, aes(x = x, y = y)) +
 
 Vertical dashed line indicates bodyweight (75kg in this case), and horizontal dashed line indicates predicted take-off velocity. As can be seen it is very close to *true* take-off velocity during the bodyweight jump. 
 
-Similar to Samozino model, we can check how changing slope of the profile afffects the predicted vertical jump height. The logic is same as with Samozino profile, but simpler: we check where the profile line cuts the vertical dashed line:
+Similar to Samozino model, we can check how changing slope of the profile affects the predicted vertical jump height. The logic is same as with Samozino profile, but simpler: we check where the profile line cuts the vertical dashed line:
 
 ```{r}
 k <- c(0.8, 0.9, 1, 1.1, 1.2)
@@ -1407,9 +1407,9 @@ direct.label(gg, list("last.bumpup", cex = 0.4))
  
 $probe_{IMB}$ shows similar values and similar behavior in both profiles, while LPF slope shows different values in each profile, but similar behavior. But can it tell us what we need to improve to reach higher vertical jump height? This will be further discussed in the [exploring vignette](https://mladenjovanovic.github.io/vjsim/articles/exploring-vjsim.html). 
  
-Similar idea to LPF slope concept is utilizied with *Bosco Index* where the ratio of 2x BW jump height to BW jump height is calculated. Unfortunately, it seems that neither of these two (Bosco Index nor LPF slope) gives us a practical summary such as Samozino profile (i.e. using $S_{FV}\%$ or $probe_{IMB}$) in terms what part of the "curve" one needs to improve to reach higher vertical jump height. It might be that these approaches evaluate optimality of different qualities of the Force Generator. 
+Similar idea to LPF slope concept is utilized with *Bosco Index* where the ratio of 2x BW jump height to BW jump height is calculated. Unfortunately, it seems that neither of these two (Bosco Index nor LPF slope) gives us a practical summary such as Samozino profile (i.e. using $S_{FV}\%$ or $probe_{IMB}$) in terms what part of the "curve" one needs to improve to reach higher vertical jump height. It might be that these approaches evaluate optimality of different qualities of the Force Generator. 
 
-In the next [exploring vignette](https://mladenjovanovic.github.io/vjsim/articles/exploring-vjsim.html) I will continue with the discussion and exploration of these model by using simulated data for a large ammount of different combinations of Force Generator parameters. I will follow up with discussion of intervention studies using this model [@jimenez-reyesEffectivenessIndividualizedTraining2017; @jimenez-reyesOptimizedTrainingJumping2019] and provide final conclusion about it's application. 
+In the next [exploring vignette](https://mladenjovanovic.github.io/vjsim/articles/exploring-vjsim.html) I will continue with the discussion and exploration of these model by using simulated data for a large amount of different combinations of Force Generator parameters. I will follow up with discussion of intervention studies using this model [@jimenez-reyesEffectivenessIndividualizedTraining2017; @jimenez-reyesOptimizedTrainingJumping2019] and provide final conclusion about it's application. 
 
 # Shiny App
 

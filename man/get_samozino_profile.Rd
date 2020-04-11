@@ -37,7 +37,8 @@ data("testing_data")
 testing_data <- testing_data \%>\%
   mutate(
     height = vjsim::get_height_from_aerial_time(aerial_time),
-    total_load = bodyweight + external_load)
+    total_load = bodyweight + external_load
+  )
 
 jump_metric <- function(data) {
   samozino_metrics <- vjsim::get_samozino_jump_metrics(

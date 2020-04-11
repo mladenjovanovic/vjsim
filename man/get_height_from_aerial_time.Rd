@@ -18,5 +18,5 @@ Numeric vector. Jump height in meters
 \code{get_height_from_aerial_time} returns jump height using \code{aerial_time}
 }
 \examples{
-get_height_from_aerial_time (0.7)
+get_height_from_aerial_time(0.7)
 }

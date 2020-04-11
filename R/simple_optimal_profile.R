@@ -9,10 +9,9 @@
 #' @export
 #' @examples
 #' get_simple_take_off_velocity(L0 = 250, TOV0 = 3, bodyweight = 75)
-
 #' @export
 get_simple_take_off_velocity <- function(L0, TOV0, bodyweight) {
-  TOV0 - (TOV0/L0 * bodyweight)
+  TOV0 - (TOV0 / L0 * bodyweight)
 }
 
 
@@ -29,7 +28,6 @@ get_simple_take_off_velocity <- function(L0, TOV0, bodyweight) {
 #' @examples
 #' get_simple_optimal_profile(L0 = 250, TOV0 = 3, bodyweight = 75)
 get_simple_optimal_profile <- function(L0, TOV0, bodyweight, gravity_const = 9.81) {
-
   surface <- (L0 * TOV0) / 2
   optimal_TOV0 <- surface / bodyweight
   optimal_L0 <- 2 * surface / optimal_TOV0
@@ -38,8 +36,8 @@ get_simple_optimal_profile <- function(L0, TOV0, bodyweight, gravity_const = 9.8
     L0 = L0,
     TOV0 = TOV0,
     bodyweight = bodyweight
-    )
-  Sfv <-  get_slope(L0, TOV0)
+  )
+  Sfv <- get_slope(L0, TOV0)
   Sfv_rel <- Sfv / bodyweight
 
   optimal_take_off_velocity <- get_simple_take_off_velocity(
@@ -47,7 +45,7 @@ get_simple_optimal_profile <- function(L0, TOV0, bodyweight, gravity_const = 9.8
     TOV0 = optimal_TOV0,
     bodyweight = bodyweight
   )
-  optimal_Sfv <-  get_slope(optimal_L0, optimal_TOV0)
+  optimal_Sfv <- get_slope(optimal_L0, optimal_TOV0)
   optimal_Sfv_rel <- optimal_Sfv / bodyweight
 
   # Probe
@@ -113,7 +111,7 @@ get_simple_profile <- function(profile_data) {
     TOV0 = jump_profile$V0,
     bodyweight = profile_data$bodyweight[1],
     gravity_const = profile_data$gravity_const[1]
-    )
+  )
 }
 
 
@@ -148,13 +146,12 @@ get_simple_profile <- function(profile_data) {
 #'     color = probing
 #'   )
 #' ) +
-#' geom_line()
+#'   geom_line()
 probe_simple_take_off_velocity <- function(L0,
                                            TOV0,
                                            bodyweight,
                                            change_ratio = seq(0.9, 1.1, length.out = 3),
-                                           aggregate = "raw"
-) {
+                                           aggregate = "raw") {
   get_probing_data(
     args_list = list(L0 = L0, TOV0 = TOV0, bodyweight = bodyweight),
     probe_func = function(...) list(take_off_velocity = get_simple_take_off_velocity(...)),
@@ -162,4 +159,3 @@ probe_simple_take_off_velocity <- function(L0,
     aggregate = aggregate
   )
 }
-

@@ -55,8 +55,10 @@ fgen_get_force_percentage <- function(current_distance = 0,
   }
 
   # Few checks for the special case
-  if(length(peak_location) == 1 & length(decline_rate) == 1) {
-    if(peak_location == 0 & decline_rate == 0) return(rep(1, length(current_distance)))
+  if (length(peak_location) == 1 & length(decline_rate) == 1) {
+    if (peak_location == 0 & decline_rate == 0) {
+      return(rep(1, length(current_distance)))
+    }
   }
   peak_location <- push_off_distance + peak_location
 
@@ -126,13 +128,13 @@ fgen_get_activation <- function(current_time,
 
   activation <- (1 - initial_activation) / (1 + exp(-alpha * (current_time - time_to_max_activation / 2))) + initial_activation
 
-  if(length(time_to_max_activation) == 1) {
+  if (length(time_to_max_activation) == 1) {
     if (time_to_max_activation == 0) {
       activation <- rep(1, length(activation))
     }
   } else {
-  activation <- ifelse(time_to_max_activation == 0, 1, activation)
-}
+    activation <- ifelse(time_to_max_activation == 0, 1, activation)
+  }
   return(activation)
 }
 
@@ -173,14 +175,14 @@ fgen_get_viscous_force <- function(current_velocity,
 }
 
 
-#' Get Forve-Velocity Velocity of the Force Generator
+#' Get Force-Velocity Velocity of the Force Generator
 #'
 #' Based on the parameters of the Force Generator: \code{max_force} and \code{max_velocity}
 #'     get maximal velocity that can be reached at particular \code{external_resistance}
 #'
 #' @param external_force Numeric vector. External force is in Newtons
 #' @param max_force Numeric vector. Maximal force in Newton that Force Generator can generate
-#' @param max_velocity Numeric vectpr. Maximal velocity that Force Generator can achieve in unconstrained conditions
+#' @param max_velocity Numeric vector. Maximal velocity that Force Generator can achieve in unconstrained conditions
 #' @return Numeric vector of estimated maximal velocity reached
 #' @export
 #' @examples
@@ -192,7 +194,7 @@ fgen_get_velocity <- function(external_force, max_force = 3000, max_velocity = 4
 }
 
 
-#' Get Instanteous Output Of The Force Generator
+#' Get Instantaneous Output Of The Force Generator
 #'
 #' \code{fgen_get_output} returns acceleration and force data based on the current system state (\code{current_time},
 #'     \code{current_distance}, and \code{current_velocity}), system constraints (\code{mass}, \code{weight}, and \code{push_off_distance}),

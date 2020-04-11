@@ -3,14 +3,14 @@
 #' Simulates vertical jump using Runge-Kutta method
 #'
 #' @param mass Numeric value. Default is 75kg
-#' @param weight Numeric value. Deafult is \code{mass} * \code{gravity_const}
+#' @param weight Numeric value. Default is \code{mass} * \code{gravity_const}
 #' @param push_off_distance Numeric value. Default is 0.4m
 #' @param gravity_const Numeric value. Default is 9.81
 #' @param time_step Numeric value. Time step used in simulation. Default is 0.001
 #' @param save_trace Logical. Default is TRUE
 #' @param fgen_func Function used to represent Force Generator. Default is \code{\link{fgen_get_output}}.
 #' @param iter Logical. Default is FALSE
-#' @param max_iter Numeric value. Defaut value 1000
+#' @param max_iter Numeric value. Default value 1000
 #' @param ... Forwarded to \code{fgen_func}
 #' @return List object with \code{summary} data frame and \code{trace} data frame
 #' @export
@@ -302,8 +302,8 @@ vj_simulate <- function( # system constrains
     previous_power <- current_power
   } # Main loop finished
 
-   # --------------------------
-   # Summary/Performance  metrics
+  # --------------------------
+  # Summary/Performance  metrics
   take_off_velocity <- current_velocity
 
   height <- get_height(
@@ -327,7 +327,7 @@ vj_simulate <- function( # system constrains
 
   mean_velocity <- current_distance / current_time
 
-  work_done = get_work(
+  work_done <- get_work(
     mass = mass,
     weight = weight,
     take_off_velocity = current_velocity,
@@ -396,7 +396,7 @@ vj_simulate <- function( # system constrains
 
     impulse = impulse,
 
-    mean_power =  mean_power,
+    mean_power = mean_power,
 
     mean_RFD = mean_RFD,
     mean_RPD = mean_RPD,
@@ -456,7 +456,7 @@ vj_simulate <- function( # system constrains
   return(
     list(
       summary = summary_data,
-      trace =  do.call(rbind, trace_data)
+      trace = do.call(rbind, trace_data)
     )
   )
 }

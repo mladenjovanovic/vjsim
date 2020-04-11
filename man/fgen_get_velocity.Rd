@@ -2,7 +2,7 @@
 % Please edit documentation in R/fgen.R
 \name{fgen_get_velocity}
 \alias{fgen_get_velocity}
-\title{Get Forve-Velocity Velocity of the Force Generator}
+\title{Get Force-Velocity Velocity of the Force Generator}
 \usage{
 fgen_get_velocity(external_force, max_force = 3000, max_velocity = 4)
 }
@@ -11,7 +11,7 @@ fgen_get_velocity(external_force, max_force = 3000, max_velocity = 4)
 
 \item{max_force}{Numeric vector. Maximal force in Newton that Force Generator can generate}
 
-\item{max_velocity}{Numeric vectpr. Maximal velocity that Force Generator can achieve in unconstrained conditions}
+\item{max_velocity}{Numeric vector. Maximal velocity that Force Generator can achieve in unconstrained conditions}
 }
 \value{
 Numeric vector of estimated maximal velocity reached

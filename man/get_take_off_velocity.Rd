@@ -30,7 +30,7 @@ of \code{mass} over \code{push_off_distance} in vertical direction, assuming zer
 \examples{
 get_take_off_velocity(
   mean_force = 2000,
-  mass= 85,
+  mass = 85,
   push_off_distance = 0.4
 )
 }

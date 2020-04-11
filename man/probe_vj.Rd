@@ -97,5 +97,6 @@ ggplot(plot_data, aes(x = change_ratio, y = value, color = probing, linetype = r
     "max_force" = "#5DA5DA",
     "max_velocity" =  "#FAA43A",
     "push_off_distance" = "#60BD68",
-    "time_to_max_activation" = "#B276B2"))
+    "time_to_max_activation" = "#B276B2"
+  ))
 }

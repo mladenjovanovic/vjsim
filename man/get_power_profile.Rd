@@ -30,5 +30,4 @@ Applied polynomial linear regression model using \code{power} and \code{x_var} c
 \examples{
 fv_profile <- vj_profile(mass = 75)
 get_power_profile(fv_profile)
-
 }

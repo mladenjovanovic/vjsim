@@ -16,7 +16,7 @@ parameters <- expand_grid(
   decline_rate = c(1.1, 0.8, 0.5),
   peak_location = c(-0.04, -0.08),
   time_to_max_activation = c(0.4, 0.3, 0.2, 0.1)
-  )
+)
 
 parameters <- parameters %>%
   mutate(
@@ -36,16 +36,16 @@ parameters_len <- nrow(parameters)
 
 vjsim_data <- list()
 
-#pb <- progress::progress_bar$new(
+# pb <- progress::progress_bar$new(
 #  total = parameters_len,
 #  format = "(:spin) [:bar] :percent eta: :eta"
-#)
-#pb$tick(0)
+# )
+# pb$tick(0)
 
 # --------------------------------
 # Loop
-for(i in seq(1, parameters_len)) {
-  #pb$tick()
+for (i in seq(1, parameters_len)) {
+  # pb$tick()
 
   # -------------------------------
   # Force Generator characteristics
@@ -64,7 +64,9 @@ for(i in seq(1, parameters_len)) {
     ", mass=", mass, ", push-off distance=", push_off_distance,
     ", max_force=", max_force, ", max_velocity=", max_velocity,
     ", decline_rate=", decline_rate, ", peak_location=", peak_location,
-    ", time_to_max_activation=", time_to_max_activation, sep=""))
+    ", time_to_max_activation=", time_to_max_activation,
+    sep = ""
+  ))
 
 
   # Hypothetical using Samozino model
@@ -79,13 +81,13 @@ for(i in seq(1, parameters_len)) {
   # Fgen parameters
   force_generator <- c(
     list(
-    bodyweight = mass,
-    push_off_distance = push_off_distance,
-    max_force = max_force,
-    max_velocity = max_velocity,
-    decline_rate = decline_rate,
-    peak_location = peak_location,
-    time_to_max_activation = time_to_max_activation
+      bodyweight = mass,
+      push_off_distance = push_off_distance,
+      max_force = max_force,
+      max_velocity = max_velocity,
+      decline_rate = decline_rate,
+      peak_location = peak_location,
+      time_to_max_activation = time_to_max_activation
     ),
     unlist(optimal_profile)
   )
@@ -187,13 +189,13 @@ for(i in seq(1, parameters_len)) {
     activation_to_velocity_height_ratio = (bodyweight_jump_activation$height - bodyweight_jump$height) / (bodyweight_jump_velocity$height - bodyweight_jump$height),
     activation_to_force_height_diff = (bodyweight_jump_activation$height - bodyweight_jump$height) - (bodyweight_jump_force$height - bodyweight_jump$height),
     activation_to_force_height_ratio = (bodyweight_jump_activation$height - bodyweight_jump$height) / (bodyweight_jump_force$height - bodyweight_jump$height)
-    )
+  )
 
   # ------------------------
   # Bosco Index
   double_bodyweight_jump <- vj_simulate(
-    mass = mass*2,
-    weight = weight*2,
+    mass = mass * 2,
+    weight = weight * 2,
     push_off_distance = push_off_distance,
     gravity_const = gravity_const,
     time_step = time_step,
@@ -223,14 +225,14 @@ for(i in seq(1, parameters_len)) {
     decline_rate = decline_rate,
     peak_location = peak_location,
     time_to_max_activation = time_to_max_activation
-   )
+  )
 
   jump_profile <- get_all_profiles(jump_profile_data)
   jump_profile <- as.list(unlist(jump_profile$list))
 
   # ------------------------
   # Load~Peak Force profiel
-  LPF_profile_model <- lm(peak_GRF~mass, jump_profile_data)
+  LPF_profile_model <- lm(peak_GRF ~ mass, jump_profile_data)
   LPF_profile <- list(
     slope = coef(LPF_profile_model)[[2]],
     slope_rel = coef(LPF_profile_model)[[2]] / mass

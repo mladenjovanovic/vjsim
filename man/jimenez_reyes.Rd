@@ -39,7 +39,7 @@ data(jimenez_reyes)
 \description{
 Data freely available from \href{https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0216681}{Jimenez-Reyes et al. (2019)}
      paper in which the authors performed the intervention study based on Samozino optimization model. Please refer
-     to the original paper for more infomration.
+     to the original paper for more information.
 }
 \references{
 Jiménez-Reyes P, Samozino P, Brughelli M, Morin J-B. 2017. Effectiveness of an Individualized Training Based on Force-Velocity Profiling during Jumping. Frontiers in Physiology 7. DOI: 10.3389/fphys.2016.00677.

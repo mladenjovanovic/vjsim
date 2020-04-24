@@ -6,18 +6,22 @@ Authors@R:
            family = "Jovanović",
            role = c("aut", "cre"),
            email = "coach.mladen.jovanovic@gmail.com")
-Version: 0.1.1
-Description: vjsim is R package that simulates vertical jump with the
-    aim of teaching basic biomechanical principles, FV profiling,
-    and exploring assumptions of FV optimization models. 
-URL: https://github.com/mladenjovanovic/vjsim
+Version: 0.1.1.9000
+Description: Vertical jump analysis, particularly squat jump analysis, 
+    is common in sport science and athlete profiling. This package allows
+    you to explore squat jumping with the use of simulation. Besides that,
+    the goal of this package is to teach basic biomechanics, FV profiling,
+    and exploring assumptions of FV optimization models. This package also
+    comes with functions that allow users to analyse and plot their own 
+    squat jump data. 
+URL: https://mladenjovanovic.github.io/vjsim/
 BugReports: https://github.com/mladenjovanovic/vjsim/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.0.2
 Depends: R (>= 2.10)
-Suggests: 
+Imports: 
     stats,
     knitr,
     rmarkdown,

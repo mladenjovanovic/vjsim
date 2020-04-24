@@ -451,7 +451,7 @@ make_load_profile <- function(bodyweight,
 
   # If height missing, use aerial time to create it
   if (missing(height)) {
-    height <- get_height_from_aerial_time(aerial_time)
+    height <- get_height_from_aerial_time(aerial_time, gravity_const)
   }
 
   # Get take-off velocity

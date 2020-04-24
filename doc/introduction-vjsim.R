@@ -41,7 +41,7 @@ parameters <- expand.grid(
 force_length <- parameters %>%
   mutate(
     force_perc = vjsim::fgen_get_force_percentage(
-      current_distance =  current_distance,
+      current_distance = current_distance,
       push_off_distance = push_off_distance,
       decline_rate = decline_rate,
       peak_location = peak_location
@@ -62,7 +62,7 @@ ggplot(
 ) +
   theme_cowplot(8) +
   geom_line() +
-  facet_grid(decline_rate_label~peak_location_label) +
+  facet_grid(decline_rate_label ~ peak_location_label) +
   xlab("Distance (m)") +
   ylab("Force percentage") +
   labs(color = "Push-off distance")
@@ -79,7 +79,7 @@ ggplot(
 ) +
   theme_cowplot(8) +
   geom_line(alpha = 0.6) +
-  facet_grid(decline_rate_label~peak_location_label) +
+  facet_grid(decline_rate_label ~ peak_location_label) +
   xlab("Distance to take-off (m)") +
   ylab("Force percentage") +
   labs(color = "Push-off distance")

@@ -155,14 +155,14 @@ kinetics_data$velocity <- NA
 # Save the initial velocity
 kinetics_data$velocity[1] <- velocity_0
 
-for (i in seq(1, nrow(kinetics_data)-1)){
-    velocity_current <- kinetics_data$velocity[i]
-    acceleration_current <- kinetics_data$acceleration[i]
-    
-    velocity_next <- velocity_current + acceleration_current * time_step
-    
-    # Save the next velocity
-    kinetics_data$velocity[i+1] <- velocity_next
+for (i in seq(1, nrow(kinetics_data) - 1)) {
+  velocity_current <- kinetics_data$velocity[i]
+  acceleration_current <- kinetics_data$acceleration[i]
+
+  velocity_next <- velocity_current + acceleration_current * time_step
+
+  # Save the next velocity
+  kinetics_data$velocity[i + 1] <- velocity_next
 }
 ```
 
@@ -204,14 +204,14 @@ kinetics_data$distance <- NA
 # Save the initial velocity
 kinetics_data$distance[1] <- distance_0
 
-for (i in seq(1, nrow(kinetics_data)-1)){
-    distance_current <- kinetics_data$distance[i]
-    velocity_current <- kinetics_data$velocity[i]
-    
-    distance_next <- distance_current + velocity_current * time_step
-    
-    # Save the next distance
-    kinetics_data$distance[i+1] <- distance_next
+for (i in seq(1, nrow(kinetics_data) - 1)) {
+  distance_current <- kinetics_data$distance[i]
+  velocity_current <- kinetics_data$velocity[i]
+
+  distance_next <- distance_current + velocity_current * time_step
+
+  # Save the next distance
+  kinetics_data$distance[i + 1] <- distance_next
 }
 ```
 
@@ -258,11 +258,13 @@ $$
   P &= \frac{F\times d}{t} \\
 \end{aligned}
 $$
-Since $\frac{d}{t}$ is equat to velocity $v$, then the power is equal to:
+
+Since $\frac{d}{t}$ is equal to velocity $v$, then the power is equal to:
 
 $$
 P = F \times v
 $$
+
 But which force should be used? GRF (total force) or propulsive force (net)? The work done by GRF, will be used to increase both *potential energy* ($E=m\times g\times d$; assuming this motion is vertical, which it is) and *kinetic energy* ($E=\frac{m\times v^2}{2}$), while work done by net force will only be used to increase kinetic energy. Thus, to calculate the power, GRF should be used. We can plot that as well:
 
 ```{r}
@@ -312,7 +314,7 @@ From the above equation, mean velocity is equal to half of the peak velocity. Gr
 ggplot(kinetics_data, aes(x = time, y = velocity)) +
   theme_cowplot() +
   geom_line(color = "blue") +
-  geom_hline(yintercept = max(kinetics_data$velocity)/2, linetype = "dashed")
+  geom_hline(yintercept = max(kinetics_data$velocity) / 2, linetype = "dashed")
 ```
 
 Please NOTE that this simple relationship between $v_{peak}$ and $\bar{v}$ (or $v_{mean}$) is only true when there is **CONSTANT** acceleration.
@@ -372,6 +374,7 @@ The "problem" with our Force Generator is that it produces force that depends on
 $$
 a = \frac{F_{gen}(position, velocity, time) - w}{m}
 $$
+
 This means that we need to take small time steps as we did in the code above, and iteratively calculate acceleration, velocity, and distance. This method is called *Euler's method*. So at current instant in time ($t$), we assume linear relationships and calculate *next* ($t+1$) velocity, and position using small changes in time ($dt$, or *time_step*):
 
 $$
@@ -392,18 +395,18 @@ Let's do the jump in `vjsim` using the following parameters (see code below) and
 
 ```{r}
 vertical_jump <- vjsim::vj_simulate(
-   mass = 85,
-   weight = 85 * 9.81,
-   push_off_distance = 0.4,
-   gravity_const = 9.81,
-   time_step = 0.001,
-   
-   # Parameters of the Force Generator
-   max_force = 3000,
-   max_velocity = 4,
-   decline_rate = 1.05,
-   peak_location = -0.06,
-   time_to_max_activation = 0.3
+  mass = 85,
+  weight = 85 * 9.81,
+  push_off_distance = 0.4,
+  gravity_const = 9.81,
+  time_step = 0.001,
+
+  # Parameters of the Force Generator
+  max_force = 3000,
+  max_velocity = 4,
+  decline_rate = 1.05,
+  peak_location = -0.06,
+  time_to_max_activation = 0.3
 )
 ```
 
@@ -411,7 +414,7 @@ vertical_jump <- vjsim::vj_simulate(
 
 ```{r}
 datatable(vertical_jump$trace, rownames = FALSE) %>%
-      formatRound(columns = 1:ncol(vertical_jump$trace), digits = 3)
+  formatRound(columns = 1:ncol(vertical_jump$trace), digits = 3)
 ```
 
 Plotting this is a much better way to see the vertical jump simulation results. Let's plot against time. 
@@ -432,11 +435,12 @@ plot_data <- gather(vertical_jump$trace, "variable", "value", -(1:15)) %>%
       "power",
       "RFD",
       "RPD"
-    )))
+    )
+  ))
 
 ggplot(plot_data, aes(x = time, y = value)) +
   theme_cowplot(8) +
-  geom_line(color = "blue") + 
+  geom_line(color = "blue") +
   facet_wrap(~variable, scales = "free_y") +
   ylab(NULL)
 ```
@@ -446,14 +450,14 @@ Or we can plot against distance:
 ```{r}
 ggplot(plot_data, aes(x = distance, y = value)) +
   theme_cowplot(8) +
-  geom_line(color = "blue") + 
+  geom_line(color = "blue") +
   facet_wrap(~variable, scales = "free_y") +
   ylab(NULL)
 ```
 
 `RFD` and `RPD` are additional variables produces by `vjsim::vj_simulate` and represent rate-of-force-development (GRF to be more precise) and rate-of-power-development. It represents a change in GRF and power divided by the time step (i.e. 0.001). `mean_RFD` and `mean_RPD` are calculated by dividing their peak values by the time it takes to reach the peak. 
 
-The summary list represents, well, the summary of the jump. We can also call thse **performance metrics**. 
+The summary list represents, well, the summary of the jump. We can also call these **performance metrics**. 
 
 ```{r}
 df <- as.data.frame(t(vertical_jump$summary))
@@ -481,24 +485,24 @@ To do so, we need to *probe* the simulator in order to estimate *sensitivity* of
 
 ```{r}
 probing_data <- vjsim::probe_vj(
-   mass = 85,
-   change_ratio = c(0.9, 1, 1.1),
-   aggregate = "raw",
-   # Parameters forwarded to vj_sim
-   weight = 85 * 9.81,
-   push_off_distance = 0.4,
-   gravity_const = 9.81,
-   time_step = 0.001,
-   # Parameters of the Force Generator
-   max_force = 3000,
-   max_velocity = 4,
-   decline_rate = 1.05,
-   peak_location = -0.06,
-   time_to_max_activation = 0.3
+  mass = 85,
+  change_ratio = c(0.9, 1, 1.1),
+  aggregate = "raw",
+  # Parameters forwarded to vj_sim
+  weight = 85 * 9.81,
+  push_off_distance = 0.4,
+  gravity_const = 9.81,
+  time_step = 0.001,
+  # Parameters of the Force Generator
+  max_force = 3000,
+  max_velocity = 4,
+  decline_rate = 1.05,
+  peak_location = -0.06,
+  time_to_max_activation = 0.3
 )
 
 datatable(probing_data, rownames = FALSE) %>%
-      formatRound(columns = 1:ncol(probing_data), digits = 2)
+  formatRound(columns = 1:ncol(probing_data), digits = 2)
 ```
 
 How does this work? First, we need to have initial Force Generator parameter values. Then we take and change one parameter and modify it using `change_ratio` (i.e. multiply by 0.9, 1, and 1.1), while keeping all the other parameters the same (i.e. using initial values). Then we repeat this for all Force Generator parameters. 
@@ -509,68 +513,72 @@ The sensitivity is hard to be grasped from the table, so let's plot these. But b
 
 ```{r}
 # Invert for mass and time_to_max_activation
- probing_data$change_ratio <- ifelse(
-   probing_data$probing == "time_to_max_activation",
-   1 / probing_data$change_ratio,
-   probing_data$change_ratio
- )
+probing_data$change_ratio <- ifelse(
+  probing_data$probing == "time_to_max_activation",
+  1 / probing_data$change_ratio,
+  probing_data$change_ratio
+)
 
- probing_data$change_ratio <- ifelse(
-   probing_data$probing == "mass",
-   1 / probing_data$change_ratio,
-   probing_data$change_ratio
- )
+probing_data$change_ratio <- ifelse(
+  probing_data$probing == "mass",
+  1 / probing_data$change_ratio,
+  probing_data$change_ratio
+)
 
 
- plot_data <- gather(probing_data, key = "variable", value = "value", -(1:13)) %>%
-   filter(variable %in% c(
-     "height",
-     "take_off_time",
-     "mean_velocity",
-     "peak_velocity",
-     "take_off_velocity",
-     "mean_GRF_over_distance",
-     "mean_GRF_over_time",
-     "peak_GRF",
-     "peak_power",
-     "mean_power",
-     "peak_RFD",
-     "peak_RPD"
-   ))
+plot_data <- gather(probing_data, key = "variable", value = "value", -(1:13)) %>%
+  filter(variable %in% c(
+    "height",
+    "take_off_time",
+    "mean_velocity",
+    "peak_velocity",
+    "take_off_velocity",
+    "mean_GRF_over_distance",
+    "mean_GRF_over_time",
+    "peak_GRF",
+    "peak_power",
+    "mean_power",
+    "peak_RFD",
+    "peak_RPD"
+  ))
 
- plot_data$reverse <- plot_data$probing %in% c("mass", "time_to_max_activation")
+plot_data$reverse <- plot_data$probing %in% c("mass", "time_to_max_activation")
 
 gg <- ggplot(plot_data, aes(x = change_ratio, y = value, color = probing, linetype = reverse)) +
-   theme_cowplot(6) +
-   geom_line() +
-   facet_wrap(~variable, scales = "free_y") +
-   xlab("Normalized parameter change") +
-   ylab(NULL) +
-   scale_color_manual(values = c(
-     "mass" = "#4D4D4D",
-     "max_force" = "#5DA5DA",
-     "max_velocity" =  "#FAA43A",
-     "push_off_distance" = "#60BD68",
-     "time_to_max_activation" = "#B276B2"))
+  theme_cowplot(6) +
+  geom_line() +
+  facet_wrap(~variable, scales = "free_y") +
+  xlab("Normalized parameter change") +
+  ylab(NULL) +
+  scale_color_manual(values = c(
+    "mass" = "#4D4D4D",
+    "max_force" = "#5DA5DA",
+    "max_velocity" =  "#FAA43A",
+    "push_off_distance" = "#60BD68",
+    "time_to_max_activation" = "#B276B2"
+  ))
 gg
 ```
 
-For example, if we take only jump height (see below for better zoom), given the initial Forge Generator parameters, it seems that increasing max velocity (for 10%) will yeild slightly larger improvments than increasing max force. This doesn't tell us anything regarding which Force Generator parameter change is easier to create - for example, 10% improvement in max velocity can be very hard to do, compared to 20% improvement in max force. The simulator doesn't know this - it is up to us, coaches or anyone with subject-matter knowledge, to interpret these for the potential intervention. And besides, keep in mind that this is only a model, it thus represent the *sand box* or the *Small World*. 
+For example, if we take only jump height (see below for better zoom), given the initial Forge Generator parameters, it seems that increasing max velocity (for 10%) will yield slightly larger improvements than increasing max force. This doesn't tell us anything regarding which Force Generator parameter change is easier to create - for example, 10% improvement in max velocity can be very hard to do, compared to 20% improvement in max force. The simulator doesn't know this - it is up to us, coaches or anyone with subject-matter knowledge, to interpret these for the potential intervention. And besides, keep in mind that this is only a model, it thus represent the *sand box* or the *Small World*. 
 
 ```{r}
-gg <-  ggplot(filter(plot_data, variable == "height"),
-  aes(x = change_ratio, y = value, color = probing, linetype = reverse)) +
-   theme_cowplot(12) +
-   geom_line() +
-   facet_wrap(~variable, scales = "free_y") +
-   xlab("Normalized parameter change") +
-   ylab(NULL) +
-   scale_color_manual(values = c(
-     "mass" = "#4D4D4D",
-     "max_force" = "#5DA5DA",
-     "max_velocity" =  "#FAA43A",
-     "push_off_distance" = "#60BD68",
-     "time_to_max_activation" = "#B276B2"))
+gg <- ggplot(
+  filter(plot_data, variable == "height"),
+  aes(x = change_ratio, y = value, color = probing, linetype = reverse)
+) +
+  theme_cowplot(12) +
+  geom_line() +
+  facet_wrap(~variable, scales = "free_y") +
+  xlab("Normalized parameter change") +
+  ylab(NULL) +
+  scale_color_manual(values = c(
+    "mass" = "#4D4D4D",
+    "max_force" = "#5DA5DA",
+    "max_velocity" =  "#FAA43A",
+    "push_off_distance" = "#60BD68",
+    "time_to_max_activation" = "#B276B2"
+  ))
 gg
 ```
 
@@ -581,66 +589,70 @@ Our initial value for max force is 3,000N. Now we are interested which performan
 ```{r}
 # Need this package to label the lines
 # install.packages("directlabels")
-require(directlabels) 
+require(directlabels)
 
 
 probing_data <- vjsim::probe_vj(
-   mass = 85,
-   change_ratio = c(0.9, 0.95, 1, 1.05, 1.1),
-   aggregate = "ratio",
-   # Parameters forwarded to vj_sim
-   weight = 85 * 9.81,
-   push_off_distance = 0.4,
-   gravity_const = 9.81,
-   time_step = 0.001,
-   # Parameters of the Force Generator
-   max_force = 3000,
-   max_velocity = 4,
-   decline_rate = 1.05,
-   peak_location = -0.06,
-   time_to_max_activation = 0.3
+  mass = 85,
+  change_ratio = c(0.9, 0.95, 1, 1.05, 1.1),
+  aggregate = "ratio",
+  # Parameters forwarded to vj_sim
+  weight = 85 * 9.81,
+  push_off_distance = 0.4,
+  gravity_const = 9.81,
+  time_step = 0.001,
+  # Parameters of the Force Generator
+  max_force = 3000,
+  max_velocity = 4,
+  decline_rate = 1.05,
+  peak_location = -0.06,
+  time_to_max_activation = 0.3
 )
 
- plot_data <- gather(probing_data, key = "variable", value = "value", -(1:13)) %>%
-   filter(
-     variable %in% c(
-     "height",
-     "take_off_time",
-     "mean_velocity",
-     "peak_velocity",
-     "take_off_velocity",
-     "mean_GRF_over_distance",
-     "mean_GRF_over_time",
-     "peak_GRF",
-     "peak_power",
-     "mean_power",
-     "peak_RFD",
-     "peak_RPD"
-   )
-   )
+plot_data <- gather(probing_data, key = "variable", value = "value", -(1:13)) %>%
+  filter(
+    variable %in% c(
+      "height",
+      "take_off_time",
+      "mean_velocity",
+      "peak_velocity",
+      "take_off_velocity",
+      "mean_GRF_over_distance",
+      "mean_GRF_over_time",
+      "peak_GRF",
+      "peak_power",
+      "mean_power",
+      "peak_RFD",
+      "peak_RPD"
+    )
+  )
 
-gg <- ggplot(filter(plot_data, probing == "max_force"),
-  aes(x = change_ratio, y = value, color = variable)) +
-   theme_cowplot(12) +
-   geom_line() +
-   facet_wrap(~probing, scales = "free_y") +
-   xlab("Normalized parameter change") +
-   ylab(NULL) +
-   xlim(c(0.9, 1.2))
+gg <- ggplot(
+  filter(plot_data, probing == "max_force"),
+  aes(x = change_ratio, y = value, color = variable)
+) +
+  theme_cowplot(12) +
+  geom_line() +
+  facet_wrap(~probing, scales = "free_y") +
+  xlab("Normalized parameter change") +
+  ylab(NULL) +
+  xlim(c(0.9, 1.2))
 direct.label(gg, list("last.bumpup", cex = 0.7))
 ```
 
-As can be seen from the figure above, it seems that the change in max force will have the biggest impact on `peak_RPD`, followd by jump height. We can do this for other Force Parameters:
+As can be seen from the figure above, it seems that the change in max force will have the biggest impact on `peak_RPD`, followed by jump height. We can do this for other Force Parameters:
 
 ```{r}
-gg <- ggplot(plot_data,
-  aes(x = change_ratio, y = value, color = variable)) +
-   theme_cowplot(8) +
-   geom_line() +
-   facet_wrap(~probing, scales = "free_y") +
-   xlab("Normalized parameter change") +
-   ylab(NULL) +
-   xlim(c(0.9, 1.2))
+gg <- ggplot(
+  plot_data,
+  aes(x = change_ratio, y = value, color = variable)
+) +
+  theme_cowplot(8) +
+  geom_line() +
+  facet_wrap(~probing, scales = "free_y") +
+  xlab("Normalized parameter change") +
+  ylab(NULL) +
+  xlim(c(0.9, 1.2))
 direct.label(gg, list("last.bumpup", cex = 0.4))
 ```
 

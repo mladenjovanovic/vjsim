@@ -30,7 +30,7 @@ knitr::opts_chunk$set(
 
 `vjsim` is R package that simulates vertical jump with the aim of teaching basic biomechanical principles, FV profiling, and exploring assumptions of FV optimization models. 
 
-A vertical jump can be done in multiple ways. One way is to quickly dip down and then rebound as high as possible. This vertical jump contains *countermovement action*, which increases vertical jump height due to various mechanisms (which are not in our interest for this simulation). Another way involves squatting down, holding the squat position for a second or two, and then exploding upward without any dip. This can be considered purely *concentric* (or static) jump, and it is usually termed *squat jump* to be differentiated from the countermovement jump. The hands are typically held at the hip, without allowing any swinging action. In `vjsim` only the squat jump is simulated and analyzed. Thus, when I refer to vertical jump, I refer to a static squat jump with arms continuously held at the hips.
+A vertical jump can be done in multiple ways. One way is to quickly dip down and then rebound as high as possible. This vertical jump contains *counter-movement action*, which increases vertical jump height due to various mechanisms (which are not in our interest for this simulation). Another way involves squatting down, holding the squat position for a second or two, and then exploding upward without any dip. This can be considered purely *concentric* (or static) jump, and it is usually termed *squat jump* to be differentiated from the  jump. The hands are typically held at the hip, without allowing any swinging action. In `vjsim` only the squat jump is simulated and analyzed. Thus, when I refer to vertical jump, I refer to a static squat jump with arms continuously held at the hips.
 
 In `vjsim`, the vertical jump is represented with a simple mechanical model (see Figure). 
 
@@ -112,7 +112,7 @@ parameters <- expand.grid(
 force_length <- parameters %>%
   mutate(
     force_perc = vjsim::fgen_get_force_percentage(
-      current_distance =  current_distance,
+      current_distance = current_distance,
       push_off_distance = push_off_distance,
       decline_rate = decline_rate,
       peak_location = peak_location
@@ -133,7 +133,7 @@ ggplot(
 ) +
   theme_cowplot(8) +
   geom_line() +
-  facet_grid(decline_rate_label~peak_location_label) +
+  facet_grid(decline_rate_label ~ peak_location_label) +
   xlab("Distance (m)") +
   ylab("Force percentage") +
   labs(color = "Push-off distance")
@@ -153,7 +153,7 @@ ggplot(
 ) +
   theme_cowplot(8) +
   geom_line(alpha = 0.6) +
-  facet_grid(decline_rate_label~peak_location_label) +
+  facet_grid(decline_rate_label ~ peak_location_label) +
   xlab("Distance to take-off (m)") +
   ylab("Force percentage") +
   labs(color = "Push-off distance")
@@ -277,7 +277,7 @@ ggplot(
 So far, the Force-Length and Force-Time characteristics assumed *static* conditions or $v=0m/s$. In plain English, we used *isometric* or static conditions by holding the Force Generator and probing it. But once the Force Generator starts moving, there is an additional component that is modeled with the *viscous* properties:
 
 $$
-F_{viscuous} = k \times v
+F_{viscous} = k \times v
 $$
 
 In *real-life*, the faster the muscles (i.e. Force Generator) are shortening, the less force they can exert. The mechanism behind this is not really understood (pardon my ignorance if I am wrong), but it is hypothesized that it is due to the shortening of the time *cross-bridges* in the muscle cell have to perform the cycling. Another explanation might be an increase in the viscous forces inside the muscle, that resist movement. Anyway, this *phenomenological* characteristic (i.e. muscle or Force Generator decrease force production as velocity increases) can be modeled with the above equation. The higher the $k$ parameter, the bigger the resistance. 
@@ -352,7 +352,7 @@ ggplot(
 
 The above Figure represents intrinsic viscous force generated at particular velocities. Assuming unconstrained conditions, we are interested in estimating maximal velocity that can be achieved when the Force Generator faces some external resistance. Since we are assuming unconstrained conditions, the mass of the resistance is not important (due unlimited Push-off distance to accelerate), but only the facing external resisting force. The Force Generator faces two opposing forces then: external resistance force and viscous force (which is internal or intrinsic part of the Force Generator itself). **Peak velocity** is achieved when the sum of forces is equal to zero. I keep saying the sum of force, because $F_{viscous}$ and $F_{external}$ are in the opposite direction to $F_{max}$; thus, they have a negative sign.
 
-Please note the difference between peak velocity, which is the maximal velocity that can be reached in unconstrained conditions at a particular level of the external resistance force, a maximal velocity, which is "maximal" maximal velocity that can be reached in unconstrained conditions when there iz zero external resistance force. 
+Please note the difference between peak velocity, which is the maximal velocity that can be reached in unconstrained conditions at a particular level of the external resistance force, a maximal velocity, which is "maximal" maximal velocity that can be reached in unconstrained conditions when there is zero external resistance force. 
 
 $$
 F_{max} - F_{viscous} - F_{external} = 0
@@ -423,7 +423,7 @@ The above represent unconstrained Force Generator **Force-Velocity profile**. It
 
 ### Power of the Force Generator
 
-From the Force-Velocity profile of the Force Generator we can calculate generated Power (in uncostrained conditions). Power output is calculated by multiplying the velocity reached and external force:
+From the Force-Velocity profile of the Force Generator we can calculate generated Power (in unconstrained conditions). Power output is calculated by multiplying the velocity reached and external force:
 
 $$P = F_{external} \times v_{peak}$$
 

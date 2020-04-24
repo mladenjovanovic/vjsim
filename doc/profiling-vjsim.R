@@ -81,7 +81,7 @@ plot_profile(profile_data, "mass", "height")
 plot_profile(profile_data, "mass", "take_off_velocity")
 
 ## -----------------------------------------------------------------------------
-lm_model <- lm(take_off_velocity~mass, profile_data)
+lm_model <- lm(take_off_velocity ~ mass, profile_data)
 
 model_data <- tibble(
   mass = seq(-50, 300),
@@ -108,7 +108,7 @@ vjsim::get_FV_profile(
 )
 
 ## -----------------------------------------------------------------------------
-lm_model <- lm(height~poly(mass, 2), profile_data)
+lm_model <- lm(height ~ poly(mass, 2), profile_data)
 
 model_data <- tibble(
   mass = seq(-10, 250),
@@ -121,7 +121,7 @@ plot_profile(profile_data, "mass", "height") +
   geom_vline(xintercept = 0, color = "grey", alpha = 0.5)
 
 ## -----------------------------------------------------------------------------
-lm_model <- lm(height~poly(mass, 3), profile_data)
+lm_model <- lm(height ~ poly(mass, 3), profile_data)
 
 model_data <- tibble(
   mass = seq(-10, 250),
@@ -137,12 +137,12 @@ plot_profile(profile_data, "mass", "height") +
 vjsim::get_FV_profile(
   profile_data = profile_data,
   force = "mass",
-  velocity = "height", 
+  velocity = "height",
   poly_deg = 3
 )
 
 ## -----------------------------------------------------------------------------
-lm_model <- lm(height~poly(mass, 1), profile_data)
+lm_model <- lm(height ~ poly(mass, 1), profile_data)
 
 model_data <- tibble(
   mass = seq(-10, 250),
@@ -165,7 +165,7 @@ vjsim::get_FV_profile(
 plot_profile(profile_data, "mean_GRF_over_distance", "mean_velocity")
 
 ## -----------------------------------------------------------------------------
-lm_model <- lm(mean_velocity~poly(mean_GRF_over_distance, 1), profile_data)
+lm_model <- lm(mean_velocity ~ poly(mean_GRF_over_distance, 1), profile_data)
 
 model_data <- tibble(
   mean_GRF_over_distance = seq(-50, 3500),
@@ -185,7 +185,7 @@ vjsim::get_FV_profile(
 )
 
 ## -----------------------------------------------------------------------------
-lm_model <- lm(mean_velocity~poly(mean_GRF_over_distance, 2), profile_data)
+lm_model <- lm(mean_velocity ~ poly(mean_GRF_over_distance, 2), profile_data)
 
 model_data <- tibble(
   mean_GRF_over_distance = seq(-50, 3500),
@@ -206,7 +206,7 @@ vjsim::get_FV_profile(
 )
 
 ## -----------------------------------------------------------------------------
-lm_model <- lm(mean_velocity~poly(mean_GRF_over_distance, 3), profile_data)
+lm_model <- lm(mean_velocity ~ poly(mean_GRF_over_distance, 3), profile_data)
 
 model_data <- tibble(
   mean_GRF_over_distance = seq(-50, 3500),
@@ -239,7 +239,7 @@ plot_profile(profile_data, "external_load", "mean_power")
 plot_profile(profile_data, "mass", "mean_power")
 
 ## -----------------------------------------------------------------------------
-lm_model <- lm(mean_power~poly(mean_GRF_over_distance, 2), profile_data)
+lm_model <- lm(mean_power ~ poly(mean_GRF_over_distance, 2), profile_data)
 
 model_data <- tibble(
   mean_GRF_over_distance = seq(-50, 3500),
@@ -313,46 +313,50 @@ datatable(probe_data, rownames = FALSE) %>%
 ## -----------------------------------------------------------------------------
 # Need this package to label the lines
 # install.packages("directlabels")
-require(directlabels) 
+require(directlabels)
 
 plot_probe <- function(probing_data) {
   # Convert to long
   probe_data <- gather(probe_data, key = "variable", value = "value", -(1:8))
-  
-  gg <- ggplot(probe_data,
+
+  gg <- ggplot(
+    probe_data,
     aes(x = change_ratio, y = value, color = probing)
-    ) +
-   theme_cowplot(6) +
-   geom_line() +
-   facet_wrap(~variable, scales = "free_y") +
-   xlab("Normalized parameter change") +
-   ylab("Normalized profile change") +
-   scale_color_manual(values = c(
-     "mass" = "#4D4D4D",
-     "max_force" = "#5DA5DA",
-     "max_velocity" =  "#FAA43A",
-     "push_off_distance" = "#60BD68",
-     "time_to_max_activation" = "#B276B2")) +
-    xlim(c(0.9, 1.2)) 
-    
+  ) +
+    theme_cowplot(6) +
+    geom_line() +
+    facet_wrap(~variable, scales = "free_y") +
+    xlab("Normalized parameter change") +
+    ylab("Normalized profile change") +
+    scale_color_manual(values = c(
+      "mass" = "#4D4D4D",
+      "max_force" = "#5DA5DA",
+      "max_velocity" =  "#FAA43A",
+      "push_off_distance" = "#60BD68",
+      "time_to_max_activation" = "#B276B2"
+    )) +
+    xlim(c(0.9, 1.2))
+
   fgen_facets <- direct.label(gg, list("last.bumpup", cex = 0.4))
-  
-  gg <- ggplot(probe_data,
-  aes(x = change_ratio, y = value, color = variable)) +
-   theme_cowplot(8) +
-   geom_line() +
-   facet_wrap(~probing, scales = "free_y") +
-   xlab("Normalized parameter change") +
-   ylab("Normalized profile change") +
-   xlim(c(0.9, 1.2))
-  
+
+  gg <- ggplot(
+    probe_data,
+    aes(x = change_ratio, y = value, color = variable)
+  ) +
+    theme_cowplot(8) +
+    geom_line() +
+    facet_wrap(~probing, scales = "free_y") +
+    xlab("Normalized parameter change") +
+    ylab("Normalized profile change") +
+    xlim(c(0.9, 1.2))
+
   profile_facets <- direct.label(gg, list("last.bumpup", cex = 0.4))
-  
-  
+
+
   return(list(
     fgen_facets = fgen_facets,
-    profile_facets = profile_facets)
-  )
+    profile_facets = profile_facets
+  ))
 }
 
 ## -----------------------------------------------------------------------------
@@ -422,7 +426,7 @@ profile_data_force <- vjsim::vj_profile(
   # Simulation parameters
   mass = 75,
   push_off_distance = 0.4,
-  max_force = 3000 * 1.1, 
+  max_force = 3000 * 1.1,
   max_velocity = 4
 
   # Other parameters are default in the `vjsim::fgen_get_output`
@@ -441,19 +445,19 @@ profile_probe_data <- rbind(
     profile = "original",
     force = profile_data_original[[x_var]],
     velocity = profile_data_original[[y_var]]
-    ),
-  
-    data.frame(
+  ),
+
+  data.frame(
     profile = "velocity",
     force = profile_data_velocity[[x_var]],
     velocity = profile_data_velocity[[y_var]]
-    ),
-  
-    data.frame(
+  ),
+
+  data.frame(
     profile = "force",
     force = profile_data_force[[x_var]],
     velocity = profile_data_force[[y_var]]
-    )
+  )
 )
 
 gg <- ggplot(profile_probe_data, aes(x = force, y = velocity, color = profile)) +
@@ -465,9 +469,9 @@ gg
 ## -----------------------------------------------------------------------------
 gg <- ggplot(profile_probe_data, aes(x = force, y = velocity, color = profile)) +
   theme_cowplot(8) +
-  #geom_line(alpha = 0.8) +
+  # geom_line(alpha = 0.8) +
   geom_point(alpha = 0.8) +
-  geom_smooth(method = lm, se=FALSE, alpha = 0.5, fullrange=TRUE, size = 0.5, linetype = "dashed") +
+  geom_smooth(method = lm, se = FALSE, alpha = 0.5, fullrange = TRUE, size = 0.5, linetype = "dashed") +
   xlim(-10, 3800) +
   geom_hline(yintercept = 0, color = "grey", alpha = 0.5) +
   geom_vline(xintercept = 0, color = "grey", alpha = 0.5)
@@ -482,19 +486,19 @@ profile_probe_data <- rbind(
     profile = "original",
     force = profile_data_original[[x_var]],
     velocity = profile_data_original[[y_var]]
-    ),
-  
-    data.frame(
+  ),
+
+  data.frame(
     profile = "velocity",
     force = profile_data_velocity[[x_var]],
     velocity = profile_data_velocity[[y_var]]
-    ),
-  
-    data.frame(
+  ),
+
+  data.frame(
     profile = "force",
     force = profile_data_force[[x_var]],
     velocity = profile_data_force[[y_var]]
-    )
+  )
 )
 
 gg <- ggplot(profile_probe_data, aes(x = force, y = velocity, color = profile)) +
@@ -506,14 +510,13 @@ gg
 ## -----------------------------------------------------------------------------
 gg <- ggplot(profile_probe_data, aes(x = force, y = velocity, color = profile)) +
   theme_cowplot(8) +
-  #geom_line(alpha = 0.8) +
+  # geom_line(alpha = 0.8) +
   geom_point(alpha = 0.8) +
-  geom_smooth(method = lm, se=FALSE, alpha = 0.5, fullrange=TRUE, size = 0.5, linetype = "dashed") +
+  geom_smooth(method = lm, se = FALSE, alpha = 0.5, fullrange = TRUE, size = 0.5, linetype = "dashed") +
   xlim(-10, 300) +
   geom_hline(yintercept = 0, color = "grey", alpha = 0.5) +
   geom_vline(xintercept = 0, color = "grey", alpha = 0.5)
 gg
-
 
 ## -----------------------------------------------------------------------------
 # Install bmbstats if you haven't already by running the following commands
@@ -524,20 +527,19 @@ library(bmbstats)
 
 ## -----------------------------------------------------------------------------
 boot_profile <- function(profile_data, force = "mass", velocity = "take_off_velocity", poly_deg = 1) {
-  
   profile_estimators <- function(data, SESOI_lower, SESOI_upper, na.rm, init_boot) {
     # Get profile
     profile <- vjsim::get_FV_profile(
-         profile_data = data,
-         force = force,
-         velocity = velocity,
-         poly_deg = poly_deg
+      profile_data = data,
+      force = force,
+      velocity = velocity,
+      poly_deg = poly_deg
     )
-    
+
     # Return profile
     return(profile)
   }
-  
+
   # Perform bootstrap
   boot_data <- bmbstats::bmbstats(
     data = profile_data,
@@ -545,26 +547,26 @@ boot_profile <- function(profile_data, force = "mass", velocity = "take_off_velo
     boot_samples = 1000,
     boot_type = "perc",
     seed = 1667
-    )
-  
+  )
+
   # Add plot
   plot_data <- data.frame(F0 = boot_data$boot$t[, 1], V0 = boot_data$boot$t[, 2])
-  
+
   n_points <- nrow(plot_data)
-  
+
   plot_data <- data.frame(
     x = c(plot_data$F0, rep(0, n_points)),
     y = c(rep(0, n_points), plot_data$V0),
     group = c(seq(1, n_points), seq(1, n_points))
   )
-  
+
   gg <- ggplot(plot_data, aes(x = x, y = y, group = group)) +
     theme_cowplot(8) +
     geom_line(alpha = 0.01, color = "blue") +
     labs(x = force, y = velocity)
-  
+
   boot_data$graphs <- gg
-  
+
   return(boot_data)
 }
 
@@ -598,7 +600,7 @@ profile_data <- vjsim::vj_profile(
   # Other parameters are default in the `vjsim::fgen_get_output`
   # weight = mass * gravity_const,
   # gravity_const = 9.81,
-  
+
   # Setting these to 0 removes these components from the Force Generator
   decline_rate = 0,
   peak_location = 0,
@@ -650,13 +652,13 @@ profile_data <- vjsim::vj_profile(
   mass = 75,
   push_off_distance = 0.4,
   max_force = 3000,
-  
+
   max_velocity = Inf, # Needs to be infinite
 
   # Other parameters are default in the `vjsim::fgen_get_output`
   # weight = mass * gravity_const,
   # gravity_const = 9.81,
-  
+
   # Setting these to 0 removes these components from the Force Generator
   decline_rate = 0,
   peak_location = 0,
@@ -708,7 +710,7 @@ profile_data <- vjsim::vj_profile(
   mass = 75,
   push_off_distance = 0.4,
   max_force = 3000,
-  
+
   max_velocity = Inf, # Needs to be infinite
 
   # Other parameters are default in the `vjsim::fgen_get_output`

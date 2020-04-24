@@ -4,7 +4,8 @@
 \name{vjsim_data}
 \alias{vjsim_data}
 \title{vjsim data}
-\format{A data frame with 8640 rows and 194 variables:
+\format{
+A data frame with 8640 rows and 194 variables:
 \describe{
    \item{force_generator.bodyweight}{}
    \item{force_generator.push_off_distance}{}
@@ -200,7 +201,8 @@
    \item{simple_profile.Sfv_perc}{}
    \item{simple_profile.FV_imbalance}{}
    \item{simple_profile.probe_IMB}{}
-}}
+}
+}
 \usage{
 data(vjsim_data)
 }

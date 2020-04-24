@@ -4,7 +4,16 @@
 \name{testing_data}
 \alias{testing_data}
 \title{Example testing data}
-\format{An object of class \code{data.frame} with 24 rows and 5 columns.}
+\format{
+A data frame with 24 rows and 5 variables:
+  \describe{
+     \item{athlete}{Character string}
+     \item{bodyweight}{Bodyweight in kilograms}
+     \item{push_off_distance}{Push-off distance during squat jump in meters}
+     \item{external_load}{External load added to bodyweight in kilograms}
+     \item{aerial_time}{Aerial time measured with jump mat in seconds}
+  }
+}
 \usage{
 data(testing_data)
 }
@@ -12,14 +21,5 @@ data(testing_data)
 Profiling data for N=5 athletes using progressive squat jump measured using jump mat.
     Jump mat has a measurement error, with systematic bias of 0, proportional bias of 1
     and random error normally distributed with SD of 0.01s
-}
-\details{
-\describe{
-   \item{athlete}{Character string}
-   \item{bodyweight}{Bodyweight in kilograms}
-   \item{push_off_distance}{Push-off distance during squat jump in meters}
-   \item{external_load}{External load added to bodyweight in kilograms}
-   \item{aerial_time}{Aerial time measured with jump mat in seconds}
-}
 }
 \keyword{datasets}

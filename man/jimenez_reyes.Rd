@@ -4,7 +4,8 @@
 \name{jimenez_reyes}
 \alias{jimenez_reyes}
 \title{Jimenez-Reyes data}
-\format{A data frame with 60 rows and 26 variables:
+\format{
+A data frame with 60 rows and 26 variables:
 \describe{
    \item{Subject}{}
    \item{Pre.SJ}{}
@@ -32,7 +33,8 @@
    \item{Det3.V0}{}
    \item{Det3.P}{}
    \item{Det3.FVimb}{}
-}}
+}
+}
 \usage{
 data(jimenez_reyes)
 }

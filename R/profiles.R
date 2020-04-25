@@ -413,7 +413,6 @@ get_all_profiles <- function(profile_data) {
 #'     \code{height} are forwarded to the function, only \code{height} is used to estimate TOV.
 #'
 #' @param bodyweight Numeric value
-#' @param push_off_distance Numeric value
 #' @param external_load Numeric vector
 #' @param height Numeric vector
 #' @param aerial_time Numeric vector
@@ -430,14 +429,12 @@ get_all_profiles <- function(profile_data) {
 #'   filter(testing_data, athlete == "Jack"),
 #'   make_load_profile(
 #'     bodyweight = bodyweight,
-#'     push_off_distance = push_off_distance,
 #'     external_load = external_load,
 #'     aerial_time = aerial_time,
 #'     plot = TRUE
 #'   )
 #' )
 make_load_profile <- function(bodyweight,
-                              push_off_distance,
                               external_load,
                               height,
                               aerial_time,

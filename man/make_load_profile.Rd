@@ -6,7 +6,6 @@
 \usage{
 make_load_profile(
   bodyweight,
-  push_off_distance,
   external_load,
   height,
   aerial_time,
@@ -16,8 +15,6 @@ make_load_profile(
 }
 \arguments{
 \item{bodyweight}{Numeric value}
-
-\item{push_off_distance}{Numeric value}
 
 \item{external_load}{Numeric vector}
 
@@ -45,7 +42,6 @@ with(
   filter(testing_data, athlete == "Jack"),
   make_load_profile(
     bodyweight = bodyweight,
-    push_off_distance = push_off_distance,
     external_load = external_load,
     aerial_time = aerial_time,
     plot = TRUE

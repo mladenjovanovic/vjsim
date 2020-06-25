@@ -140,18 +140,16 @@ regression_model <- function(data, target, predictors, interactions = FALSE, var
   SESOI_lower <- -sd(model_df[[target]]) * 0.2
 
   predicted_target_val <- predict(model)
-  comment(predicted_target_val) <- "Predicted"
 
   observed_target_val <- model_df[[target]]
-  comment(observed_target_val) <- "Observed"
 
-
-  gg <- bmbstats::plot_bland_altman(
-    group_a = observed_target_val,
-    group_b = predicted_target_val,
+  gg <- bmbstats::plot_pair_BA(
+    predictor = observed_target_val,
+    outcome = predicted_target_val,
+    predictor_label = "Predicted",
+    outcome_label = "Observed",
     SESOI_lower = SESOI_lower,
-    SESOI_upper = SESOI_upper,
-    plot_average = FALSE
+    SESOI_upper = SESOI_upper
   )
 
   # Variable importance

@@ -752,9 +752,11 @@ boot_profile <- function(profile_data, force = "mass", velocity = "take_off_velo
   boot_data <- bmbstats::bmbstats(
     data = profile_data,
     estimator_function = profile_estimators,
-    boot_samples = 1000,
-    boot_type = "perc",
-    seed = 1667
+    control = model_control(
+      boot_samples = 1000,
+      boot_type = "perc",
+      seed = 1667
+    )
   )
 
   # Add plot

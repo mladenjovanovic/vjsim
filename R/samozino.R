@@ -400,6 +400,7 @@ get_samozino_profile <- function(bodyweight,
                                  mean_velocity,
                                  gravity_const = 9.81) {
 
+
   # Check if any of the parameters is NA and return a list with NA
   if (any(
     is.na(bodyweight),

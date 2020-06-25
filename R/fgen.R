@@ -146,7 +146,6 @@ fgen_get_activation <- function(current_time,
 #' @param current_velocity Numeric vector
 #' @param max_force Numeric value. Default is 3000 Newtons
 #' @param max_velocity Numeric value. Default is 4 m/s
-#' @param ... Used to allow different parameters to be passes without error
 #' @return Viscous force at \code{current_velocity}
 #' @export
 #' @examples

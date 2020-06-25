@@ -601,13 +601,15 @@ boot_optimization <- function(profile_data) {
   boot_data <- bmbstats::bmbstats(
     data = profile_data,
     estimator_function = optimization_estimators,
-    boot_samples = 1000,
-    boot_type = "perc",
-    seed = 1667
+    control = model_control(
+      boot_samples = 1000,
+      boot_type = "perc",
+      seed = 1667
+    )
   )
 
   # Add plot
-  boot_data$graphs <- bmbstats::plot_bootstrap_distribution(boot_data$boot)
+  boot_data$graphs <- plot(boot_data)
 
   return(boot_data)
 }
@@ -617,7 +619,7 @@ boot_data <- boot_optimization(profile_data)
 boot_data$estimators
 ```
 
-From the 90% CIs above we can see some randomness involved in estimating optimization estimators. Using `bmbstats::plot_bootstrap_distribution` we can plot the bootstrap distribution (I have created this object inside the above function):
+From the 90% CIs above we can see some randomness involved in estimating optimization estimators. Using `plot` we can plot the bootstrap distribution (I have created this object inside the above function):
 
 ```{r}
 boot_data$graphs

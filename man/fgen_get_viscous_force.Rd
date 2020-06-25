@@ -12,8 +12,6 @@ fgen_get_viscous_force(current_velocity, max_force = 3000, max_velocity = 4)
 \item{max_force}{Numeric value. Default is 3000 Newtons}
 
 \item{max_velocity}{Numeric value. Default is 4 m/s}
-
-\item{...}{Used to allow different parameters to be passes without error}
 }
 \value{
 Viscous force at \code{current_velocity}

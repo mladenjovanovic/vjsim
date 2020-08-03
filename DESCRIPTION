@@ -19,19 +19,20 @@ BugReports: https://github.com/mladenjovanovic/vjsim/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Depends: R (>= 2.10)
-Imports: 
+Imports:
     stats,
+    dplyr,
+    tidyr,
+    ggplot2,
+    cowplot,
+    shiny
+Suggests: 
     knitr,
     rmarkdown,
     tidyverse,
-    dplyr,
-    tidyr,
     stringr,
-    ggplot2,
-    cowplot,
-    shiny,
     plotly,
     DT,
     directlabels,
